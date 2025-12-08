@@ -2,43 +2,44 @@
 # 用于 Trae CN 快捷键一键部署
 
 Write-Host "=========================================" -ForegroundColor Cyan
-Write-Host "Zodiac Match Tool - 自动化部署" -ForegroundColor Cyan
+Write-Host "Zodiac Match Tool - Auto Deployment" -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Cyan
 
-# 检查Git是否可用
+# Check if Git is available
 try {
-    $gitVersion = git --version 2>&1
-    Write-Host "Git版本: $gitVersion" -ForegroundColor Green
+    $gitPath = "C:\Git\bin\git.exe"
+    $gitVersion = & $gitPath --version 2>&1
+    Write-Host "Git Version: $gitVersion" -ForegroundColor Green
 } catch {
-    Write-Host "错误: Git未安装!" -ForegroundColor Red
-    Write-Host "请从 https://gitforwindows.org/ 安装Git" -ForegroundColor Yellow
+    Write-Host "Error: Git not installed!" -ForegroundColor Red
+    Write-Host "Please install Git from https://gitforwindows.org/" -ForegroundColor Yellow
     exit 1
 }
 
-# 检查Git仓库
+# Check Git repository
 try {
     if (-not (Test-Path ".git")) {
-        Write-Host "初始化Git仓库..." -ForegroundColor Yellow
-        git init 2>&1 | Write-Host
+        Write-Host "Initializing Git repository..." -ForegroundColor Yellow
+        & $gitPath init 2>&1 | Write-Host
     }
     
-    # 自动添加和提交
-    Write-Host "添加所有文件..." -ForegroundColor Yellow
-    git add . 2>&1 | Write-Host
+    # Auto add and commit
+    Write-Host "Adding all files..." -ForegroundColor Yellow
+    & $gitPath add . 2>&1 | Write-Host
     
-    Write-Host "提交更改..." -ForegroundColor Yellow
-    git commit -m "[自动部署] $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" 2>&1 | Write-Host
+    Write-Host "Committing changes..." -ForegroundColor Yellow
+    & $gitPath commit -m "[Auto Deploy] $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" 2>&1 | Write-Host
     
-    # 推送
-    Write-Host "推送到GitHub..." -ForegroundColor Yellow
-    git push origin main 2>&1 | Write-Host
+    # Push to correct branch
+    Write-Host "Pushing to GitHub..." -ForegroundColor Yellow
+    & $gitPath push origin master 2>&1 | Write-Host
     
     Write-Host "" -ForegroundColor Green
-    Write-Host "✅ 部署成功!" -ForegroundColor Green
-    Write-Host "请登录GitHub启用GitHub Pages" -ForegroundColor Yellow
+    Write-Host "✅ Deployment successful!" -ForegroundColor Green
+    Write-Host "Please login to GitHub to enable GitHub Pages" -ForegroundColor Yellow
     Write-Host "=========================================" -ForegroundColor Cyan
     
 } catch {
-    Write-Host "部署失败: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "Deployment failed: $($_.Exception.Message)" -ForegroundColor Red
     exit 1
 }
