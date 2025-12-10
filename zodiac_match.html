@@ -2966,6 +2966,10 @@
                     const dayStem = baZi.dayStem;
                     const dayBranch = baZi.dayBranch;
                     
+                    // 从完整八字中提取所有天干和地支
+                    const allStems = [baZi.yearStem, baZi.monthStem, baZi.dayStem, baZi.hourStem, yearStem];
+                    const allBranches = [baZi.yearBranch, baZi.monthBranch, baZi.dayBranch, baZi.hourBranch, yearBranch];
+                    
                     // 条件1：天干五合
                     if (fiveCombining[dayStem] === yearStem) {
                         conditions.push('天干五合');
@@ -3155,6 +3159,68 @@
                         conditions.push('流年与日柱相同且干支自合');
                         totalScore += 30;
                         isSoulmate = true;
+                    }
+                    
+                    // 条件12：伤官合杀者代表想谈恋爱，感情出现（阴天干的伤官合杀，只针对女命）
+                    // 伤官合杀的具体组合，需要伤官与官杀相互合
+                    // 乙伤官为丙巳合庚申金官杀；丁伤官为戊合癸水官杀；
+                    // 己伤官庚申合乙卯木官杀；辛伤官壬亥合丁午火官杀；
+                    // 癸伤官甲寅合己丑官杀
+                    
+                    // 只针对女命
+                    if (gender === 'female') {
+                        // 检查是否为阴天干
+                        if (stemYinyang[dayStem] === 'yin') {
+                        let hasInjuryOfficerCombiningKilling = false;
+                        
+                        // 分别处理每个阴天干的伤官合杀情况
+                        switch (dayStem) {
+                            case 'yi': {
+                                // 乙的伤官是丙/巳，官杀是庚/申
+                                // 检查是否存在丙与庚合，或巳与申合
+                                const hasBingGengCombination = allStems.includes('bing') && allStems.includes('geng');
+                                const hasSiShenCombination = allBranches.includes('si') && allBranches.includes('shen');
+                                hasInjuryOfficerCombiningKilling = hasBingGengCombination || hasSiShenCombination;
+                                break;
+                            }
+                            case 'ding': {
+                                // 丁的伤官是戊，官杀是癸
+                                // 检查是否存在戊与癸合
+                                hasInjuryOfficerCombiningKilling = allStems.includes('wu') && allStems.includes('gui');
+                                break;
+                            }
+                            case 'ji': {
+                                // 己的伤官是庚/申，官杀是乙/卯
+                                // 检查是否存在庚与乙合，或申与卯合
+                                const hasGengYiCombination = allStems.includes('geng') && allStems.includes('yi');
+                                const hasShenMaoCombination = allBranches.includes('shen') && allBranches.includes('mao');
+                                hasInjuryOfficerCombiningKilling = hasGengYiCombination || hasShenMaoCombination;
+                                break;
+                            }
+                            case 'xin': {
+                                // 辛的伤官是壬/亥，官杀是丁/午
+                                // 检查是否存在壬与丁合，或亥与午合
+                                const hasRenDingCombination = allStems.includes('ren') && allStems.includes('ding');
+                                const hasHaiWuCombination = allBranches.includes('hai') && allBranches.includes('wu');
+                                hasInjuryOfficerCombiningKilling = hasRenDingCombination || hasHaiWuCombination;
+                                break;
+                            }
+                            case 'gui': {
+                                // 癸的伤官是甲/寅，官杀是己/丑
+                                // 检查是否存在甲与己合，或寅与丑合
+                                const hasJiaJiCombination = allStems.includes('jia') && allStems.includes('ji');
+                                const hasYinChouCombination = allBranches.includes('yin') && allBranches.includes('chou');
+                                hasInjuryOfficerCombiningKilling = hasJiaJiCombination || hasYinChouCombination;
+                                break;
+                            }
+                        }
+                        
+                        if (hasInjuryOfficerCombiningKilling) {
+                            conditions.push('伤官合杀');
+                            totalScore += 40; // 占40%的概率
+                            isSoulmate = true;
+                        }
+                        }
                     }
                     
                     // 不是感情的条件：流年天干出现财星，但局中有比劫合财星
