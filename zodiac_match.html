@@ -7156,27 +7156,41 @@
         
         // 增强初始化功能，添加兼容性检查
         function init() {
+            console.log('开始初始化所有功能模块...');
             try {
                 // 检查CSS变量支持，如果不支持则设置默认值
+                console.log('1. 检查CSS变量支持...');
                 checkCSSVariablesSupport();
                 
                 // 初始化性别选择器的选中样式 - JavaScript替代方案，避免使用:has()选择器
+                console.log('2. 初始化性别选择器样式...');
                 initGenderSelectionStyle();
                 
+                console.log('3. 初始化标签页...');
                 initTabs();
+                
+                console.log('4. 初始化按钮事件监听器...');
                 initButtons();
+                
+                console.log('5. 初始化性别选择功能...');
                 initGenderSelection();
                 
+                console.log('6. 初始化语言切换器...');
+                initLanguageSwitcher();
+                
                 // 初始化八字阴阳匹配验证
+                console.log('7. 初始化八字阴阳匹配验证...');
                 setupPillarValidation();
                 
                 // 初始化八字输入为当天八字
+                console.log('8. 初始化当天八字...');
                 initTodayBaZi();
                 
                 // 执行翻译
+                console.log('9. 执行页面翻译...');
                 translateAllElements(currentLang);
                 
-                console.log('所有功能模块初始化完成');
+                console.log('所有功能模块初始化完成！');
             } catch (error) {
                 console.error('初始化功能时出错:', error);
                 // 添加用户友好的错误提示
@@ -7907,8 +7921,10 @@
             }
         }
         
-        // 页面加载完成后添加事件监听器
+        // 页面加载完成后初始化所有功能
         document.addEventListener('DOMContentLoaded', function() {
+            // 调用主初始化函数
+            init();
             addBaZiInfoListeners();
             initBaZiInfo();
         });
