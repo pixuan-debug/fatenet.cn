@@ -2,15 +2,44 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>命理感情查询工具</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <!-- 引入中国风字体 -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Cache-Control" content="no-transform">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="preconnect" href="//cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="//fonts.googleapis.com" crossorigin>
+    <meta name="baidu-site-verification" content="codeva-foKWrwyBZw" />
+    <meta name="description" content="fatenet.cn专业的八字感情方位查询、情侣匹配测试、命理感情年份预测工具，提供精准的命理分析和感情建议。">
+    <meta name="keywords" content="fatenet.cn,八字感情查询,情侣匹配测试,命理感情年份,感情方位查询,八字算命,命理工具">
+    <meta name="author" content="命理感情查询工具">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.fatenet.cn">
+    
+
+    <meta property="og:title" content="八字感情方位查询_情侣匹配测试_命理感情年份预测工具">
+    <meta property="og:description" content="专业的八字感情方位查询、情侣匹配测试、命理感情年份预测工具，提供精准的命理分析和感情建议。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.fatenet.cn">
+    <meta property="og:image" content="https://www.fatenet.cn/taiji%20logo.png">
+    <meta property="og:site_name" content="命理感情查询工具">
+    
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="八字感情方位查询_情侣匹配测试_命理感情年份预测工具">
+    <meta name="twitter:description" content="专业的八字感情方位查询、情侣匹配测试、命理感情年份预测工具，提供精准的命理分析和感情建议。">
+    <meta name="twitter:image" content="https://www.fatenet.cn/taiji%20logo.png">
+    
+    <title>八字感情方位查询_情侣匹配测试_命理感情年份预测工具</title>
+    <link rel="icon" type="image/png" href="taiji-logo.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="taiji-logo.png" sizes="16x16">
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <!-- 网站加载优化脚本 -->
+    <script src="optimize_loading.js" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet" crossorigin media="print" onload="this.media='all'">
     <style>
         /* 白色极简设计风格 */
         /* 基础变量 */
@@ -597,6 +626,29 @@
             padding: 5px;
         }
         
+        /* 面包屑导航样式 */
+        .breadcrumb {
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+            color: var(--light-text);
+        }
+        
+        .breadcrumb a {
+            color: var(--light-text);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .breadcrumb a:hover {
+            color: var(--accent-color);
+        }
+        
+        .breadcrumb span {
+            margin: 0 0.5rem;
+            color: var(--border-color);
+        }
+        
         /* 响应式设计 */
         /* 响应式设计 - 移动端优化 */
         @media (max-width: 768px) {
@@ -715,8 +767,8 @@
         }
         
         .header-logo {
-            height: 32px;
-            width: 32px;
+            height: 48px;
+            width: 48px;
             object-fit: contain;
             display: block;
             transform: none;
@@ -796,10 +848,17 @@
             </div>
         </div>
         
+        <!-- 面包屑导航 -->
+        <nav class="breadcrumb">
+            <a href="https://www.fatenet.cn">首页</a>
+            <span>/</span>
+            <span data-translate="title">生肖配对工具</span>
+        </nav>
+        
         <!-- 页面标题 -->
         <header class="page-header">
             <div class="header-content">
-                <img src="taiji logo.png" alt="命理工具Logo" class="header-logo">
+                <img src="taiji-logo.png" alt="命理工具Logo" class="header-logo" loading="lazy">
                 <h1 data-translate="title">命理感情查询工具</h1>
             </div>
         </header>
@@ -1074,6 +1133,10 @@
             <button class="tab-btn" data-target="location-match" data-translate="tabLocationMatch">情侣方位匹配</button>
             <button class="tab-btn" data-target="timing" data-translate="tabTiming">感情年份预测</button>
         </div>
+        <!-- 相关工具链接 -->
+        <div style="text-align: center; margin: 1rem 0;">
+            <p style="color: var(--light-text); font-size: 0.9rem;">还可以试试我们的 <a href="index.html" style="color: var(--accent-color); text-decoration: none;">八字感情查询工具</a>，获取更多命理分析。</p>
+        </div>
         
         <!-- 主要内容区域 -->
         <main>
@@ -1087,14 +1150,14 @@
                         <label class="gender-option">
                             <input type="radio" name="position-gender" value="male" checked>
                             <div class="avatar-container">
-                                <img src="male_avatar.png" alt="男性">
+                                <img src="male_avatar.png" alt="男性" loading="lazy">
                             </div>
                             <span data-translate="male">男</span>
                         </label>
                         <label class="gender-option">
                             <input type="radio" name="position-gender" value="female">
                             <div class="avatar-container">
-                                <img src="female_avatar.png" alt="女性">
+                                <img src="female_avatar.png" alt="女性" loading="lazy">
                             </div>
                             <span data-translate="female">女</span>
                         </label>
@@ -1163,14 +1226,14 @@
                             <label class="gender-option">
                                 <input type="radio" name="my-gender" value="male" checked>
                                 <div class="avatar-container">
-                                    <img src="male_avatar.png" alt="男性">
+                                    <img src="male_avatar.png" alt="男性" loading="lazy">
                                 </div>
                                 <span data-translate="male">男</span>
                             </label>
                             <label class="gender-option">
                                 <input type="radio" name="my-gender" value="female">
                                 <div class="avatar-container">
-                                    <img src="female_avatar.png" alt="女性">
+                                    <img src="female_avatar.png" alt="女性" loading="lazy">
                                 </div>
                                 <span data-translate="female">女</span>
                             </label>
@@ -1220,14 +1283,14 @@
                             <label class="gender-option">
                                 <input type="radio" name="partner-gender" value="male">
                                 <div class="avatar-container">
-                                    <img src="male_avatar.png" alt="男性">
+                                    <img src="male_avatar.png" alt="男性" loading="lazy">
                                 </div>
                                 <span data-translate="male">男</span>
                             </label>
                             <label class="gender-option">
                                 <input type="radio" name="partner-gender" value="female" checked>
                                 <div class="avatar-container">
-                                    <img src="female_avatar.png" alt="女性">
+                                    <img src="female_avatar.png" alt="女性" loading="lazy">
                                 </div>
                                 <span data-translate="female">女</span>
                             </label>
@@ -1304,14 +1367,14 @@
                         <label class="gender-option">
                             <input type="radio" name="timing-gender" value="male" checked>
                             <div class="avatar-container">
-                                <img src="male_avatar.png" alt="男性">
+                                <img src="male_avatar.png" alt="男性" loading="lazy">
                             </div>
                             <span data-translate="male">男</span>
                         </label>
                         <label class="gender-option">
                             <input type="radio" name="timing-gender" value="female">
                             <div class="avatar-container">
-                                <img src="female_avatar.png" alt="女性">
+                                <img src="female_avatar.png" alt="女性" loading="lazy">
                             </div>
                             <span data-translate="female">女</span>
                         </label>
@@ -1657,7 +1720,7 @@
                 'noSoulmateSuggestion': '保持开放心态，多参加社交活动，感情可能在不经意间出现。',
                 'emotionAppear': '感情出现',
                 // 页脚翻译
-                'footerCopyright': '© 2024 命理感情查询工具',
+                'footerCopyright': '© 2024 fatenet.cn 命理感情查询工具',
                 'footerDisclaimer': '本工具仅供参考，命运掌握在自己手中'
             },
             'en-US': {
@@ -1750,7 +1813,7 @@
                 'noSoulmateSuggestion': 'Maintain an open mind, participate in more social activities, and emotions may appear unexpectedly.',
                 'emotionAppear': 'Emotion Appears',
                 // 页脚翻译
-                'footerCopyright': '© 2024 Destiny Matchmaking Tool',
+                'footerCopyright': '© 2024 fatenet.cn Destiny Matchmaking Tool',
                 'footerDisclaimer': 'This tool is for reference only, destiny is in your own hands'
             },
             'ja-JP': {
@@ -1843,7 +1906,7 @@
                 'noSoulmateSuggestion': '開かれた心を持ち、より多くの社交活動に参加してください。繋がりは思いがけず現れることがあります。',
                 'emotionAppear': '感情出現',
                 // 页脚翻译
-                'footerCopyright': '© 2024 運命の相性チェックツール',
+                'footerCopyright': '© 2024 fatenet.cn 運命の相性チェックツール',
                 'footerDisclaimer': 'このツールは参考情報です。運命は自分の手の中にあります'
             },
             'ko-KR': {
@@ -1936,8 +1999,8 @@
                 'noSoulmateSuggestion': '열린 마음을 가지고 더 많은 사교 활동에 참여하세요. 감정은 예기치 않게 나타날 수 있습니다.',
                 'emotionAppear': '감정이 나타남',
                 // 页脚翻译
-                'footerCopyright': '© 2024 운명 매칭 도구',
-                'footerDisclaimer': '이 도구는 참고용입니다. 운명은 당신의 손에 있습니다'
+                'footerCopyright': '© 2024 fatenet.cn 운명 매칭 도구',
+                'footerDisclaimer': '이 도구는 참고용으로만 제공됩니다. 운명은 당신의 손에 있습니다'
             }
         };
         

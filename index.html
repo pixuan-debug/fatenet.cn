@@ -11,7 +11,7 @@
     <link rel="preconnect" href="//cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="//fonts.googleapis.com" crossorigin>
     <meta name="baidu-site-verification" content="codeva-foKWrwyBZw" />
-    <meta name="description" content="fatenet.cn提供专业的八字感情方位查询、情侣匹配测试、命理感情年份预测工具，是您信赖的命理感情查询平台。">
+    <meta name="description" content="fatenet.cn提供专业的八字感情方位查询、情侣匹配测试、命理感情年份预测工具，是您信赖的命理感情查询平台。通过八字分析，帮您了解感情方位、情侣匹配度和感情年份，提供精准的命理分析和建议。">
     <meta name="keywords" content="fatenet.cn,八字感情查询,情侣匹配测试,命理感情年份,感情方位查询,八字算命,命理工具,八字配对,命理预测,感情测试">
     <meta name="author" content="命理感情查询工具">
     <meta name="robots" content="index, follow">
@@ -35,8 +35,8 @@
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"Tool","name":"八字感情方位查询工具","description":"fatenet.cn提供的专业八字感情方位查询工具，帮助用户了解自己的感情方位。","url":"https://www.fatenet.cn","logo":"https://www.fatenet.cn/taiji%20logo.png","operatingSystem":"all","applicationCategory":"LifestyleApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script>
     
     <title>八字感情方位查询_情侣匹配测试_命理感情年份预测工具</title>
-    <link rel="icon" type="image/png" href="taiji logo.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="taiji logo.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="taiji-logo.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="taiji-logo.png" sizes="16x16">
     <script src="https://cdn.tailwindcss.com" defer></script>
     <!-- 网站加载优化脚本 -->
     <script src="optimize_loading.js" defer></script>
@@ -72,6 +72,8 @@
             min-height: 100vh;
             overflow-x: hidden;
             box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
 
             -ms-overflow-style: none;
             scrollbar-width: none;
@@ -90,6 +92,17 @@
             body {
                 padding-right: calc(100vw - 100%);
             }
+        }
+        
+        /* 确保容器和主内容区域正确扩展 */
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        main {
+            flex: 1;
         }
         
         /* 淡入动画 */
@@ -687,6 +700,29 @@
             }
         }
         
+        /* 面包屑导航样式 */
+        .breadcrumb {
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+            color: var(--light-text);
+        }
+        
+        .breadcrumb a {
+            color: var(--light-text);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .breadcrumb a:hover {
+            color: var(--accent-color);
+        }
+        
+        .breadcrumb span {
+            margin: 0 0.5rem;
+            color: var(--border-color);
+        }
+        
         /* 页面头部样式 */
         .page-header {
             width: 100%;
@@ -695,7 +731,7 @@
             align-items: center;
             padding: 1rem 0;
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 0.5rem;
             position: relative;
         }
         
@@ -831,10 +867,15 @@
         <!-- 页面标题 -->
         <header class="page-header">
             <div class="header-content">
-                <img src="taiji logo.png" alt="命理工具Logo" class="header-logo" loading="lazy">
+                <img src="taiji-logo.png" alt="命理工具Logo" class="header-logo" loading="lazy">
                 <h1 data-translate="title">命理感情查询工具</h1>
             </div>
         </header>
+        
+        <!-- 页面简介 -->
+        <section class="page-intro" style="text-align: center; margin: 1rem 0 2rem 0; padding: 0 1rem;">
+            <p style="color: var(--light-text); font-size: 1rem; max-width: 700px; margin: 0 auto;">fatenet.cn提供专业的八字感情方位查询、情侣匹配测试、命理感情年份预测工具，通过八字分析，帮您了解感情方位、情侣匹配度和感情年份，提供精准的命理分析和建议。</p>
+        </section>
         
         <style>
             /* 语言切换下拉菜单样式 */
@@ -1106,7 +1147,6 @@
             <button class="tab-btn" data-target="location-match" data-translate="tabLocationMatch">情侣方位匹配</button>
             <button class="tab-btn" data-target="timing" data-translate="tabTiming">感情年份预测</button>
         </div>
-        
         <!-- 主要内容区域 -->
         <main>
             <!-- 感情方位查询模块 -->
@@ -1589,9 +1629,10 @@
                             <h4 data-translate="detailedExplanation">详细解读</h4>
                             <div id="result-explanation"></div>
                         </div>
-                    </div>
                 </div>
-        </main>
+            </div>
+        </div>
+    </main>
         
         <!-- 页脚移至页面底部 -->
     </div>
@@ -1690,7 +1731,13 @@
                 'emotionAppear': '感情出现',
                 // 页脚翻译
                 'footerCopyright': '© 2024 fatenet.cn 命理感情查询工具',
-                'footerDisclaimer': '本工具仅供参考，命运掌握在自己手中'
+                'footerDisclaimer': '本工具仅供参考，命运掌握在自己手中',
+                // 推广文本翻译
+                'promotionalText': '还可以试试我们的',
+                'zodiacTool': '八字感情查询工具',
+                'baziTool': '八字感情查询工具',
+                'getMoreAnalysis': '获取更多命理分析。',
+                'contactUs': '联系我们'
             },
             'en-US': {
                 // 页面标题和标签页
@@ -1783,7 +1830,13 @@
                 'emotionAppear': 'Emotion Appears',
                 // 页脚翻译
                 'footerCopyright': '© 2024 fatenet.cn Destiny Matchmaking Tool',
-                'footerDisclaimer': 'This tool is for reference only, destiny is in your own hands'
+                'footerDisclaimer': 'This tool is for reference only, destiny is in your own hands',
+                // 推广文本翻译
+                'promotionalText': 'You can also try our',
+                'zodiacTool': 'Bazi Compatibility Tool',
+                'baziTool': 'Bazi Compatibility Tool',
+                'getMoreAnalysis': 'for more destiny analysis.',
+                'contactUs': 'Contact us'
             },
             'ja-JP': {
                 // 页面标题和标签页
@@ -1876,7 +1929,13 @@
                 'emotionAppear': '感情出現',
                 // 页脚翻译
                 'footerCopyright': '© 2024 fatenet.cn 運命の相性チェックツール',
-                'footerDisclaimer': 'このツールは参考情報です。運命は自分の手の中にあります'
+                'footerDisclaimer': 'このツールは参考情報です。運命は自分の手の中にあります',
+                // 推广文本翻译
+                'promotionalText': '私たちの',
+                'zodiacTool': '八字感情查询工具',
+                'baziTool': '八字感情查询工具',
+                'getMoreAnalysis': 'も試して、より多くの命理分析を取得してください。',
+                'contactUs': 'お問い合わせ'
             },
             'ko-KR': {
                 // 页面标题和标签页
@@ -1969,7 +2028,13 @@
                 'emotionAppear': '감정이 나타남',
                 // 页脚翻译
                 'footerCopyright': '© 2024 fatenet.cn 운명 매칭 도구',
-                'footerDisclaimer': '이 도구는 참고용으로만 제공됩니다. 운명은 당신의 손에 있습니다'
+                'footerDisclaimer': '이 도구는 참고용으로만 제공됩니다. 운명은 당신의 손에 있습니다',
+                // 推广文本翻译
+                'promotionalText': '우리의',
+                'zodiacTool': '八字感情查询工具',
+                'baziTool': '八字感情查询工具',
+                'getMoreAnalysis': '도 시도해 보세요. 더 많은 명리 분석을 받아보세요.',
+                'contactUs': '문의하기'
             }
         };
         
@@ -7966,9 +8031,16 @@
             addBaZiInfoListeners();
         });
     </script>
-    <footer style="position: relative; bottom: 0; left: 0; width: 100%; text-align: center; padding: 10px; background-color: var(--background-color); border-top: 1px solid var(--border-color); margin-top: 2rem; z-index: 50;">
-        <p data-translate="footerCopyright" style="margin: 0; color: var(--text-color); font-size: 0.9rem;">© 2024 命理感情查询工具</p>
-        <p data-translate="footerDisclaimer" style="margin: 0; color: var(--light-text); font-size: 0.8rem;">本工具仅供参考，命运掌握在自己手中</p>
+    <!-- 下部区域 - 推广信息 -->
+    <div style="text-align: center; margin: 0 0 0 0; padding: 1rem; background-color: #f8f9fa; border-radius: 0; width: 100%; box-sizing: border-box; position: relative; bottom: 0;">
+        <p style="color: var(--light-text); font-size: 0.9rem; margin: 0;"><span data-translate="promotionalText">还可以试试我们的</span> <a href="zodiac_match.html" style="color: var(--accent-color); text-decoration: none; font-size: 0.9rem;"><span data-translate="zodiacTool">八字感情查询工具</span></a>，<span data-translate="getMoreAnalysis">获取更多命理分析。</span> <a href="weixin://addfriend/officialaccount/pixuan1989" style="color: var(--accent-color); text-decoration: underline; font-size: 0.9rem;"><span data-translate="contactUs">联系我们</span> <span style="color: var(--light-text);">pixuan1989</span></a></p>
+    </div>
+    <footer style="position: relative; bottom: 0; left: 0; width: 100%; text-align: center; padding: 10px; background-color: var(--background-color); border-top: 1px solid var(--border-color); margin-top: 0; z-index: 50;">
+        <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <p data-translate="footerCopyright" style="margin: 0; color: var(--light-text); font-size: 0.9rem; display: inline;">© 2024 fatenet.cn 命理感情查询工具</p>
+            <span style="color: var(--light-text);">|</span>
+            <p data-translate="footerDisclaimer" style="margin: 0; color: var(--light-text); font-size: 0.8rem; display: inline;">本工具仅供参考，命运掌握在自己手中</p>
+        </div>
     </footer>
     </body>
 </html>
