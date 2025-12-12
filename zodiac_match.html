@@ -169,13 +169,18 @@
         /* 容器样式 */
         .container {
             max-width: 900px !important;
-            margin: 0 auto;
-            padding: 2rem 1.5rem;
-            width: 100%;
-            box-sizing: border-box;
-            position: relative;
-            display: block;
-            clear: both;
+            margin: 0 auto !important;
+            padding: 2rem 1.5rem !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            position: relative !important;
+            display: block !important;
+            clear: both !important;
+        }
+        
+        /* 只移动介绍文本和下方内容，保持标题位置不变 */
+        .page-header {
+            margin-bottom: 3rem;
         }
         
         /* 页面垂直居中容器 */
@@ -742,7 +747,14 @@
         }
         
         .page-header p {
-            display: none;
+            color: var(--light-text);
+            font-size: 0.9rem;
+            max-width: 900px;
+            margin: 30px auto 1rem;
+            padding: 1rem;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            box-sizing: border-box;
         }
         
         /* 移除标题下方线段 */
@@ -774,6 +786,12 @@
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
+        }
+        
+        /* 确保header是块级元素，让介绍文本显示在下方 */
+        .page-header {
+            display: block;
+            text-align: center;
         }
         
         .header-logo {
@@ -857,13 +875,14 @@
                 </div>
             </div>
         </div>
-        
+    <div class="container">
         <!-- 页面标题 -->
         <header class="page-header">
             <div class="header-content">
                 <img src="taiji-logo.png" alt="命理工具Logo" class="header-logo" loading="lazy">
                 <h1 data-translate="title">命理感情查询工具</h1>
             </div>
+            <p data-translate="pageIntro">fatenet.cn提供专业的八字感情方位查询、情侣匹配测试、命理感情年份预测工具，通过八字分析，帮您了解感情方位、情侣匹配度和感情年份，提供精准的命理分析和建议。</p>
         </header>
         
         <!-- 页面简介 -->
@@ -1638,6 +1657,9 @@
                 'tabLocationMatch': '情侣方位匹配',
                 'tabTiming': '感情年份预测',
                 
+                // 页面介绍
+                'pageIntro': 'fatenet.cn提供专业的八字感情方位查询、情侣匹配测试、命理感情年份预测工具，通过八字分析，帮您了解感情方位、情侣匹配度和感情年份，提供精准的命理分析和建议。',
+                
                 // 通用状态文本
                 'loading': '正在加载...',
                 'error': '发生错误，请稍后再试',
@@ -1736,6 +1758,9 @@
                 'tabPosition': 'Destiny Direction',
                 'tabLocationMatch': 'Couple Location Match',
                 'tabTiming': 'Destiny Year Prediction',
+                
+                // 页面介绍
+                'pageIntro': 'fatenet.cn provides professional Bazi emotional direction query, couple matching test, and destiny emotional year prediction tools. Through Bazi analysis, it helps you understand emotional direction, couple compatibility, and emotional years, providing accurate destiny analysis and advice.',
                 
                 // 通用状态文本
                 'loading': 'Loading...',
@@ -1836,6 +1861,9 @@
                 'tabLocationMatch': 'カップルの場所相性',
                 'tabTiming': '運命の年予測',
                 
+                // 页面介绍
+                'pageIntro': 'fatenet.cnは専門的な八字感情方位調査、カップル相性テスト、運命感情年予測ツールを提供しています。八字分析を通じて、感情方位、カップル相性度、感情年を理解し、正確な運命分析とアドバイスを提供します。',
+                
                 // 通用状态文本
                 'loading': '読み込み中...',
                 'error': 'エラーが発生しました、後でもう一度お試しください',
@@ -1934,6 +1962,9 @@
                 'tabPosition': '운명 방향',
                 'tabLocationMatch': '커플 위치 매칭',
                 'tabTiming': '운명의 해 예측',
+                
+                // 页面介绍
+                'pageIntro': 'fatenet.cn은 전문적인 팔자 감정 방향 조회, 커플 매칭 테스트, 운명 감정 연도 예측 도구를 제공합니다. 팔자 분석을 통해 감정 방향, 커플 매칭도, 감정 연도를 이해하고 정확한 운명 분석과 조언을 제공합니다.',
                 
                 // 通用状态文本
                 'loading': '로딩 중...',
@@ -8006,11 +8037,12 @@
             addBaZiInfoListeners();
         });
     </script>
+    </div>
     <!-- 下部区域 - 推广信息 -->
-    <div style="text-align: center; margin: 0 0 0 0; padding: 1rem; background-color: #f8f9fa; border-radius: 0; width: 100%; box-sizing: border-box; position: relative; bottom: 0;">
+    <div style="text-align: center; margin: 0 0 0 0; padding: 1rem; background-color: #ffffff; border-radius: 0; width: 100%; box-sizing: border-box; position: fixed; bottom: 40px; left: 0; z-index: 100; border: 1px solid var(--border-color);">
         <p style="color: var(--light-text); font-size: 0.9rem; margin: 0;"><span data-translate="promotionalText">还可以试试我们的</span> <a href="index.html" style="color: var(--accent-color); text-decoration: none; font-size: 0.9rem;"><span data-translate="baziTool">八字感情查询工具</span></a>，<span data-translate="getMoreAnalysis">获取更多命理分析。</span> <a href="weixin://addfriend/officialaccount/pixuan1989" style="color: var(--accent-color); text-decoration: underline; font-size: 0.9rem;"><span data-translate="contactUs">联系我们</span> <span style="color: var(--light-text);">pixuan1989</span></a></p>
     </div>
-    <footer style="position: relative; bottom: 0; left: 0; width: 100%; text-align: center; padding: 10px; background-color: var(--background-color); border-top: 1px solid var(--border-color); margin-top: 0; z-index: 50;">
+    <footer style="position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; padding: 10px; background-color: #ffffff; border-top: 1px solid var(--border-color); margin-top: 0; z-index: 100;">
         <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap;">
             <p data-translate="footerCopyright" style="margin: 0; color: var(--light-text); font-size: 0.9rem; display: inline;">© 2024 fatenet.cn 命理感情查询工具</p>
             <span style="color: var(--light-text);">|</span>
