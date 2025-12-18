@@ -3745,7 +3745,7 @@
             
             // 替换模板中的变量
             let explanation = explanationTemplate
-                .replace('{dayMasterElement}', dayMasterElementName)
+                .replaceAll('{dayMasterElement}', dayMasterElementName)
                 .replace('{gender}', genderText)
                 .replace('{soulmateElement}', soulmateElementName)
                 .replace('{directions}', directions.join('、'));

@@ -1611,14 +1611,10 @@
                     <!-- 新增：八字查询结果显示区域 -->
                     <div id="ba-zi-info" class="mt-4 p-4 bg-gray-50 rounded-lg">
                         <h4 class="text-lg font-semibold mb-2" data-translate="baZiInfoTitle">八字信息查询结果</h4>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <p><strong data-translate="gregorianBirthday">公历</strong><span id="gregorian-birthday">-</span></p>
-                            </div>
-                            <div>
-                                <p><strong data-translate="zodiac">生肖</strong><span id="zodiac">-</span></p>
-                                <p><strong data-translate="age">岁数</strong><span id="age">-</span></p>
-                            </div>
+                        <div class="flex gap-6">
+                            <p><strong data-translate="gregorianBirthday">公历</strong><span id="gregorian-birthday">-</span></p>
+                            <p><strong data-translate="zodiac">生肖</strong><span id="zodiac">-</span></p>
+                            <p><strong data-translate="age">岁数</strong><span id="age">-</span></p>
                         </div>
                     </div>
                 
@@ -1714,7 +1710,7 @@
                 'calculatingTiming': '正在分析您的命理信息，请稍候...',
                 'detailedExplanation': '详细解读',
                 'baZiInfoTitle': '八字信息查询结果',
-                'gregorianBirthday': '公历生日：',
+                'gregorianBirthday': '公历',
                 'lunarBirthday': '阴历生日：',
                 'zodiac': '生肖：',
                 'age': '岁数：',
@@ -3747,7 +3743,7 @@
             
             // 替换模板中的变量
             let explanation = explanationTemplate
-                .replace('{dayMasterElement}', dayMasterElementName)
+                .replaceAll('{dayMasterElement}', dayMasterElementName)
                 .replace('{gender}', genderText)
                 .replace('{soulmateElement}', soulmateElementName)
                 .replace('{directions}', directions.join('、'));
