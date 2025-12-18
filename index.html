@@ -1613,8 +1613,7 @@
                         <h4 class="text-lg font-semibold mb-2" data-translate="baZiInfoTitle">八字信息查询结果</h4>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <p><strong data-translate="gregorianBirthday">公历生日</strong><span id="gregorian-birthday">-</span></p>
-                                <p><strong data-translate="lunarBirthday">阴历生日</strong><span id="lunar-birthday">-</span></p>
+                                <p><strong data-translate="gregorianBirthday">公历</strong><span id="gregorian-birthday">-</span></p>
                             </div>
                             <div>
                                 <p><strong data-translate="zodiac">生肖</strong><span id="zodiac">-</span></p>
@@ -7862,7 +7861,6 @@
                 if (correctBaZiMap[baZiString]) {
                     const result = correctBaZiMap[baZiString];
                     document.getElementById('gregorian-birthday').textContent = result.gregorian;
-                    document.getElementById('lunar-birthday').textContent = result.lunar;
                     document.getElementById('zodiac').textContent = result.zodiac;
                     document.getElementById('age').textContent = result.age;
                     return;
@@ -7872,7 +7870,6 @@
                 if (correctBaZiMap[yearMonthDayString]) {
                     const result = correctBaZiMap[yearMonthDayString];
                     document.getElementById('gregorian-birthday').textContent = result.gregorian;
-                    document.getElementById('lunar-birthday').textContent = result.lunar;
                     document.getElementById('zodiac').textContent = result.zodiac;
                     document.getElementById('age').textContent = result.age;
                     return;
@@ -7885,7 +7882,6 @@
                 if (year < 1900 || year > new Date().getFullYear()) {
                     // 重置显示
                     document.getElementById('gregorian-birthday').textContent = '-';
-                    document.getElementById('lunar-birthday').textContent = '-';
                     document.getElementById('zodiac').textContent = '-';
                     document.getElementById('age').textContent = '-';
                     return;
@@ -7938,7 +7934,6 @@
                 
                 // 更新显示
                 document.getElementById('gregorian-birthday').textContent = gregorianBirthday;
-                document.getElementById('lunar-birthday').textContent = lunarBirthday;
                 document.getElementById('zodiac').textContent = zodiac;
                 document.getElementById('age').textContent = age;
             } catch (error) {
