@@ -7782,57 +7782,57 @@
                 const correctBaZiMap = {
                     // 乙巳年丁亥月壬寅日乙巳时对应2025年11月29日
                     'yi-si-ding-hai-ren-yin-yi-si': {
-                        gregorian: '2025年11月29日',
-                        lunar: '2025年十月初十',
+                        gregorian: '2025年',
+                        lunar: '2025年',
                         zodiac: '蛇',
                         age: 0
                     },
                     // 己巳年壬申月己巳日戊辰时对应1989年8月7日
                     'ji-si-ren-shen-ji-si-wu-chen': {
-                        gregorian: '1989年8月7日',
-                        lunar: '1989年八月初七',
+                        gregorian: '1989年',
+                        lunar: '1989年',
                         zodiac: '蛇',
                         age: 36
                     },
                     // 甲辰年甲戌月甲午日丙寅时对应2024年10月19日
                     'jia-chen-jia-xu-jia-wu-bing-yin': {
-                        gregorian: '2024年10月19日',
-                        lunar: '2024年九月十七',
+                        gregorian: '2024年',
+                        lunar: '2024年',
                         zodiac: '龙',
                         age: 0
                     },
                     // 癸卯年癸亥月癸亥日壬子时对应2023年12月31日
                     'gui-mao-gui-hai-gui-hai-ren-zi': {
-                        gregorian: '2023年12月31日',
-                        lunar: '2023年冬月十九',
+                        gregorian: '2023年',
+                        lunar: '2023年',
                         zodiac: '兔',
                         age: 1
                     },
                     // 壬寅年辛亥月辛丑日庚寅时对应2022年11月14日
                     'ren-yin-xin-hai-xin-chou-geng-yin': {
-                        gregorian: '2022年11月14日',
-                        lunar: '2022年十月廿一',
+                        gregorian: '2022年',
+                        lunar: '2022年',
                         zodiac: '虎',
                         age: 2
                     },
                     // 壬寅年丙午月辛卯日癸巳时对应2022年6月7日
                     'ren-yin-bing-wu-xin-mao-gui-si': {
-                        gregorian: '2022年6月7日',
-                        lunar: '2022年五月初九',
+                        gregorian: '2022年',
+                        lunar: '2022年',
                         zodiac: '虎',
                         age: 3
                     },
                     // 壬寅年丙午月辛卯日对应2022年6月7日
                     'ren-yin-bing-wu-xin-mao': {
-                        gregorian: '2022年6月7日',
-                        lunar: '2022年五月初九',
+                        gregorian: '2022年',
+                        lunar: '2022年',
                         zodiac: '虎',
                         age: 3
                     },
                     // 辛亥年丙申月乙卯日丁丑时对应1911年8月13日
                     'xin-hai-bing-shen-yi-mao-ding-chou': {
-                        gregorian: '1911年8月13日',
-                        lunar: '1911年闰六月十九',
+                        gregorian: '1911年',
+                        lunar: '1911年',
                         zodiac: '猪',
                         age: 115
                     }
@@ -7883,8 +7883,8 @@
                 // 获取生肖
                 const zodiac = getZodiacFromYearBranch(yearBranch);
                 
-                // 生成公历生日（使用数字格式）
-                const gregorianBirthday = `${year}年${month}月${day}日`;
+                // 生成公历生日（只显示年份）
+                const gregorianBirthday = `${year}年`;
                 
                 // 生成阴历生日
                 let lunarMonth, lunarDay;
@@ -7917,7 +7917,7 @@
                                      '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
                                      '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十', '三十一'];
                 const lunarChineseDay = lunarDayNames[lunarDay] || lunarDay;
-                const lunarBirthday = `${year}年${lunarChineseMonth}月${lunarChineseDay}`;
+                const lunarBirthday = `${year}年`;
                 
                 // 更新显示
                 document.getElementById('gregorian-birthday').textContent = gregorianBirthday;
