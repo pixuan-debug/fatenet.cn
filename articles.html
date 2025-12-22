@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章列表 - 正缘方位网</title>
+    <meta name="description" content="正缘方位网的文章列表，包含命学基础、名人观点、花果论心法和命理随笔等内容。">
+    <meta name="keywords" content="文章列表,命学基础,名人观点,花果论心法,命理随笔">
+    
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 引入中国风字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 全局样式 */
+        :root {
+            --primary-color: #333;
+            --text-color: #333;
+            --light-text: #666;
+            --background-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --shadow-light: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-medium: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        /* 头部样式 */
+        header {
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow-light);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .logo img {
+            width: 50px;
+            height: 50px;
+            margin-right: 1rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+        
+        /* 主内容区 */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        /* 页面标题 */
+        .page-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+        
+        /* 分类筛选 */
+        .category-filter {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn:hover,
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* 文章列表 */
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        /* 文章卡片 */
+        .article-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow-light);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+        
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .article-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .article-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--light-text);
+            margin-bottom: 1rem;
+        }
+        
+        .article-date,
+        .article-category {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .article-excerpt {
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+        
+        .article-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .read-more {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+        
+        .read-more:hover {
+            background-color: #555;
+        }
+        
+        .article-likes {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+        
+        /* 页脚 */
+        footer {
+            background-color: var(--card-bg);
+            padding: 2rem 0;
+            border-top: 1px solid var(--border-color);
+            margin-top: 3rem;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            text-align: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+        
+        .copyright {
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+        
+        /* 文章详情弹窗 */
+        .article-detail-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+        }
+        
+        .article-detail-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .article-detail-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .article-detail-content .article-meta {
+            margin-bottom: 1.5rem;
+        }
+        
+        .article-detail-text {
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--light-text);
+            transition: color 0.3s ease;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .close-btn:hover {
+            color: var(--text-color);
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 加载状态 */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--light-text);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .articles-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .category-filter {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .filter-btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <header>
+        <nav>
+            <a href="index.html" class="logo">
+                <img src="taiji-logo.png" alt="正缘方位网">
+                <span>正缘方位网</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="articles.html" class="active">文章</a></li>
+                <li><a href="index.html#contact">联系我们</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <!-- 主内容区 -->
+    <main>
+        <h1 class="page-title">命理文章</h1>
+        
+        <!-- 分类筛选 -->
+        <div class="category-filter">
+            <button class="filter-btn active" data-category="all">所有分类</button>
+            <button class="filter-btn" data-category="basic-theory">命学基础</button>
+            <button class="filter-btn" data-category="celebrity-views">名人观点</button>
+            <button class="filter-btn" data-category="flower-fruit-method">花果论心法</button>
+            <button class="filter-btn" data-category="essays">杂谈随笔</button>
+        </div>
+        
+        <!-- 文章列表 -->
+        <div class="articles-grid" id="articles-grid">
+            <!-- 文章卡片将通过JavaScript动态生成 -->
+            <div class="loading">加载中...</div>
+        </div>
+    </main>
+    
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-content">
+            <ul class="footer-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="articles.html">文章</a></li>
+                <li><a href="index.html#contact">联系我们</a></li>
+            </ul>
+            <p class="copyright">苏ICP备2025226852号-1丨苏公网安备32020602003711号</p>
+        </div>
+    </footer>
+    
+    <script>
+        // 文章数据
+        let articlesData = {};
+        let currentCategory = 'all';
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadArticles();
+            initFilterButtons();
+        });
+        
+        // 加载文章数据
+        function loadArticles() {
+            console.log('=== 开始加载文章数据 ===');
+            
+            // 尝试从本地存储加载数据
+            const savedData = localStorage.getItem('articlesData');
+            
+            console.log('localStorage中有数据:', !!savedData);
+            
+            if (savedData) {
+                console.log('正在解析localStorage数据...');
+                try {
+                    const parsedData = JSON.parse(savedData);
+                    console.log('解析成功！');
+                    console.log('分类数量:', Object.keys(parsedData).length);
+                    
+                    // 确保articlesData有正确的结构
+                    articlesData = {
+                        'basic-theory': [],
+                        'celebrity-views': [],
+                        'flower-fruit-method': [],
+                        'essays': []
+                    };
+                    
+                    // 将解析的数据合并到articlesData
+                    Object.keys(parsedData).forEach(category => {
+                        if (articlesData[category]) {
+                            articlesData[category] = [...parsedData[category]];
+                            console.log(`${category}: ${parsedData[category].length}篇文章`);
+                        }
+                    });
+                    
+                    renderArticles(currentCategory);
+                } catch (error) {
+                    console.error('解析localStorage数据出错:', error);
+                    // 解析出错时，初始化空的文章数据结构，不使用默认数据
+                    articlesData = {
+                        'basic-theory': [],
+                        'celebrity-views': [],
+                        'flower-fruit-method': [],
+                        'essays': []
+                    };
+                    renderArticles(currentCategory);
+                }
+            } else {
+                console.log('localStorage中没有数据，初始化空结构');
+                // 没有数据时，初始化空的文章数据结构，不使用默认数据
+                articlesData = {
+                    'basic-theory': [],
+                    'celebrity-views': [],
+                    'flower-fruit-method': [],
+                    'essays': []
+                };
+                renderArticles(currentCategory);
+            }
+        }
+        
+        // 渲染文章列表
+        function renderArticles(category) {
+            const grid = document.getElementById('articles-grid');
+            let allArticles = [];
+            
+            // 收集所有文章
+            Object.keys(articlesData).forEach(key => {
+                articlesData[key].forEach(article => {
+                    // 确保每个文章对象都有category属性
+                    allArticles.push({ ...article, category: key });
+                });
+            });
+            
+            // 按分类筛选
+            const filteredArticles = category === 'all' 
+                ? allArticles 
+                : allArticles.filter(article => article.category === category);
+            
+            if (filteredArticles.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: var(--light-text);">暂无相关文章</p>';
+                return;
+            }
+            
+            // 生成文章卡片
+            grid.innerHTML = filteredArticles.map(article => `
+                <div class="article-card" data-id="${article.id}" data-category="${article.category}">
+                    <h3 class="article-title">${article.title}</h3>
+                    <div class="article-meta">
+                        <div class="article-date">
+                            <i class="fa fa-calendar"></i>
+                            <span>${article.date}</span>
+                        </div>
+                        <div class="article-category">
+                            <i class="fa fa-folder"></i>
+                            <span>${getCategoryName(article.category)}</span>
+                        </div>
+                    </div>
+                    <p class="article-excerpt">${article.excerpt}</p>
+                    <div class="article-actions">
+                        <div class="article-views">
+                            <i class="fa fa-eye"></i>
+                            <span>${article.views || 0}</span>
+                        </div>
+                        <div class="article-likes">
+                            <i class="fa fa-heart"></i>
+                            <span>${article.likes}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // 为所有文章卡片添加点击事件
+            const articleCards = document.querySelectorAll('.article-card');
+            articleCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const id = card.getAttribute('data-id');
+                    const category = card.getAttribute('data-category');
+                    window.open(`article-detail.html?id=${id}&category=${category}`, '_blank');
+                });
+            });
+        }
+        
+        // 获取分类名称
+        function getCategoryName(category) {
+            const categoryNames = {
+                'basic-theory': '命学基础',
+                'celebrity-views': '名人观点',
+                'flower-fruit-method': '花果论心法',
+                'essays': '杂谈随笔'
+            };
+            return categoryNames[category] || category;
+        }
+        
+        // 初始化筛选按钮
+        function initFilterButtons() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // 移除所有活动状态
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    // 添加当前活动状态
+                    btn.classList.add('active');
+                    // 更新当前分类
+                    currentCategory = btn.getAttribute('data-category');
+                    // 重新渲染文章列表
+                    renderArticles(currentCategory);
+                });
+            });
+        }
+        
+
+    </script>
+</body>
+</html>

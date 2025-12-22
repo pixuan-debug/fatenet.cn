@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 登录页面样式 */
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .login-container h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn:hover {
+            background-color: #45a049;
+        }
+        
+        .btn-danger {
+            background-color: #f44336;
+        }
+        
+        .btn-danger:hover {
+            background-color: #da190b;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        /* 管理页面样式 */
+        .admin-header {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .admin-header h1 {
+            color: #333;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .tab-btn {
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            flex: 1;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* 文章列表样式 */
+        .articles-container {
+            margin-bottom: 20px;
+        }
+        
+        .article-item {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #fafafa;
+        }
+        
+        .article-item h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        /* 精华文章标识 */
+        .featured-badge {
+            display: inline-block;
+            background-color: #ffc107;
+            color: #333;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .article-item .meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .article-item .excerpt {
+            margin-bottom: 15px;
+            color: #555;
+        }
+        
+        .article-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* 表单样式 */
+        .article-form {
+            max-width: 800px;
+        }
+        
+        .article-form .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .article-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .article-form input[type="text"],
+        .article-form input[type="date"],
+        .article-form select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .article-form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .article-form textarea.content {
+            min-height: 300px;
+        }
+        
+        /* 消息提示样式 */
+        .message {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* 导入导出样式 */
+        .import-export {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .import-export h3 {
+            margin-bottom: 15px;
+        }
+        
+        .file-input {
+            margin-bottom: 15px;
+        }
+        
+        /* 搜索和过滤容器样式 */
+        .search-filter-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        /* 分类选择样式 */
+        .category-select {
+            margin-bottom: 0;
+        }
+        
+        /* 搜索框样式 */
+        .search-box {
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-box input[type="text"] {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 250px;
+        }
+        
+        .search-box input[type="text"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+        
+        /* 文件上传样式 */
+        .image-upload-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        
+        .image-upload-item input[type="file"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+        }
+        
+        .file-preview {
+            max-width: 200px;
+            max-height: 150px;
+            overflow: hidden;
+            border-radius: 4px;
+            background-color: white;
+            border: 1px solid #ddd;
+        }
+        
+        .file-preview img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .remove-upload-btn {
+            padding: 8px 12px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            align-self: flex-start;
+        }
+        
+        .remove-upload-btn:hover {
+            background-color: #da190b;
+        }
+        
+        .add-url-btn {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .add-url-btn:hover {
+            background-color: #45a049;
+        }
+        
+        /* 留言管理样式 */
+        .messages-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .messages-container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .message-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        
+        .message-item:last-child {
+            border-bottom: none;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .message-info {
+            flex: 1;
+        }
+        
+        .message-name {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .message-email {
+            color: #666;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        
+        .message-date {
+            color: #999;
+            font-size: 0.8rem;
+        }
+        
+        .message-subject {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .message-content {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            white-space: pre-wrap;
+        }
+        
+        .message-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录页面 -->
+    <div id="login-page" class="login-container">
+        <h1>文章管理系统</h1>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="password">管理员密码</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn" style="width: 100%;">登录</button>
+        </form>
+    </div>
+    
+    <!-- 管理页面 -->
+    <div id="admin-page" style="display: none;">
+        <div class="container">
+            <!-- 消息提示 -->
+            <div id="message" class="message"></div>
+            
+            <!-- 头部 -->
+            <div class="admin-header">
+                <h1>文章管理系统</h1>
+                <div style="display: flex; gap: 10px;">
+                    <button id="auto-cleanup-btn" class="btn" onclick="autoCleanup()">一键清理</button>
+                    <button id="clear-data-btn" class="btn btn-danger" onclick="clearAllArticlesData()">清除所有文章数据</button>
+                    <button id="logout-btn" class="btn btn-secondary">退出登录</button>
+                </div>
+            </div>
+            
+            <!-- 标签页 -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="list">文章列表</button>
+                <button class="tab-btn" data-tab="add">添加文章</button>
+                <button class="tab-btn" data-tab="messages">留言管理</button>
+                <button class="tab-btn" data-tab="import">导入导出</button>
+            </div>
+            
+            <!-- 文章列表 -->
+            <div id="list" class="tab-content active">
+                <div class="search-filter-container">
+                    <div class="category-select">
+                        <label for="category-filter">分类筛选：</label>
+                        <select id="category-filter">
+                            <option value="all">所有分类</option>
+                            <option value="basic-theory">基础理论</option>
+                            <option value="celebrity-views">名人观点</option>
+                            <option value="flower-fruit-method">花果论心法</option>
+                            <option value="essays">命理随笔</option>
+                        </select>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" id="search-input" placeholder="搜索文章标题或内容...">
+                    </div>
+                </div>
+                <div id="articles-list" class="articles-container"></div>
+            </div>
+            
+            <!-- 添加文章 -->
+            <div id="add" class="tab-content">
+                <form id="article-form" class="article-form">
+                    <input type="hidden" id="article-id">
+                    
+                    <div class="form-group">
+                        <label for="article-title">标题</label>
+                        <input type="text" id="article-title" name="title" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="article-excerpt">摘要</label>
+                        <textarea id="article-excerpt" name="excerpt" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="article-content">内容</label>
+                        <textarea id="article-content" name="content" class="content" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="article-category">分类</label>
+                        <select id="article-category" name="category" required>
+                            <option value="basic-theory">基础理论</option>
+                            <option value="celebrity-views">名人观点</option>
+                            <option value="flower-fruit-method">花果论心法</option>
+                            <option value="essays">命理随笔</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="article-date">发布日期</label>
+                        <input type="date" id="article-date" name="date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="article-likes">点赞数</label>
+                        <input type="number" id="article-likes" name="likes" value="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>文章图片</label>
+                        <div id="images-container">
+                            <div class="image-upload-item">
+                                <input type="file" name="image-file" accept="image/*" onchange="handleFileUpload(this, 'image')">
+                                <div class="file-preview"></div>
+                                <button type="button" class="remove-upload-btn" onclick="removeUploadItem(this, 'image')">删除</button>
+                            </div>
+                        </div>
+                        <button type="button" id="add-image-btn" class="add-url-btn" onclick="addUploadItem('image')">添加图片</button>
+                    </div>
+                    
+                    <div class="form-group">
+
+                    </div>
+                    
+                    <div class="form-group">
+                    <label for="article-is-featured">
+                        <input type="checkbox" id="article-is-featured" name="isFeatured" checked>
+                        设为精华文章
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label for="article-save-data">
+                        <input type="checkbox" id="article-save-data" name="saveData" checked>
+                        保存文章数据到本地
+                    </label>
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn">保存文章</button>
+                    <button type="button" id="cancel-btn" class="btn btn-secondary">取消</button>
+                </div>
+                </form>
+            </div>
+            
+            <!-- 留言管理 -->
+            <div id="messages" class="tab-content">
+                <div class="messages-header">
+                    <h3>留言管理</h3>
+                    <button id="clear-all-messages" class="btn btn-danger">清空所有留言</button>
+                </div>
+                <div id="messages-list" class="messages-container"></div>
+            </div>
+            
+            <!-- 导入导出 -->
+            <div id="import" class="tab-content">
+                <div class="import-export">
+                    <h3>导入文章数据</h3>
+                    <div class="file-input">
+                        <label for="file-upload">选择JSON文件：</label>
+                        <input type="file" id="file-upload" accept=".json">
+                        <button id="import-btn" class="btn" style="margin-left: 10px;">导入</button>
+                    </div>
+                    
+                    <h3>导出文章数据</h3>
+                    <button id="export-btn" class="btn">导出为JSON文件</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 管理员密码（可修改）
+        const ADMIN_PASSWORD = 'admin123';
+        
+        // 文章数据
+        let articlesData = {};
+        
+        // 留言数据
+        let messagesData = [];
+        
+        // DOM加载完成后执行初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 登录功能
+            const loginForm = document.getElementById('login-form');
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const password = document.getElementById('password').value;
+                    if (password === ADMIN_PASSWORD) {
+                        document.getElementById('login-page').style.display = 'none';
+                        document.getElementById('admin-page').style.display = 'block';
+                        loadArticles();
+                        initAdminEventListeners(); // 登录成功后初始化管理页面的事件监听器
+                    } else {
+                        alert('密码错误！');
+                    }
+                });
+            }
+        });
+        
+        // 初始化管理页面的事件监听器
+        function initAdminEventListeners() {
+            // 退出登录
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    document.getElementById('admin-page').style.display = 'none';
+                    document.getElementById('login-page').style.display = 'block';
+                    document.getElementById('login-form').reset();
+                });
+            }
+            
+            // 标签页切换
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除所有活动状态
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // 添加当前活动状态
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // 如果切换到文章列表，重新加载文章
+                    if (tabId === 'list') {
+                        loadArticles();
+                    }
+                    // 如果切换到添加文章，重置表单
+                    if (tabId === 'add') {
+                        resetForm();
+                    }
+                    // 如果切换到留言管理，加载留言数据
+                    if (tabId === 'messages') {
+                        loadMessages();
+                    }
+                });
+            });
+            
+            // 文章表单提交
+            const articleForm = document.getElementById('article-form');
+            if (articleForm) {
+                articleForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    try {
+                        const id = document.getElementById('article-id').value;
+                        const title = document.getElementById('article-title').value;
+                        const excerpt = document.getElementById('article-excerpt').value;
+                        const content = document.getElementById('article-content').value;
+                        const category = document.getElementById('article-category').value;
+                        const date = document.getElementById('article-date').value;
+                        const likes = parseInt(document.getElementById('article-likes').value) || 0;
+                        const isFeatured = document.getElementById('article-is-featured').checked;
+                        
+                        // 从动态生成的文件上传项中收集图片数据
+                        const imageInputs = document.querySelectorAll('input[name="image-file"]');
+                        const imagesArray = Array.from(imageInputs)
+                            .map(input => input.dataset.fileData)
+                            .filter(data => data);
+                        
+                        let articleData = null;
+                        
+                        if (id) {
+                            // 编辑现有文章
+                            const articleIndex = articlesData[category].findIndex(a => a.id === parseInt(id));
+                            if (articleIndex > -1) {
+                                articleData = {
+                                    id: parseInt(id),
+                                    title,
+                                    excerpt,
+                                    content,
+                                    date,
+                                    likes,
+                                    views: article.views || 0,
+                                    isFeatured,
+                                    images: imagesArray,
+                                    category
+                                };
+                                
+                                // 更新内存中的文章数据
+                                articlesData[category][articleIndex] = articleData;
+                                
+                                // 保存到本地存储，确保articles.html能读取到
+                                saveArticles();
+                            }
+                        } else {
+                            // 添加新文章
+                            const newId = getNextId(category);
+                            articleData = {
+                                id: newId,
+                                title,
+                                excerpt,
+                                content,
+                                date,
+                                likes,
+                                views: 0,
+                                isFeatured,
+                                images: imagesArray,
+                                category
+                            };
+                            
+                            // 确保分类数组存在
+                            if (!articlesData[category]) {
+                                articlesData[category] = [];
+                            }
+                            
+                            // 添加到内存中的文章数据
+                            articlesData[category].push(articleData);
+                            
+                            // 保存到本地存储，确保articles.html能读取到
+                            saveArticles();
+                        }
+                    } catch (error) {
+                        console.error('保存文章时出错:', error);
+                        showMessage('保存文章时出错: ' + error.message, 'error');
+                    }
+                });
+            }
+            
+            // 分类筛选
+            const categoryFilter = document.getElementById('category-filter');
+            if (categoryFilter) {
+                categoryFilter.addEventListener('change', function() {
+                    renderArticles();
+                });
+            }
+            
+            // 搜索功能 - 实时更新搜索结果
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    renderArticles();
+                });
+            }
+            
+            // 取消按钮
+            const cancelBtn = document.getElementById('cancel-btn');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    resetForm();
+                });
+            }
+            
+            // 导入功能
+            const importBtn = document.getElementById('import-btn');
+            if (importBtn) {
+                importBtn.addEventListener('click', function() {
+                    const fileInput = document.getElementById('file-upload');
+                    if (!fileInput.files[0]) {
+                        alert('请选择一个JSON文件！');
+                        return;
+                    }
+                    
+                    const file = fileInput.files[0];
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        try {
+                            const importedData = JSON.parse(e.target.result);
+                            articlesData = importedData;
+                            saveArticles();
+                            showMessage('文章数据导入成功！', 'success');
+                            fileInput.value = '';
+                        } catch (error) {
+                            showMessage('导入失败：JSON格式错误！', 'error');
+                        }
+                    };
+                    
+                    reader.readAsText(file);
+                });
+            }
+            
+            // 导出功能
+            const exportBtn = document.getElementById('export-btn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', function() {
+                    const jsonData = JSON.stringify(articlesData, null, 2);
+                    const blob = new Blob([jsonData], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'articles.json';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    showMessage('文章数据导出成功！', 'success');
+                });
+            }
+            
+            // 清空所有留言
+            const clearAllMessagesBtn = document.getElementById('clear-all-messages');
+            if (clearAllMessagesBtn) {
+                clearAllMessagesBtn.addEventListener('click', function() {
+                    if (confirm('确定要清空所有留言吗？此操作不可恢复！')) {
+                        messagesData = [];
+                        saveMessages();
+                    }
+                });
+            }
+        }
+        
+        // 加载留言数据
+        function loadMessages() {
+            const savedMessages = localStorage.getItem('messagesData');
+            if (savedMessages) {
+                messagesData = JSON.parse(savedMessages);
+            } else {
+                messagesData = [];
+            }
+            renderMessages();
+        }
+        
+        // 渲染留言列表
+        function renderMessages() {
+            const messagesList = document.getElementById('messages-list');
+            
+            if (messagesData.length === 0) {
+                messagesList.innerHTML = '<p>暂无留言</p>';
+                return;
+            }
+            
+            messagesList.innerHTML = messagesData.map((message, index) => `
+                <div class="message-item">
+                    <div class="message-header">
+                        <div class="message-info">
+                            <div>
+                                <span class="message-name">${message.name}</span>
+                                <span class="message-email">${message.email}</span>
+                                <span class="message-date">${message.date}</span>
+                            </div>
+                            <div class="message-subject">${message.subject}</div>
+                        </div>
+                    </div>
+                    <div class="message-content">${message.message}</div>
+                    <div class="message-actions">
+                        <button class="btn-danger" onclick="deleteMessage(${index})">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 删除留言
+        function deleteMessage(index) {
+            if (confirm('确定要删除这条留言吗？')) {
+                messagesData.splice(index, 1);
+                saveMessages();
+            }
+        }
+        
+        // 清空所有留言
+        document.getElementById('clear-all-messages').addEventListener('click', function() {
+            if (confirm('确定要清空所有留言吗？此操作不可恢复！')) {
+                messagesData = [];
+                saveMessages();
+            }
+        });
+        
+        // 保存留言数据
+        function saveMessages() {
+            localStorage.setItem('messagesData', JSON.stringify(messagesData, null, 2));
+            renderMessages();
+        }
+        
+        // 加载文章数据
+        function loadArticles() {
+            // 尝试从本地存储加载数据
+            const savedData = localStorage.getItem('articlesData');
+            
+            if (savedData) {
+                try {
+                    // 使用本地存储的数据
+                    articlesData = JSON.parse(savedData);
+                } catch (error) {
+                    console.error('解析localStorage数据出错:', error);
+                    // 解析出错时，初始化空的文章数据结构
+                    articlesData = {
+                        'basic-theory': [],
+                        'celebrity-views': [],
+                        'flower-fruit-method': [],
+                        'essays': []
+                    };
+                }
+            } else {
+                // 没有数据时，初始化空的文章数据结构
+                articlesData = {
+                    'basic-theory': [],
+                    'celebrity-views': [],
+                    'flower-fruit-method': [],
+                    'essays': []
+                };
+            }
+            renderArticles();
+        }
+        
+        // 渲染文章列表
+        function renderArticles() {
+            const categoryFilter = document.getElementById('category-filter').value;
+            const searchKeyword = document.getElementById('search-input').value.trim().toLowerCase();
+            const articlesList = document.getElementById('articles-list');
+            articlesList.innerHTML = '';
+            
+            let allArticles = [];
+            
+            // 收集所有文章
+            Object.keys(articlesData).forEach(category => {
+                articlesData[category].forEach(article => {
+                    allArticles.push({ ...article, category });
+                });
+            });
+            
+            // 按分类筛选
+            let filteredArticles = categoryFilter === 'all' 
+                ? allArticles 
+                : allArticles.filter(article => article.category === categoryFilter);
+            
+            // 按关键词搜索
+            if (searchKeyword) {
+                filteredArticles = filteredArticles.filter(article => {
+                    const title = article.title.toLowerCase();
+                    const content = article.content.toLowerCase();
+                    const excerpt = article.excerpt.toLowerCase();
+                    return title.includes(searchKeyword) || content.includes(searchKeyword) || excerpt.includes(searchKeyword);
+                });
+            }
+            
+            // 按日期倒序排序
+            filteredArticles.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // 渲染文章
+            filteredArticles.forEach(article => {
+                const articleItem = document.createElement('div');
+                articleItem.className = 'article-item';
+                articleItem.innerHTML = `
+                    <h3>${article.title} ${article.isFeatured ? '<span class="featured-badge">精华</span>' : ''}</h3>
+                    <div class="meta">
+                        <span>分类：${getCategoryName(article.category)} | </span>
+                        <span>发布日期：${article.date} | </span>
+                        <span>点赞数：${article.likes} | </span>
+                        <span>状态：${article.isFeatured ? '精华' : '普通'}</span>
+                    </div>
+                    <div class="excerpt">${article.excerpt}</div>
+                    <div class="article-actions">
+                        <button class="btn" onclick="toggleFeatured('${article.category}', ${article.id})">${article.isFeatured ? '取消精华' : '设为精华'}</button>
+                        <button class="btn" onclick="editArticle('${article.category}', ${article.id})">编辑</button>
+                        <button class="btn btn-danger" onclick="deleteArticle('${article.category}', ${article.id})">删除</button>
+                    </div>
+                `;
+                articlesList.appendChild(articleItem);
+            });
+        }
+        
+        // 获取分类名称
+        function getCategoryName(categoryKey) {
+            const categoryMap = {
+                'basic-theory': '基础理论',
+                'celebrity-views': '名人观点',
+                'flower-fruit-method': '花果论心法',
+                'essays': '命理随笔'
+            };
+            return categoryMap[categoryKey] || categoryKey;
+        }
+        
+        // 编辑文章
+        function editArticle(category, id) {
+            const article = articlesData[category].find(a => a.id === id);
+            if (article) {
+                document.getElementById('article-id').value = id;
+                document.getElementById('article-title').value = article.title;
+                document.getElementById('article-excerpt').value = article.excerpt;
+                document.getElementById('article-content').value = article.content;
+                document.getElementById('article-category').value = category;
+                document.getElementById('article-date').value = article.date;
+                document.getElementById('article-likes').value = article.likes;
+                document.getElementById('article-is-featured').checked = article.isFeatured || false;
+                // 设置保存数据复选框状态
+                document.getElementById('article-save-data').checked = true;
+                
+                // 填充图片数据到文件上传组件
+                const imagesContainer = document.getElementById('images-container');
+                const images = article.images || [];
+                
+                // 清空现有图片上传项
+                imagesContainer.innerHTML = '';
+                
+                // 为每个图片数据创建一个文件上传项
+                if (images.length === 0) {
+                    // 如果没有图片，添加一个空的文件上传项
+                    addUploadItem('image');
+                } else {
+                    images.forEach((imageData, index) => {
+                        const newItem = document.createElement('div');
+                        newItem.className = 'image-upload-item';
+                        newItem.innerHTML = `
+                            <input type="file" name="image-file" accept="image/*" onchange="handleFileUpload(this, 'image')">
+                            <div class="file-preview"></div>
+                            <button type="button" class="remove-upload-btn" onclick="removeUploadItem(this, 'image')">删除</button>
+                        `;
+                        imagesContainer.appendChild(newItem);
+                        
+                        // 设置图片预览和数据
+                        const input = newItem.querySelector('input');
+                        const preview = newItem.querySelector('.file-preview');
+                        const img = document.createElement('img');
+                        img.src = imageData;
+                        img.alt = 'Article image';
+                        preview.appendChild(img);
+                        input.dataset.fileData = imageData;
+                    });
+                }
+                
+
+                
+                // 切换到编辑标签页
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.querySelector('[data-tab="add"]').classList.add('active');
+                document.getElementById('add').classList.add('active');
+            }
+        }
+        
+        // 删除文章
+        function deleteArticle(category, id) {
+            if (confirm('确定要删除这篇文章吗？')) {
+                const articleIndex = articlesData[category].findIndex(a => a.id === id);
+                if (articleIndex > -1) {
+                    articlesData[category].splice(articleIndex, 1);
+                    saveArticles();
+                }
+            }
+        }
+        
+        // 切换精华状态
+        function toggleFeatured(category, id) {
+            const articleIndex = articlesData[category].findIndex(a => a.id === id);
+            if (articleIndex > -1) {
+                const article = articlesData[category][articleIndex];
+                article.isFeatured = !article.isFeatured;
+                saveArticles();
+            }
+        }
+        
+        // 保存文章数据
+        function saveArticles() {
+            try {
+                // 将文章数据保存到本地存储
+                localStorage.setItem('articlesData', JSON.stringify(articlesData, null, 2));
+                
+                // 显示保存成功消息
+                showMessage('文章数据保存成功！', 'success');
+                
+                // 重新渲染文章列表（仅在当前页面有articles-list元素时执行）
+                const articlesList = document.getElementById('articles-list');
+                if (articlesList) {
+                    // 这里是admin.html页面，调用admin.html的renderArticles函数
+                    renderArticles();
+                }
+                
+                // 重置表单
+                resetForm();
+            } catch (error) {
+                if (error.name === 'QuotaExceededError' || error.message.includes('exceeded the quota')) {
+                    // 存储空间不足，显示错误提示并提供清理入口
+                    showMessage('存储空间不足，请先清理数据。', 'error');
+                    // 在页面上显示清理选项
+                    const messageDiv = document.getElementById('message');
+                    if (messageDiv) {
+                        messageDiv.innerHTML += `
+                            <div style="margin-top: 10px;">
+                                <button class="btn" onclick="autoCleanup()">一键自动清理</button>
+                                <a href="clear-localstorage.html" class="btn" style="display: inline-block; margin-right: 10px;">手动清理存储空间</a>
+                                <button class="btn btn-secondary" onclick="exportArticlesData()">先导出数据</button>
+                            </div>
+                        `;
+                    }
+                } else {
+                    // 其他错误
+                    console.error('保存文章数据时出错:', error);
+                    showMessage('保存文章数据时出错: ' + error.message, 'error');
+                }
+            }
+        }
+        
+        // 导出文章数据（用于存储空间不足时）
+        function exportArticlesData() {
+            const jsonData = JSON.stringify(articlesData, null, 2);
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'articles_backup.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showMessage('文章数据导出成功！', 'success');
+        }
+        
+        // 添加文件上传项
+        function addUploadItem(type) {
+            const containerId = 'images-container';
+            const itemClass = 'image-upload-item';
+            const inputName = 'image-file';
+            const accept = 'image/*';
+            
+            const container = document.getElementById(containerId);
+            const newItem = document.createElement('div');
+            newItem.className = itemClass;
+            newItem.innerHTML = `
+                <input type="file" name="${inputName}" accept="${accept}" onchange="handleFileUpload(this, 'image')">
+                <div class="file-preview"></div>
+                <button type="button" class="remove-upload-btn" onclick="removeUploadItem(this, 'image')">删除</button>
+            `;
+            container.appendChild(newItem);
+        }
+        
+        // 删除文件上传项
+        function removeUploadItem(element, type) {
+            const containerId = 'images-container';
+            const container = document.getElementById(containerId);
+            const items = container.querySelectorAll('.image-upload-item');
+            
+            // 确保至少保留一个上传项
+            if (items.length > 1) {
+                element.parentElement.remove();
+            } else {
+                alert('至少需要保留一个上传项');
+            }
+        }
+        
+        // 处理文件上传
+        function handleFileUpload(input, type) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            // 检查文件大小，限制单个文件不超过2MB
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            if (file.size > maxSize) {
+                alert(`文件大小不能超过2MB，当前文件大小：${(file.size / 1024 / 1024).toFixed(2)}MB`);
+                input.value = ''; // 清空文件选择
+                return;
+            }
+            
+            // 只处理图片
+            if (type === 'image') {
+                // 图片处理：压缩后再转换为Base64
+                compressImage(file, function(compressedData) {
+                    const preview = input.nextElementSibling;
+                    preview.innerHTML = '';
+                    
+                    const img = document.createElement('img');
+                    img.src = compressedData;
+                    img.alt = file.name;
+                    preview.appendChild(img);
+                    
+                    // 存储压缩后的文件数据
+                    input.dataset.fileData = compressedData;
+                });
+            }
+        }
+        
+        // 图片压缩函数
+        function compressImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // 创建Canvas用于压缩
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // 限制最大尺寸，保持宽高比
+                    const maxWidth = 1200;
+                    const maxHeight = 800;
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+                    if (height > maxHeight) {
+                        width = (width * maxHeight) / height;
+                        height = maxHeight;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // 绘制压缩后的图片
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // 转换为Base64，质量参数0.8（可调整）
+                    const compressedData = canvas.toDataURL('image/jpeg', 0.8);
+                    callback(compressedData);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 重置表单
+        function resetForm() {
+            document.getElementById('article-form').reset();
+            document.getElementById('article-id').value = '';
+            // 确保保存数据复选框默认勾选
+            document.getElementById('article-save-data').checked = true;
+            // 确保设为精华复选框默认勾选
+            document.getElementById('article-is-featured').checked = true;
+            
+            // 重置图片上传项，只保留一个空的上传项
+            const imagesContainer = document.getElementById('images-container');
+            imagesContainer.innerHTML = `
+                <div class="image-upload-item">
+                    <input type="file" name="image-file" accept="image/*" onchange="handleFileUpload(this, 'image')">
+                    <div class="file-preview"></div>
+                    <button type="button" class="remove-upload-btn" onclick="removeUploadItem(this, 'image')">删除</button>
+                </div>
+            `;
+        }
+        
+
+        
+        // 获取下一个ID
+        function getNextId(category) {
+            const articles = articlesData[category] || [];
+            if (articles.length === 0) return 1;
+            return Math.max(...articles.map(a => a.id)) + 1;
+        }
+        
+        // 清除所有文章数据
+        function clearAllArticlesData() {
+            if (confirm('确定要清除所有文章数据吗？此操作不可恢复！')) {
+                // 清除localStorage中的文章数据
+                localStorage.removeItem('articlesData');
+                
+                // 重新初始化空的数据结构
+                articlesData = {
+                    'basic-theory': [],
+                    'celebrity-views': [],
+                    'flower-fruit-method': [],
+                    'essays': []
+                };
+                
+                // 重新渲染文章列表
+                renderArticles();
+                
+                // 显示成功消息
+                showMessage('所有文章数据已清除！', 'success');
+            }
+        }
+        
+        // 显示消息
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = `message ${type}`;
+            message.style.display = 'block';
+            
+            // 3秒后隐藏消息
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000);
+        }
+        
+        // 自动清理不必要数据
+        function autoCleanup() {
+            try {
+                let cleanedItems = 0;
+                let freedSize = 0;
+                
+                // 检查并清理异常大的存储项（超过1MB）
+                for (let key in localStorage) {
+                    if (localStorage.hasOwnProperty(key)) {
+                        const value = localStorage.getItem(key);
+                        const size = value.length;
+                        
+                        // 清理异常大的项（超过1MB）
+                        if (size > 1024 * 1024) {
+                            // 只保留articlesData和messagesData，其他大项直接删除
+                            if (key !== 'articlesData' && key !== 'messagesData') {
+                                localStorage.removeItem(key);
+                                cleanedItems++;
+                                freedSize += size;
+                            }
+                        }
+                    }
+                }
+                
+                // 优化articlesData：移除空文章和异常数据
+                const articlesItem = localStorage.getItem('articlesData');
+                if (articlesItem) {
+                    try {
+                        const articlesData = JSON.parse(articlesItem);
+                        let originalSize = articlesItem.length;
+                        
+                        // 清理每个分类中的空文章
+                        Object.keys(articlesData).forEach(category => {
+                            const originalCount = articlesData[category].length;
+                            articlesData[category] = articlesData[category].filter(article => {
+                                // 移除空文章和无效文章
+                                return article && article.title && article.content;
+                            });
+                            const cleanedCount = articlesData[category].length;
+                            if (cleanedCount < originalCount) {
+                                cleanedItems += (originalCount - cleanedCount);
+                            }
+                        });
+                        
+                        // 重新保存优化后的文章数据
+                        const optimizedData = JSON.stringify(articlesData, null, 2);
+                        const optimizedSize = optimizedData.length;
+                        
+                        if (optimizedSize < originalSize) {
+                            localStorage.setItem('articlesData', optimizedData);
+                            freedSize += (originalSize - optimizedSize);
+                        }
+                    } catch (error) {
+                        console.error('优化文章数据出错:', error);
+                        // 如果解析错误，直接删除articlesData
+                        localStorage.removeItem('articlesData');
+                        cleanedItems++;
+                        freedSize += articlesItem.length;
+                    }
+                }
+                
+                // 优化messagesData：只保留最近100条留言
+                const messagesItem = localStorage.getItem('messagesData');
+                if (messagesItem) {
+                    try {
+                        const messagesData = JSON.parse(messagesItem);
+                        let originalSize = messagesItem.length;
+                        
+                        // 只保留最近100条留言
+                        if (messagesData.length > 100) {
+                            const originalCount = messagesData.length;
+                            // 按日期倒序排序，保留最近的100条
+                            messagesData.sort((a, b) => new Date(b.date) - new Date(a.date));
+                            messagesData.splice(100);
+                            cleanedItems += (originalCount - messagesData.length);
+                            
+                            // 重新保存优化后的留言数据
+                            const optimizedData = JSON.stringify(messagesData, null, 2);
+                            const optimizedSize = optimizedData.length;
+                            
+                            if (optimizedSize < originalSize) {
+                                localStorage.setItem('messagesData', optimizedData);
+                                freedSize += (originalSize - optimizedSize);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('优化留言数据出错:', error);
+                        // 如果解析错误，直接删除messagesData
+                        localStorage.removeItem('messagesData');
+                        cleanedItems++;
+                        freedSize += messagesItem.length;
+                    }
+                }
+                
+                // 格式化字节大小
+                function formatBytes(bytes) {
+                    if (bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                }
+                
+                // 显示清理结果
+                showMessage(`自动清理完成！清理了 ${cleanedItems} 项，释放了 ${formatBytes(freedSize)} 存储空间。`, 'success');
+                
+                // 重新加载文章列表
+                loadArticles();
+                loadMessages();
+                
+            } catch (error) {
+                console.error('自动清理出错:', error);
+                showMessage('自动清理失败：' + error.message, 'error');
+            }
+        }
+        
+        // 初始化：只加载留言数据，文章数据在登录后加载
+        loadMessages();
+    </script>
+</body>
+</html>

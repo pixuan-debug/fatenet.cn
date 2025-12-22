@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章详情 - 正缘方位网</title>
+    <meta name="description" content="正缘方位网文章详情页面">
+    <meta name="keywords" content="文章详情,八字命理,命学基础">
+    
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 引入中国风字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 全局样式 */
+        :root {
+            --primary-color: #333;
+            --text-color: #333;
+            --light-text: #666;
+            --background-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --shadow-light: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-medium: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        /* 头部样式 */
+        header {
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow-light);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: var(--primary-color);
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background-color: #555;
+        }
+        
+        /* 主要内容样式 */
+        .main-content {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        /* 文章详情样式 */
+        .article-detail {
+            padding: 0;
+            background: none;
+            box-shadow: none;
+            border-radius: 0;
+        }
+        
+        .article-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            line-height: 1.3;
+        }
+        
+        .article-meta {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .article-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+        
+        .article-content p {
+            margin-bottom: 1.5rem;
+        }
+        
+        .article-content h3 {
+            margin: 2rem 0 1rem;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .article-content h4 {
+            margin: 1.5rem 0 1rem;
+            font-size: 1.3rem;
+            color: var(--primary-color);
+        }
+        
+        /* 文章图片样式 */
+        .article-image-container {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .article-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* 文章视频样式 */
+        .article-video-container {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .article-video {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* 文章文本样式 */
+        .article-text {
+            margin: 1rem 0;
+        }
+        
+        /* 文章操作样式 */
+        .article-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .like-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background-color: transparent;
+            color: var(--light-text);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .like-btn:hover {
+            background-color: #ffebee;
+            color: #e53935;
+            border-color: #e53935;
+        }
+        
+        .like-btn.liked {
+            background-color: #ffebee;
+            color: #e53935;
+            border-color: #e53935;
+        }
+        
+        /* 分享按钮样式 */
+        .share-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .share-btn:hover {
+            background-color: #555;
+        }
+        
+        /* 分享弹窗样式 */
+        .share-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .share-modal {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .share-modal h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .share-options {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        
+        .share-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background-color: var(--background-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-color);
+        }
+        
+        .share-option:hover {
+            background-color: var(--border-color);
+            transform: translateY(-2px);
+        }
+        
+        .share-option i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .share-option span {
+            font-size: 0.9rem;
+        }
+        
+        .share-modal .close-btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+        
+        /* 页脚样式 */
+        footer {
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow-light);
+            padding: 2rem 0;
+            margin-top: 2rem;
+        }
+        
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            text-align: center;
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+        
+        /* 错误信息样式 */
+        .error-message {
+            text-align: center;
+            padding: 2rem;
+            color: var(--light-text);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .article-title {
+                font-size: 1.5rem;
+            }
+            
+            .article-meta {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .article-actions {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .article-detail {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">正缘方位网</a>
+        </div>
+    </header>
+    
+    <!-- 主要内容 -->
+    <main class="main-content">
+        <div id="article-detail" class="article-detail" style="display: none;">
+            <!-- 文章标题 -->
+            <h1 class="article-title" id="article-title"></h1>
+            
+            <!-- 文章元信息 -->
+            <div class="article-meta">
+                <div class="meta-item">
+                    <i class="fa fa-calendar"></i>
+                    <span id="article-date"></span>
+                </div>
+                <div class="meta-item">
+                    <i class="fa fa-folder"></i>
+                    <span id="article-category"></span>
+                </div>
+                <div class="meta-item">
+                    <i class="fa fa-eye"></i>
+                    <span id="article-views"></span>
+                </div>
+            </div>
+            
+            <!-- 文章内容 -->
+            <div class="article-content" id="article-content"></div>
+            
+            <!-- 文章操作 -->
+            <div class="article-actions">
+                <button class="like-btn" id="like-btn">
+                    <i class="fa fa-heart"></i>
+                    <span id="like-count"></span>
+                </button>
+                <button class="share-btn" id="share-btn">
+                    <i class="fa fa-share-alt"></i>
+                    分享
+                </button>
+            </div>
+        </div>
+        
+        <!-- 错误信息 -->
+        <div id="error-message" class="error-message" style="display: none;">
+            <h2>文章不存在或已被删除</h2>
+            <p>请返回首页查看其他文章</p>
+            <a href="index.html" class="back-btn" style="display: inline-flex; margin-top: 1rem;">
+                <i class="fa fa-home"></i>
+                返回首页
+            </a>
+        </div>
+    </main>
+    
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <p>苏ICP备2025226852号-1丨苏公网安备32020602003711号</p>
+        </div>
+    </footer>
+    
+    <script>
+        // 全局变量
+        let currentArticle = null;
+        let articlesData = {
+            'basic-theory': [],
+            'celebrity-views': [],
+            'flower-fruit-method': [],
+            'essays': []
+        };
+                    views: 678,
+                    likes: 32,
+                    category: 'flower-fruit-method',
+                    content: '花果论心法是八字命理学中的一种重要方法，它以植物的生长过程来比喻人的命运发展。花果论心法认为，八字中的天干代表“花”，即人的先天资质和潜力；地支代表“果”，即人的后天成就和结果。\n\n花果论心法的基本原理是：通过分析八字中天干地支的组合关系，来预测人的命运发展趋势。例如，如果八字中天干的组合良好，说明人的先天资质优秀；如果地支的组合良好，说明人的后天成就显著。\n\n花果论心法在八字命理学中有着广泛的应用，它可以帮助命理师更准确地预测人的命运和运势，同时也可以帮助人们更好地了解自己的先天资质和后天发展潜力，从而更好地规划自己的人生。'            },
+                {
+                    id: 2,
+                    title: '花果论心法在婚姻预测中的应用',
+                    excerpt: '婚姻是人生中的重要组成部分，花果论心法可以帮助我们预测婚姻的吉凶祸福。',
+                    date: '2024-02-26',
+                    views: 543,
+                    likes: 29,
+                    category: 'flower-fruit-method',
+                    content: '婚姻是人生中的重要组成部分，对于每个人来说都至关重要。在八字命理学中，花果论心法被广泛应用于婚姻预测。\n\n根据花果论心法，八字中的日支代表婚姻宫，直接关系到婚姻的吉凶祸福。如果日支与其他干支的组合良好，说明婚姻幸福美满；如果日支与其他干支的组合不佳，说明婚姻可能会遇到一些困难和挑战。\n\n此外，花果论心法还可以通过分析八字中的财星、官星等十神来预测婚姻的情况。例如，对于女性来说，官星代表丈夫；对于男性来说，财星代表妻子。如果这些十神在八字中组合良好，说明婚姻关系稳定；如果组合不佳，说明婚姻可能会出现问题。\n\n需要注意的是，花果论心法只是一种预测方法，不能完全决定婚姻的命运。婚姻的幸福与否还需要靠双方的共同努力和经营。'            }
+            ],
+            'essays': [
+                {
+                    id: 1,
+                    title: '命理学与现代科学的关系',
+                    excerpt: '命理学作为中国传统文化的重要组成部分，与现代科学之间存在着怎样的关系？',
+                    date: '2024-03-04',
+                    views: 890,
+                    likes: 41,
+                    category: 'essays',
+                    content: '命理学作为中国传统文化的重要组成部分，有着悠久的历史和广泛的影响。随着现代科学的发展，越来越多的人开始思考命理学与现代科学之间的关系。\n\n命理学与现代科学有着明显的不同。现代科学强调实证和逻辑推理，通过实验和观察来验证理论的正确性；而命理学则更多地依赖于经验和直觉，通过分析天干地支的组合来预测人的命运和运势。\n\n然而，命理学与现代科学之间也存在着一些相似之处。例如，两者都试图解释世界的运行规律，帮助人们更好地了解自己和周围的世界。此外，命理学中的一些概念，如五行相生相克，与现代科学中的系统论和生态学有着相似之处。\n\n对于命理学与现代科学的关系，我们应该采取理性的态度。既不能完全否定命理学的价值，也不能盲目相信命理学的预测。我们应该将命理学作为一种文化遗产来研究和保护，同时用现代科学的方法来分析和验证其合理性。'            },
+                {
+                    id: 2,
+                    title: '命理学对人生的启示',
+                    excerpt: '命理学不仅可以预测人的命运和运势，还可以给我们的人生带来重要的启示。',
+                    date: '2024-03-11',
+                    views: 765,
+                    likes: 38,
+                    category: 'essays',
+                    content: '命理学作为中国传统文化的重要组成部分，不仅可以预测人的命运和运势，还可以给我们的人生带来重要的启示。\n\n首先，命理学告诉我们，每个人都有自己独特的天赋和潜力。通过分析八字，我们可以了解自己的优势和劣势，从而更好地规划自己的职业和人生道路。\n\n其次，命理学强调平衡和和谐的重要性。八字中的五行需要保持平衡，人的生活也需要保持平衡。我们应该在工作和生活之间找到平衡，在物质和精神之间找到平衡，这样才能获得真正的幸福和快乐。\n\n最后，命理学提醒我们，命运是可以改变的。虽然出生时间对人的命运有一定的影响，但人的主观能动性也起着重要的作用。通过自己的努力和修行，我们可以改变自己的命运，实现自己的人生目标。\n\n总之，命理学对现代人生有着重要的启示和指导意义。我们应该理性地对待命理学，从中汲取有益的智慧，为自己的人生增添色彩。'            },
+                {
+                    id: 3,
+                    title: '学习命理学的心得体会',
+                    excerpt: '学习命理学需要长期的实践和积累，本文将分享作者学习命理学的心得体会和经验教训。',
+                    date: '2024-03-18',
+                    views: 456,
+                    likes: 25,
+                    category: 'essays',
+                    content: '学习命理学已经有几年的时间了，在这个过程中，我收获了很多，也遇到了很多困难和挑战。今天，我想分享一下自己学习命理学的心得体会，希望对初学者有所帮助。\n\n首先，学习命理学需要有浓厚的兴趣和持之以恒的精神。命理学是一门复杂的学问，需要学习很多基础知识，如天干地支、五行相生相克、十神关系等。只有对命理学有浓厚的兴趣，才能坚持学习下去。\n\n其次，学习命理学需要注重实践。命理学是一门实用的学问，只有通过实践才能真正掌握其精髓。在学习过程中，我们应该多找一些实际的八字案例来分析，不断积累经验。\n\n此外，学习命理学需要保持谦虚的态度。命理学是一门博大精深的学问，没有人能够完全掌握其所有知识。我们应该虚心向老师和同行学习，不断提高自己的水平。\n\n最后，学习命理学需要有正确的心态。命理学可以帮助我们了解自己和周围的世界，但不能完全决定我们的命运。我们应该理性地对待命理学的预测结果，不要过分迷信。\n\n总之，学习命理学是一个漫长而充实的过程，需要我们不断地努力和探索。希望我的心得体会能够对初学者有所帮助，也希望更多的人能够了解和喜爱命理学这门古老而神秘的学问。'            }
+            ]
+        };
+        
+        // 页面加载时执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从localStorage加载最新文章数据
+            const localStorageArticles = localStorage.getItem('articlesData');
+            if (localStorageArticles) {
+                articlesData = JSON.parse(localStorageArticles);
+            }
+            
+            // 获取URL参数
+            const params = new URLSearchParams(window.location.search);
+            const id = parseInt(params.get('id'));
+            const category = params.get('category');
+            
+            // 检查参数是否存在
+            if (!id || !category) {
+                showError('缺少必要的文章参数');
+                return;
+            }
+            
+            // 查找文章
+            const article = findArticleByIdAndCategory(id, category);
+            if (!article) {
+                showError('找不到指定的文章');
+                return;
+            }
+            
+            // 显示文章详情
+            displayArticle(article);
+            
+            // 初始化点赞功能
+            initLikeButton(article);
+            
+            // 初始化分享功能
+            initShareButton(article);
+        });
+        
+        // 根据ID和分类查找文章
+        function findArticleByIdAndCategory(id, category) {
+            if (!articlesData[category]) {
+                return null;
+            }
+            return articlesData[category].find(article => {
+                // 处理各种可能的ID类型不匹配情况
+                const articleId = article.id;
+                return parseInt(articleId) === id || articleId === id || articleId === String(id);
+            });
+        }
+        
+        // 显示错误信息
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            const articleDiv = document.getElementById('article-detail');
+            
+            errorDiv.innerHTML = `
+                <h2>${message}</h2>
+                <p>请返回首页查看其他文章</p>
+                <a href="index.html" class="back-btn" style="display: inline-flex; margin-top: 1rem;">
+                    <i class="fa fa-home"></i>
+                    返回首页
+                </a>
+            `;
+            errorDiv.style.display = 'block';
+            articleDiv.style.display = 'none';
+        }
+        
+        // 显示文章详情
+        function displayArticle(article) {
+            const articleDiv = document.getElementById('article-detail');
+            const errorDiv = document.getElementById('error-message');
+            
+            // 更新文章标题
+            document.getElementById('article-title').textContent = article.title;
+            
+            // 更新文章元信息
+            document.getElementById('article-date').textContent = article.date;
+            document.getElementById('article-category').textContent = getCategoryName(article.category);
+            document.getElementById('article-views').textContent = article.views || 0;
+            
+            // 更新文章内容
+            const contentDiv = document.getElementById('article-content');
+            let contentHTML = '';
+            
+            // 添加文章图片
+            if (article.images && article.images.length > 0) {
+                article.images.forEach(imageUrl => {
+                    contentHTML += `<div class="article-image-container">
+                        <img src="${imageUrl}" alt="文章图片" class="article-image">
+                    </div>`;
+                });
+            }
+            
+            // 添加文章内容
+            contentHTML += `<div class="article-text">${article.content.replace(/\n/g, '<br>')}</div>`;
+            
+            // 添加文章视频
+            if (article.videos && article.videos.length > 0) {
+                article.videos.forEach(videoUrl => {
+                    contentHTML += `<div class="article-video-container">
+                        <video controls class="article-video">
+                            <source src="${videoUrl}" type="video/mp4">
+                            您的浏览器不支持视频播放。
+                        </video>
+                    </div>`;
+                });
+            }
+            
+            contentDiv.innerHTML = contentHTML;
+            
+            // 更新点赞数
+            document.getElementById('like-count').textContent = article.likes || 0;
+            
+            // 显示文章详情，隐藏错误信息
+            articleDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            
+            // 保存当前文章
+            currentArticle = article;
+        }
+        
+        // 获取分类名称
+        function getCategoryName(category) {
+            const categoryNames = {
+                'basic-theory': '命学基础',
+                'celebrity-views': '名人观点',
+                'flower-fruit-method': '花果论心法',
+                'essays': '杂谈随笔'
+            };
+            return categoryNames[category] || category;
+        }
+        
+        // 初始化点赞按钮
+        function initLikeButton(article) {
+            const likeBtn = document.getElementById('like-btn');
+            
+            // 检查是否已点赞
+            const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
+            const isLiked = likedArticles.includes(`${article.category}-${article.id}`);
+            
+            if (isLiked) {
+                likeBtn.classList.add('liked');
+            }
+            
+            // 添加点击事件
+            likeBtn.addEventListener('click', function() {
+                const likeCount = document.getElementById('like-count');
+                let likes = parseInt(likeCount.textContent);
+                
+                if (likeBtn.classList.contains('liked')) {
+                    // 取消点赞
+                    likeBtn.classList.remove('liked');
+                    likes--;
+                    removeFromLikedArticles(article);
+                } else {
+                    // 添加点赞
+                    likeBtn.classList.add('liked');
+                    likes++;
+                    addToLikedArticles(article);
+                }
+                
+                // 更新点赞数
+                likeCount.textContent = likes;
+                
+                // 更新文章数据
+                updateArticleLikes(article, likes);
+            });
+        }
+        
+        // 添加到已点赞文章
+        function addToLikedArticles(article) {
+            const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
+            const key = `${article.category}-${article.id}`;
+            if (!likedArticles.includes(key)) {
+                likedArticles.push(key);
+                localStorage.setItem('likedArticles', JSON.stringify(likedArticles));
+            }
+        }
+        
+        // 从已点赞文章中移除
+        function removeFromLikedArticles(article) {
+            const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
+            const key = `${article.category}-${article.id}`;
+            const index = likedArticles.indexOf(key);
+            if (index > -1) {
+                likedArticles.splice(index, 1);
+                localStorage.setItem('likedArticles', JSON.stringify(likedArticles));
+            }
+        }
+        
+        // 更新文章点赞数
+        function updateArticleLikes(article, likes) {
+            // 更新内存中的文章数据
+            article.likes = likes;
+            
+            // 更新localStorage中的文章数据
+            const categoryArticles = articlesData[article.category];
+            const index = categoryArticles.findIndex(a => a.id === article.id);
+            if (index > -1) {
+                categoryArticles[index].likes = likes;
+                localStorage.setItem('articlesData', JSON.stringify(articlesData));
+            }
+        }
+        
+        // 初始化分享按钮
+        function initShareButton(article) {
+            const shareBtn = document.getElementById('share-btn');
+            
+            shareBtn.addEventListener('click', function() {
+                openShareModal(article);
+            });
+        }
+        
+        // 打开分享弹窗
+        function openShareModal(article) {
+            const baseUrl = window.location.href;
+            
+            // 创建分享弹窗HTML
+            const shareHTML = `
+                <div class="share-overlay">
+                    <div class="share-modal">
+                        <h3>分享文章</h3>
+                        <div class="share-options">
+                            <a href="https://twitter.com/intent/tweet?url=${encodeURIComponent(baseUrl)}&text=${encodeURIComponent(article.title)}" target="_blank" class="share-option">
+                                <i class="fa fa-twitter" style="color: #1DA1F2;"></i>
+                                <span>Twitter</span>
+                            </a>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(baseUrl)}" target="_blank" class="share-option">
+                                <i class="fa fa-facebook" style="color: #4267B2;"></i>
+                                <span>Facebook</span>
+                            </a>
+                            <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(baseUrl)}" target="_blank" class="share-option">
+                                <i class="fa fa-linkedin" style="color: #0077B5;"></i>
+                                <span>LinkedIn</span>
+                            </a>
+                            <button class="share-option copy-link" style="border: none; font-family: inherit;">
+                                <i class="fa fa-link" style="color: #666;"></i>
+                                <span>复制链接</span>
+                            </button>
+                        </div>
+                        <button class="close-btn">关闭</button>
+                    </div>
+                </div>
+            `;
+            
+            // 添加到页面
+            document.body.insertAdjacentHTML('beforeend', shareHTML);
+            
+            // 添加关闭事件
+            const overlay = document.querySelector('.share-overlay');
+            overlay.querySelector('.close-btn').addEventListener('click', () => overlay.remove());
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.remove();
+            });
+            
+            // 添加复制链接功能
+            overlay.querySelector('.copy-link').addEventListener('click', () => {
+                navigator.clipboard.writeText(baseUrl)
+                    .then(() => {
+                        alert('文章链接已复制到剪贴板！');
+                    })
+                    .catch(err => {
+                        console.error('复制失败:', err);
+                        alert('复制失败，请手动复制链接');
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

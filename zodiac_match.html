@@ -48,6 +48,131 @@
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet" media="print" onload="this.media='all'">
 
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet" crossorigin media="print" onload="this.media='all'">
+    
+    <!-- 微信打赏功能样式 -->
+    <style>
+        /* 打赏按钮样式 */
+        .donate-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .donate-btn:hover {
+            background-color: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
+        }
+        
+        /* 打赏弹窗样式 */
+        .donate-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .donate-content {
+            background-color: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .donate-header {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #333;
+        }
+        
+        .donate-qr {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        
+        .donate-qr img {
+            width: 200px;
+            height: 200px;
+            display: block;
+        }
+        
+        .donate-text {
+            margin: 16px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .close-btn {
+            background-color: #f0f0f0;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .close-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .donate-platforms {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 16px 0;
+        }
+        
+        .platform-btn {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            max-width: 120px;
+        }
+        
+        .platform-btn.active {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+        }
+        
+        .platform-btn img {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 8px;
+        }
+    </style>
     <style>
         /* 白色极简设计风格 */
         /* 基础变量 */
@@ -848,6 +973,93 @@
     </style>
 </head>
 <body>
+    <!-- 微信打赏功能 -->
+    <button class="donate-btn" onclick="openDonateModal()">
+        <i class="fa fa-heart"></i>
+        打赏支持
+    </button>
+    
+    <div class="donate-modal" id="donateModal">
+        <div class="donate-content">
+            <div class="donate-header">
+                <i class="fa fa-heart" style="color: #ff6b6b;"></i>
+                感谢您的支持
+            </div>
+            
+            <div class="donate-platforms">
+                <button class="platform-btn active" onclick="switchPlatform('wechat')">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTgiIGZpbGw9IiM1NUY1RjUiLz48cGF0aCBkPSJNMjAgMThjLTEuMSAwLTIgMC45LTIgMnMyIDAuOSAyIDItMiAwLjktMiAyem0tMS41LTcuNWMxLjggMCAzLjQgMC43IDQuNSAxLjlMMjAgMjF2LTQuNWgtMnY0LjVsLTUuMi0zLjJjMS4xLTEuMiAyLjctMS45IDQuNS0xLjl6bTAgMTEuOGMtMS4xIDAtMi0wLjktMi0ycy0wLjktMiAyLTIgMiAwLjkgMiAyIDAuOSAyIDItMiAyeiIgZmlsbD0iIzMzMyIvPjwvc3ZnPg==" alt="微信">
+                    <div>微信</div>
+                </button>
+                <button class="platform-btn" onclick="switchPlatform('alipay')">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTIwIDJDNiwgMiAyLCA2IDIgMTJzNCAxMCAxOCAxMCAxOC00IDE4LTEwUzM0IDIgMjAgMnptMCAxOGMtOC45IDAtMTYtNy4xLTE2LTE2UzExLjEgMiAyMCAyIDIwIDEwIDEyLjkgMTYgMjAgMTZ6bS0zLjktMTIuMmMwLTAuNiAwLjUtMS4xIDEuMS0xLjFzMS4xIDAuNSAxLjEgMS4xLTEuMSAxLjF6bTEuMyAzLjNjMCAwLjYtMC41IDEuMS0xLjEgMS4xcy0xLjEtMC41LTEuMS0xLjEgMS4xLTEuMSAxLjEgMC41IDEuMSAxLjF6bTEuMyAzLjNjMCAwLjYtMC41IDEuMS0xLjEgMS4xcy0xLjEtMC41LTEuMS0xLjEgMS4xLTEuMSAxLjEgMC41IDEuMSAxLjF6Ii8+PC9zdmc+" alt="支付宝">
+                    <div>支付宝</div>
+                </button>
+            </div>
+            
+            <div class="donate-qr">
+                <img id="donateQR" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTAgMGM1LjUxNCAwIDEwIDQuNDg2IDEwIDEwczQtNC40ODYgMTAtMTAgMTAtMTAtNC40ODYtMTAtMTAtMTB6bTEwIDJjLTQuNDggMC04IDMuNTItOCA4czMuNTIgOCA4IDggOCAzLjUyIDggOC0zLjUyIDgtOCA4em0wIDguOWMtMS42NTcgMC0zIDEuMzQzLTMgM3MxLjM0MyAzIDMgMyAzLTEuMzQzIDMtMy0xLjM0My0zLTMtM3ptMCA5LjNjLTIuNzYxIDAtNSAyLjIzOS01IDVzMi4yMzkgNSA1IDUgNS0yLjIzOSA1LTUtMi4yMzktNS01LTV6bS0xLjkgNy44YzAgLjQ5NS0uNDA1LjktLjkgLjlsLS4xLS4xYy0uMjgtLjI4LS43MzEtLjI4LTEuMDE1IDAtLjI4LjI4LS4yODAuNzMxIDAgMS4wMTVsLjEwNS4xMDVjLjE0LjE0LjMwNS4yMTUuNDgzLjIxNS4xNzggMCAuMzQzLS4wNzUuNDgzLS4yMTVsLjctLjdjLjE0LS4xNC4xNDAtLjM2OCAwLS41MDhsLS4xMDUtLjEwNWMtLjI4LS4yOC0uNzMxLS4yOC0xLjAxNSAwcy0uNzMxLjI4LTEuMDE1IDAtLjY3My42NzMtLjY3MyAxLjcyNyAwIDIuMzkgLjI4LjI4LjczMSAwIDEuMDE1bC4xMDUuMTA1Yy4yOC4yOCAuNzMxLjI4IDEuMDE1IDAgLjE0LS4xNC4yMTUtLjMwNS4yMTUtLjQ4MyAwLS4xNzgtLjA3NS0uMzQzLS4yMTUtLjQ4M2wtLjcxLS43MWMtLjE0LS4xNC0uMzY4LS4xNC0uNTA4IDAtLjI4LjI4LS43MzEuMjgtMS4wMTUgMGwtLjEwNS0uMTA1Yy0uMjgtLjI4LS43MzEtLjI4LTEuMDE1IDBzLS43MzEuMjgtMS4wMTUgMC0uMjguMjgtLjI4LjczMSAwIDEuMDE1bC4xMDUuMTA1YzAuMTQuMTQuMjEuMzA1LjIxNS40ODMuMDAyLjE3OC0uMDc0LjM0My0uMjE0LjQ4M2wtLjY2LjY2Yy0uMTQuMTQtLjEwNS4zNjgtLjEwNS41MDhWMThjMC4wMS4yODMuMjMxLjUgLjUgLjUgLjI2OSAwIC41LS4yMTcuNS0uNVYxNGMwLS4yNjktLjIxNy0uNS0uNS0uNXoiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC41Ii8+PC9nPjwvc3ZnPg==" alt="微信二维码">
+            </div>
+            
+            <div class="donate-text">
+                <p>扫码支持，感谢您的鼓励与支持！</p>
+                <p>金额随意，心意最重要</p>
+            </div>
+            
+            <button class="close-btn" onclick="closeDonateModal()">
+                <i class="fa fa-times"></i>
+                关闭
+            </button>
+        </div>
+    </div>
+    
+    <!-- 微信打赏功能 JavaScript -->
+    <script>
+        // 打赏弹窗控制
+        function openDonateModal() {
+            document.getElementById('donateModal').style.display = 'flex';
+        }
+        
+        function closeDonateModal() {
+            document.getElementById('donateModal').style.display = 'none';
+        }
+        
+        // 切换支付平台
+        function switchPlatform(platform) {
+            // 移除所有active类
+            document.querySelectorAll('.platform-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 添加active类到当前平台
+            event.target.closest('.platform-btn').classList.add('active');
+            
+            // 切换二维码图片
+            const qrImg = document.getElementById('donateQR');
+            if (platform === 'wechat') {
+                // 微信二维码
+                qrImg.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTAgMGM1LjUxNCAwIDEwIDQuNDg2IDEwIDEwczQtNC40ODYgMTAtMTAgMTAtMTAtNC40ODYtMTAtMTAtMTB6bTEwIDJjLTQuNDggMC04IDMuNTItOCA4czMuNTIgOCA4IDggOCAzLjUyIDggOC0zLjUyIDgtOCA4em0wIDguOWMtMS42NTcgMC0zIDEuMzQzLTMgM3MxLjM0MyAzIDMgMyAzLTEuMzQzIDMtMy0xLjM0My0zLTMtM3ptMCA5LjNjLTIuNzYxIDAtNSAyLjIzOS01IDVzMi4yMzkgNSA1IDUgNS0yLjIzOSA1LTUtMi4yMzktNS01LTV6bS0xLjkgNy44YzAgLjQ5NS0uNDA1LjktLjkgLjlsLS4xLS4xYy0uMjgtLjI4LS43MzEtLjI4LTEuMDE1IDAtLjI4LjI4LS4yODAuNzMxIDAgMS4wMTVsLjEwNS4xMDVjLjE0LjE0LjMwNS4yMTUuNDgzLjIxNS4xNzggMCAuMzQzLS4wNzUuNDgzLS4yMTVsLjctLjdjLjE0LS4xNC4xNDAtLjM2OCAwLS41MDhsLS4xMDUtLjEwNWMtLjI4LS4yOC0uNzMxLS4yOC0xLjAxNSAwcy0uNzMxLjI4LTEuMDE1IDAtLjY3My42NzMtLjY3MyAxLjcyNyAwIDIuMzkgLjI4LjI4LjczMSAwIDEuMDE1bC4xMDUuMTA1Yy4yOC4yOCAuNzMxLjI4IDEuMDE1IDAgLjE0LS4xNC4yMTUtLjMwNS4yMTUtLjQ4MyAwLS4xNzgtLjA3NS0uMzQzLS4yMTUtLjQ4M2wtLjcxLS43MWMtLjE0LS4xNC0uMzY4LS4xNC0uNTA4IDAtLjI4LjI4LS43MzEuMjgtMS4wMTUgMGwtLjEwNS0uMTA1Yy0uMjgtLjI4LS43MzEtLjI4LTEuMDE1IDBzLS43MzEuMjgtMS4wMTUgMC0uMjguMjgtLjI4LjczMSAwIDEuMDE1bC4xMDUuMTA1YzAuMjguMjggMCAxLjAxNSAwIDEuMDE1em0wLTEuNGMwIC4zMjcuMjYxLjU4OC41ODYuNTg4LjMyNyAwIC41ODYtLjI2MS41ODYtLjU4OHMtLjI2MS0uNTg4LS41ODYtLjU4OC0uNTg2LjI2MS0uNTg2LjU4OHoiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC41Ii8+PC9nPjwvc3ZnPg==';
+            } else if (platform === 'alipay') {
+                // 支付宝二维码
+                qrImg.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTAgMGM1LjUxNCAwIDEwIDQuNDg2IDEwIDEwczQtNC40ODYgMTAtMTAgMTAtMTAtNC40ODYtMTAtMTAtMTB6bTEwIDJjLTQuNDggMC04IDMuNTItOCA4czMuNTIgOCA4IDggOCAzLjUyIDggOC0zLjUyIDgtOCA4em0wIDguOWMtMS42NTcgMC0zIDEuMzQzLTMgM3MxLjM0MyAzIDMgMyAzLTEuMzQzIDMtMy0xLjM0My0zLTMtM3ptMCA5LjNjLTIuNzYxIDAtNSAyLjIzOS01IDVzMi4yMzkgNSA1IDUgNS0yLjIzOSA1LTUtMi4yMzktNS01LTV6bS0xLjkgNy44YzAgLjQ5NS0uNDA1LjktLjkgLjlsLS4xLS4xYy0uMjgtLjI4LS43MzEtLjI4LTEuMDE1IDAtLjI4LjI4LS4yODAuNzMxIDAgMS4wMTVsLjEwNS4xMDVjLjE0LjE0LjMwNS4yMTUuNDgzLjIxNS4xNzggMCAuMzQzLS4wNzUuNDgzLS4yMTVsLjctLjdjLjE0LS4xNC4xNDAtLjM2OCAwLS41MDhsLS4xMDUtLjEwNWMtLjI4LS4yOC0uNzMxLS4yOC0xLjAxNSAwcy0uNzMxLjI4LTEuMDE1IDAtLjY3My42NzMtLjY3MyAxLjcyNyAwIDIuMzkgLjI4LjI4LjczMSAwIDEuMDE1bC4xMDUuMTA1Yy4yOC4yOCAuNzMxLjI4IDEuMDE1IDAgLjE0LS4xNC4yMTUtLjMwNS4yMTUtLjQ4MyAwLS4xNzgtLjA3NS0uMzQzLS4yMTUtLjQ4M2wtLjcxLS43MWMtLjE0LS4xNC0uMzY4LS4xNC0uNTA4IDAtLjI4LjI4LS43MzEuMjgtMS4wMTUgMGwtLjEwNS0uMTA1Yy0uMjgtLjI4LS43MzEtLjI4LTEuMDE1IDBzLS43MzEuMjgtMS4wMTUgMC0uMjguMjgtLjI4LjczMSAwIDEuMDE1bC4xMDUuMTA1YzAuMjguMjggMCAxLjAxNSAwIDEuMDE1em0wLTEuNGMwIC4zMjcuMjYxLjU4OC41ODYuNTg4LjMyNyAwIC41ODYtLjI2MS41ODYtLjU4OHMtLjI2MS0uNTg4LS41ODYtLjU4OC0uNTg2LjI2MS0uNTg2LjU4OHoiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC41Ii8+PC9nPjwvc3ZnPg==';
+            }
+        }
+        
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('donateModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // ESC键关闭模态框
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeDonateModal();
+            }
+        });
+    </script>
     <div class="container">
         <!-- 语言切换按钮 - 右对齐 -->
         <div id="language-switcher" class="absolute right-4 top-4 z-50">
@@ -8043,9 +8255,7 @@
     </div>
     <footer style="position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; padding: 10px; background-color: #ffffff; border-top: 1px solid var(--border-color); margin-top: 0; z-index: 100;">
         <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap;">
-            <p data-translate="footerCopyright" style="margin: 0; color: var(--light-text); font-size: 0.9rem; display: inline;">© 2024 fatenet.cn 命理感情查询工具</p>
-            <span style="color: var(--light-text);">|</span>
-            <p data-translate="footerDisclaimer" style="margin: 0; color: var(--light-text); font-size: 0.8rem; display: inline;">本工具仅供参考，命运掌握在自己手中</p>
+            <p style="margin: 0; color: var(--light-text); font-size: 0.9rem; display: inline;">苏ICP备2025226852号-1丨苏公网安备32020602003711号</p>
         </div>
     </footer>
     </body>
