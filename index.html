@@ -2178,7 +2178,86 @@
     
     <script>
         // 文章数据从articles.json文件加载
-        const articles = {
+        let articles = {};
+        
+        // 从articles.json加载文章数据
+        fetch('articles.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络响应失败');
+                }
+                return response.json();
+            })
+            .then(data => {
+                articles = data;
+                console.log('成功从articles.json加载文章数据');
+                console.log('分类数量:', Object.keys(articles).length);
+                // 确保所有分类都有数据，避免渲染时出错
+                ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'].forEach(category => {
+                    if (!articles[category]) {
+                        articles[category] = [];
+                    }
+                });
+                // 渲染文章内容
+                renderArticles();
+            })
+            .catch(error => {
+                console.error('从articles.json加载数据失败:', error);
+                // 如果加载失败，使用默认空数据
+                articles = {
+                    'basic-theory': [],
+                    'celebrity-views': [],
+                    'flower-fruit-method': [],
+                    'essays': []
+                };
+            });
+        
+        // 渲染文章内容
+        function renderArticles() {
+            console.log('开始渲染文章内容...');
+            
+            // 渲染每个分类的文章
+            ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'].forEach(category => {
+                const grid = document.getElementById(`${category}-grid`);
+                if (!grid) {
+                    console.warn(`找不到${category}分类的网格容器`);
+                    return;
+                }
+                
+                const categoryArticles = articles[category] || [];
+                console.log(`${category}分类有${categoryArticles.length}篇文章`);
+                
+                if (categoryArticles.length === 0) {
+                    grid.innerHTML = '<p style="text-align: center; color: var(--light-text);">暂无相关文章</p>';
+                    return;
+                }
+                
+                // 只显示前3篇文章
+                const displayArticles = categoryArticles.slice(0, 3);
+                
+                // 生成文章卡片HTML
+                const articlesHTML = displayArticles.map(article => `
+                    <div class="article-card" onclick="window.location.href='article-detail.html?id=${article.id}&category=${category}'">
+                        <h3 class="article-title">${article.title}</h3>
+                        <p class="article-excerpt">${article.excerpt}</p>
+                        <div class="article-meta">
+                            <span class="article-date">${article.date}</span>
+                            <span class="article-likes">
+                                <i class="fa fa-heart"></i> ${article.likes || 0}
+                            </span>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // 将文章卡片HTML添加到网格容器中
+                grid.innerHTML = articlesHTML;
+            });
+            
+            console.log('文章内容渲染完成');
+        }
+        
+        // 临时添加一些示例文章，确保页面初次加载时有内容显示
+        const sampleArticles = {
             'basic-theory': [
                 {
                     id: 1,

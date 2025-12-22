@@ -405,17 +405,17 @@
         function loadArticles() {
             console.log('=== 开始加载文章数据 ===');
             
-            // 尝试从本地存储加载数据
-            const savedData = localStorage.getItem('articlesData');
-            
-            console.log('localStorage中有数据:', !!savedData);
-            
-            if (savedData) {
-                console.log('正在解析localStorage数据...');
-                try {
-                    const parsedData = JSON.parse(savedData);
-                    console.log('解析成功！');
-                    console.log('分类数量:', Object.keys(parsedData).length);
+            // 首先从JSON文件加载数据
+            fetch('articles.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('网络响应失败');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('成功从articles.json加载数据');
+                    console.log('分类数量:', Object.keys(data).length);
                     
                     // 确保articlesData有正确的结构
                     articlesData = {
@@ -426,36 +426,73 @@
                     };
                     
                     // 将解析的数据合并到articlesData
-                    Object.keys(parsedData).forEach(category => {
+                    Object.keys(data).forEach(category => {
                         if (articlesData[category]) {
-                            articlesData[category] = [...parsedData[category]];
-                            console.log(`${category}: ${parsedData[category].length}篇文章`);
+                            articlesData[category] = [...data[category]];
+                            console.log(`${category}: ${data[category].length}篇文章`);
                         }
                     });
                     
+                    // 将数据保存到localStorage作为备份
+                    localStorage.setItem('articlesData', JSON.stringify(articlesData));
+                    
                     renderArticles(currentCategory);
-                } catch (error) {
-                    console.error('解析localStorage数据出错:', error);
-                    // 解析出错时，初始化空的文章数据结构，不使用默认数据
-                    articlesData = {
-                        'basic-theory': [],
-                        'celebrity-views': [],
-                        'flower-fruit-method': [],
-                        'essays': []
-                    };
-                    renderArticles(currentCategory);
-                }
-            } else {
-                console.log('localStorage中没有数据，初始化空结构');
-                // 没有数据时，初始化空的文章数据结构，不使用默认数据
-                articlesData = {
-                    'basic-theory': [],
-                    'celebrity-views': [],
-                    'flower-fruit-method': [],
-                    'essays': []
-                };
-                renderArticles(currentCategory);
-            }
+                })
+                .catch(error => {
+                    console.error('从articles.json加载数据失败:', error);
+                    
+                    // 如果JSON文件加载失败，尝试从localStorage加载数据
+                    const savedData = localStorage.getItem('articlesData');
+                    
+                    console.log('localStorage中有数据:', !!savedData);
+                    
+                    if (savedData) {
+                        console.log('正在解析localStorage数据...');
+                        try {
+                            const parsedData = JSON.parse(savedData);
+                            console.log('解析成功！');
+                            console.log('分类数量:', Object.keys(parsedData).length);
+                            
+                            // 确保articlesData有正确的结构
+                            articlesData = {
+                                'basic-theory': [],
+                                'celebrity-views': [],
+                                'flower-fruit-method': [],
+                                'essays': []
+                            };
+                            
+                            // 将解析的数据合并到articlesData
+                            Object.keys(parsedData).forEach(category => {
+                                if (articlesData[category]) {
+                                    articlesData[category] = [...parsedData[category]];
+                                    console.log(`${category}: ${parsedData[category].length}篇文章`);
+                                }
+                            });
+                            
+                            renderArticles(currentCategory);
+                        } catch (error) {
+                            console.error('解析localStorage数据出错:', error);
+                            // 解析出错时，初始化空的文章数据结构
+                            articlesData = {
+                                'basic-theory': [],
+                                'celebrity-views': [],
+                                'flower-fruit-method': [],
+                                'essays': []
+                            };
+                            renderArticles(currentCategory);
+                        }
+                    } else {
+                        console.log('localStorage中没有数据，初始化空结构');
+                        // 没有数据时，初始化空的文章数据结构
+                        articlesData = {
+                            'basic-theory': [],
+                            'celebrity-views': [],
+                            'flower-fruit-method': [],
+                            'essays': []
+                        };
+                        renderArticles(currentCategory);
+                    }
+                });
         }
         
         // 渲染文章列表
