@@ -405,7 +405,41 @@
         function loadArticles() {
             console.log('=== 开始加载文章数据 ===');
             
-            // 首先从JSON文件加载数据
+            // 优先从localStorage加载数据
+            const savedData = localStorage.getItem('articlesData');
+            
+            if (savedData) {
+                console.log('localStorage中有数据，优先使用localStorage数据');
+                try {
+                    const parsedData = JSON.parse(savedData);
+                    console.log('解析成功！');
+                    console.log('分类数量:', Object.keys(parsedData).length);
+                    
+                    // 确保articlesData有正确的结构
+                    articlesData = {
+                        'basic-theory': [],
+                        'celebrity-views': [],
+                        'flower-fruit-method': [],
+                        'essays': []
+                    };
+                    
+                    // 将解析的数据合并到articlesData
+                    Object.keys(parsedData).forEach(category => {
+                        if (articlesData[category]) {
+                            articlesData[category] = [...parsedData[category]];
+                            console.log(`${category}: ${parsedData[category].length}篇文章`);
+                        }
+                    });
+                    
+                    renderArticles(currentCategory);
+                    return; // 优先使用localStorage数据，直接返回
+                } catch (error) {
+                    console.error('解析localStorage数据出错:', error);
+                    // 解析出错时，继续尝试从articles.json加载
+                }
+            }
+            
+            // 如果localStorage没有数据或解析出错，从articles.json加载数据
             fetch('articles.json')
                 .then(response => {
                     if (!response.ok) {
@@ -441,57 +475,15 @@
                 .catch(error => {
                     console.error('从articles.json加载数据失败:', error);
                     
-                    // 如果JSON文件加载失败，尝试从localStorage加载数据
-                    const savedData = localStorage.getItem('articlesData');
-                    
-                    console.log('localStorage中有数据:', !!savedData);
-                    
-                    if (savedData) {
-                        console.log('正在解析localStorage数据...');
-                        try {
-                            const parsedData = JSON.parse(savedData);
-                            console.log('解析成功！');
-                            console.log('分类数量:', Object.keys(parsedData).length);
-                            
-                            // 确保articlesData有正确的结构
-                            articlesData = {
-                                'basic-theory': [],
-                                'celebrity-views': [],
-                                'flower-fruit-method': [],
-                                'essays': []
-                            };
-                            
-                            // 将解析的数据合并到articlesData
-                            Object.keys(parsedData).forEach(category => {
-                                if (articlesData[category]) {
-                                    articlesData[category] = [...parsedData[category]];
-                                    console.log(`${category}: ${parsedData[category].length}篇文章`);
-                                }
-                            });
-                            
-                            renderArticles(currentCategory);
-                        } catch (error) {
-                            console.error('解析localStorage数据出错:', error);
-                            // 解析出错时，初始化空的文章数据结构
-                            articlesData = {
-                                'basic-theory': [],
-                                'celebrity-views': [],
-                                'flower-fruit-method': [],
-                                'essays': []
-                            };
-                            renderArticles(currentCategory);
-                        }
-                    } else {
-                        console.log('localStorage中没有数据，初始化空结构');
-                        // 没有数据时，初始化空的文章数据结构
-                        articlesData = {
-                            'basic-theory': [],
-                            'celebrity-views': [],
-                            'flower-fruit-method': [],
-                            'essays': []
-                        };
-                        renderArticles(currentCategory);
-                    }
+                    console.log('localStorage和articles.json都无法加载数据，初始化空结构');
+                    // 没有数据时，初始化空的文章数据结构
+                    articlesData = {
+                        'basic-theory': [],
+                        'celebrity-views': [],
+                        'flower-fruit-method': [],
+                        'essays': []
+                    };
+                    renderArticles(currentCategory);
                 });
         }
         

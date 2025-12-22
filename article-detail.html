@@ -481,7 +481,26 @@
         
         // 页面加载时执行
         document.addEventListener('DOMContentLoaded', function() {
-            // 首先从JSON文件加载文章数据
+            // 优先从localStorage加载文章数据
+            const localStorageArticles = localStorage.getItem('articlesData');
+            if (localStorageArticles) {
+                try {
+                    articlesData = JSON.parse(localStorageArticles);
+                    console.log('成功从localStorage加载文章数据');
+                    // 继续处理页面逻辑
+                    loadArticleDetail();
+                } catch (e) {
+                    console.error('从localStorage加载文章数据失败:', e);
+                    // localStorage加载失败，尝试从JSON文件加载
+                    fetchArticlesFromJson();
+                }
+            } else {
+                // localStorage没有数据，从JSON文件加载
+                fetchArticlesFromJson();
+            }
+        });
+
+        function fetchArticlesFromJson() {
             fetch('articles.json')
                 .then(response => {
                     if (!response.ok) {
@@ -500,18 +519,10 @@
                 })
                 .catch(error => {
                     console.error('从articles.json加载数据失败:', error);
-                    // 如果JSON文件加载失败，尝试从localStorage加载数据
-                    const localStorageArticles = localStorage.getItem('articlesData');
-                    if (localStorageArticles) {
-                        console.log('尝试从localStorage加载文章数据');
-                        articlesData = JSON.parse(localStorageArticles);
-                        loadArticleDetail();
-                    } else {
-                        console.error('无法从任何来源加载文章数据');
-                        showError('无法加载文章数据');
-                    }
+                    console.error('无法从任何来源加载文章数据');
+                    showError('无法加载文章数据');
                 });
-        });
+        }
         
         // 加载文章详情
         function loadArticleDetail() {
