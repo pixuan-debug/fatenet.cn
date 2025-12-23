@@ -2234,8 +2234,8 @@
                     return;
                 }
                 
-                // 只显示前3篇文章
-                const displayArticles = categoryArticles.slice(0, 3);
+                // 显示所有文章
+                const displayArticles = categoryArticles;
                 
                 // 生成文章卡片HTML
                 const articlesHTML = displayArticles.map(article => `
@@ -2253,6 +2253,16 @@
                 
                 // 将文章卡片HTML添加到网格容器中
                 grid.innerHTML = articlesHTML;
+            });
+            
+            // 为所有查看更多按钮添加点击事件处理
+            const viewMoreBtns = document.querySelectorAll('.view-more-btn');
+            viewMoreBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // 跳转到文章列表页面
+                    window.location.href = 'articles.html';
+                });
             });
             
             console.log('文章内容渲染完成');
