@@ -2258,8 +2258,19 @@
             // 为所有查看更多按钮添加点击事件处理
             const viewMoreBtns = document.querySelectorAll('.view-more-btn');
             viewMoreBtns.forEach(btn => {
+                // 移除可能存在的旧事件监听器
+                btn.onclick = null;
+                // 添加新的点击事件处理
+                btn.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // 跳转到文章列表页面
+                    window.location.href = 'articles.html';
+                };
+                // 同时添加addEventListener作为备份
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     // 跳转到文章列表页面
                     window.location.href = 'articles.html';
                 });
