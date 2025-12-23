@@ -2198,6 +2198,8 @@
                         articles[category] = [];
                     }
                 });
+                // 将最新数据保存到localStorage，供其他功能使用
+                localStorage.setItem('articlesData', JSON.stringify(articles));
                 // 渲染文章内容
                 renderArticles();
             })
@@ -8764,9 +8766,6 @@
 
         // 文章板块功能实现
         document.addEventListener('DOMContentLoaded', function() {
-            // 初始化文章板块
-            initArticleSections();
-            
             // 初始化留言表单
             initContactForm();
             
