@@ -4,14 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文章列表 - 正缘方位网</title>
-    <meta name="description" content="正缘方位网的文章列表，包含命学基础、名人观点、花果论心法和命理随笔等内容。">
-    <meta name="keywords" content="文章列表,命学基础,名人观点,花果论心法,命理随笔">
+    <meta name="description" content="正缘方位网的文章列表，包含命学基础、名人八字、花果论心法和命理随笔等内容。">
+    <meta name="keywords" content="文章列表,命学基础,名人八字,花果论心法,命理随笔">
     
     <!-- 引入Font Awesome -->
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     
     <!-- 引入中国风字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    
+
     
     <style>
         /* 全局样式 */
@@ -37,6 +39,9 @@
             background-color: var(--background-color);
             color: var(--text-color);
             line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         
         /* 头部样式 */
@@ -94,6 +99,7 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem 1rem;
+            flex: 1;
         }
         
         /* 页面标题 */
@@ -212,10 +218,13 @@
         
         /* 页脚 */
         footer {
-            background-color: var(--card-bg);
-            padding: 2rem 0;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
             border-top: 1px solid var(--border-color);
-            margin-top: 3rem;
+            color: var(--light-text);
+            font-size: 0.9rem;
+            background-color: var(--card-bg);
         }
         
         .footer-content {
@@ -366,7 +375,7 @@
         <div class="category-filter">
             <button class="filter-btn active" data-category="all">所有分类</button>
             <button class="filter-btn" data-category="basic-theory">命学基础</button>
-            <button class="filter-btn" data-category="celebrity-views">名人观点</button>
+            <button class="filter-btn" data-category="celebrity-views">名人八字</button>
             <button class="filter-btn" data-category="flower-fruit-method">花果论心法</button>
             <button class="filter-btn" data-category="essays">杂谈随笔</button>
         </div>
@@ -397,55 +406,86 @@
         
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
+            // 从URL获取分类参数
+            const urlParams = new URLSearchParams(window.location.search);
+            let categoryParam = urlParams.get('category');
+            
+            // 修复分类参数，确保它是有效的
+            if (categoryParam) {
+                // 移除可能的空格或其他无效字符
+                categoryParam = categoryParam.trim();
+                currentCategory = categoryParam;
+            } else {
+                // 默认显示所有文章
+                currentCategory = 'all';
+            }
+            
+            console.log('最终分类:', currentCategory);
+            
             loadArticles();
             initFilterButtons();
         });
         
         // 加载文章数据
         function loadArticles() {
-            console.log('=== 开始加载文章数据 ===');
+            // 先尝试从localStorage加载数据
+            const savedData = localStorage.getItem('articlesData');
+            if (savedData) {
+                try {
+                    articlesData = JSON.parse(savedData);
+                    console.log('成功从localStorage加载文章数据');
+                    // 确保所有分类都有数据，避免渲染时出错
+                    ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'].forEach(category => {
+                        if (!articlesData[category]) {
+                            articlesData[category] = [];
+                        }
+                    });
+                    // 重新渲染文章列表
+                    renderArticles(currentCategory);
+                    return;
+                } catch (error) {
+                    console.error('从localStorage解析数据失败:', error);
+                    console.log('尝试从articles.json加载数据');
+                }
+            } else {
+                console.log('localStorage中没有数据，尝试从articles.json加载');
+            }
             
-            // 直接从articles.json加载最新数据，不使用localStorage缓存
-            fetch('articles.json')
+            // 从articles.json加载数据，添加缓存控制
+            fetch('articles.json', {
+                cache: 'no-cache'
+            })
                 .then(response => {
+                    console.log('articles.json响应状态:', response.status);
                     if (!response.ok) {
-                        throw new Error('网络响应失败');
+                        throw new Error('网络响应失败，状态码: ' + response.status);
                     }
                     return response.json();
                 })
                 .then(data => {
-                    console.log('成功从articles.json加载数据');
-                    console.log('分类数量:', Object.keys(data).length);
+                    console.log('成功加载articles.json数据:', data);
+                    articlesData = data;
                     
-                    // 确保articlesData有正确的结构
-                    articlesData = {
-                        'basic-theory': [],
-                        'celebrity-views': [],
-                        'flower-fruit-method': [],
-                        'essays': []
-                    };
-                    
-                    // 将解析的数据合并到articlesData
-                    Object.keys(data).forEach(category => {
-                        if (articlesData[category]) {
-                            articlesData[category] = [...data[category]];
-                            console.log(`${category}: ${data[category].length}篇文章`);
+                    // 确保所有分类都有数据，避免渲染时出错
+                    ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'].forEach(category => {
+                        if (!articlesData[category]) {
+                            articlesData[category] = [];
                         }
                     });
-                    
+                    // 重新渲染文章列表
                     renderArticles(currentCategory);
                 })
                 .catch(error => {
                     console.error('从articles.json加载数据失败:', error);
-                    
-                    console.log('无法加载数据，初始化空结构');
-                    // 没有数据时，初始化空的文章数据结构
+                    // 如果加载失败，使用空数据
                     articlesData = {
                         'basic-theory': [],
                         'celebrity-views': [],
                         'flower-fruit-method': [],
                         'essays': []
                     };
+                    console.log('使用空数据，分类数量:', Object.keys(articlesData).length);
+                    // 重新渲染文章列表
                     renderArticles(currentCategory);
                 });
         }
@@ -453,20 +493,46 @@
         // 渲染文章列表
         function renderArticles(category) {
             const grid = document.getElementById('articles-grid');
-            let allArticles = [];
+            let filteredArticles = [];
             
-            // 收集所有文章
-            Object.keys(articlesData).forEach(key => {
-                articlesData[key].forEach(article => {
-                    // 确保每个文章对象都有category属性
-                    allArticles.push({ ...article, category: key });
-                });
-            });
+            console.log('当前分类:', category);
+            console.log('文章数据:', articlesData);
+            
+            // 确保articlesData是一个对象
+            if (typeof articlesData !== 'object' || articlesData === null) {
+                grid.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: var(--light-text);">文章数据加载失败</p>';
+                return;
+            }
             
             // 按分类筛选
-            const filteredArticles = category === 'all' 
-                ? allArticles 
-                : allArticles.filter(article => article.category === category);
+            if (category === 'all') {
+                // 显示所有分类的文章
+                const categories = ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'];
+                categories.forEach(cat => {
+                    const categoryArticles = articlesData[cat];
+                    if (Array.isArray(categoryArticles)) {
+                        filteredArticles = filteredArticles.concat(categoryArticles);
+                    }
+                });
+            } else {
+                // 显示特定分类的文章
+                const categoryArticles = articlesData[category];
+                if (Array.isArray(categoryArticles)) {
+                    filteredArticles = categoryArticles;
+                } else {
+                    console.log('未找到分类:', category, '的文章');
+                    // 如果未找到特定分类，显示所有文章
+                    const categories = ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'];
+                    categories.forEach(cat => {
+                        const catArticles = articlesData[cat];
+                        if (Array.isArray(catArticles)) {
+                            filteredArticles = filteredArticles.concat(catArticles);
+                        }
+                    });
+                }
+            }
+            
+            console.log('筛选后的文章数量:', filteredArticles.length);
             
             if (filteredArticles.length === 0) {
                 grid.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: var(--light-text);">暂无相关文章</p>';
@@ -495,7 +561,7 @@
                         </div>
                         <div class="article-likes">
                             <i class="fa fa-heart"></i>
-                            <span>${article.likes}</span>
+                            <span>${article.likes || 0}</span>
                         </div>
                     </div>
                 </div>
@@ -516,7 +582,7 @@
         function getCategoryName(category) {
             const categoryNames = {
                 'basic-theory': '命学基础',
-                'celebrity-views': '名人观点',
+                'celebrity-views': '名人八字',
                 'flower-fruit-method': '花果论心法',
                 'essays': '杂谈随笔'
             };
@@ -526,6 +592,16 @@
         // 初始化筛选按钮
         function initFilterButtons() {
             const filterBtns = document.querySelectorAll('.filter-btn');
+            
+            // 设置初始活动状态
+            filterBtns.forEach(btn => {
+                const category = btn.getAttribute('data-category');
+                if (category === currentCategory) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // 添加点击事件
             filterBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     // 移除所有活动状态

@@ -102,12 +102,6 @@
         }
         
         /* 确保容器和主内容区域正确扩展 */
-        .container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
         main {
             flex: 1;
         }
@@ -2065,10 +2059,10 @@
                 </div>
             </div>
             
-            <!-- 名人论命板块 -->
+            <!-- 名人八字板块 -->
             <div class="article-category">
                 <div class="category-header">
-                    <h3 class="category-title" data-translate="celebrityViews">名人论命</h3>
+                    <h3 class="category-title" data-translate="celebrityViews">名人八字</h3>
                     <button class="view-more-btn" data-translate="viewMore">查看更多 <i class="fa fa-arrow-right"></i></button>
                 </div>
                 <div class="masonry-grid" id="celebrity-views-grid">
@@ -2178,111 +2172,7 @@
     
     <script>
         // 文章数据从articles.json文件加载
-        let articles = {};
-        
-        // 从articles.json加载文章数据
-        fetch('articles.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('网络响应失败');
-                }
-                return response.json();
-            })
-            .then(data => {
-                articles = data;
-                console.log('成功从articles.json加载文章数据');
-                console.log('分类数量:', Object.keys(articles).length);
-                // 确保所有分类都有数据，避免渲染时出错
-                ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'].forEach(category => {
-                    if (!articles[category]) {
-                        articles[category] = [];
-                    }
-                });
-                // 将最新数据保存到localStorage，供其他功能使用
-                localStorage.setItem('articlesData', JSON.stringify(articles));
-                // 渲染文章内容
-                renderArticles();
-            })
-            .catch(error => {
-                console.error('从articles.json加载数据失败:', error);
-                // 如果加载失败，使用默认空数据
-                articles = {
-                    'basic-theory': [],
-                    'celebrity-views': [],
-                    'flower-fruit-method': [],
-                    'essays': []
-                };
-                // 渲染文章内容
-                renderArticles();
-            });
-        
-        // 渲染文章内容
-        function renderArticles() {
-            console.log('开始渲染文章内容...');
-            
-            // 渲染每个分类的文章
-            ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'].forEach(category => {
-                const grid = document.getElementById(`${category}-grid`);
-                if (!grid) {
-                    console.warn(`找不到${category}分类的网格容器`);
-                    return;
-                }
-                
-                const categoryArticles = articles[category] || [];
-                console.log(`${category}分类有${categoryArticles.length}篇文章`);
-                
-                if (categoryArticles.length === 0) {
-                    grid.innerHTML = '<p style="text-align: center; color: var(--light-text);">暂无相关文章</p>';
-                    return;
-                }
-                
-                // 显示所有文章
-                const displayArticles = categoryArticles;
-                
-                // 生成文章卡片HTML
-                const articlesHTML = displayArticles.map(article => `
-                    <div class="article-card" onclick="window.location.href='article-detail.html?id=${article.id}&category=${category}'">
-                        <h3 class="article-title">${article.title}</h3>
-                        <p class="article-excerpt">${article.excerpt}</p>
-                        <div class="article-meta">
-                            <span class="article-date">${article.date}</span>
-                            <span class="article-likes">
-                                <i class="fa fa-heart"></i> ${article.likes || 0}
-                            </span>
-                        </div>
-                    </div>
-                `).join('');
-                
-                // 将文章卡片HTML添加到网格容器中
-                grid.innerHTML = articlesHTML;
-            });
-            
-            // 为所有查看更多按钮添加点击事件处理
-            const viewMoreBtns = document.querySelectorAll('.view-more-btn');
-            viewMoreBtns.forEach(btn => {
-                // 移除可能存在的旧事件监听器
-                btn.onclick = null;
-                // 添加新的点击事件处理
-                btn.onclick = function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // 跳转到文章列表页面
-                    window.location.href = 'articles.html';
-                };
-                // 同时添加addEventListener作为备份
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // 跳转到文章列表页面
-                    window.location.href = 'articles.html';
-                });
-            });
-            
-            console.log('文章内容渲染完成');
-        }
-        
-        // 临时添加一些示例文章，确保页面初次加载时有内容显示
-        const sampleArticles = {
+        const articles = {
             'basic-theory': [
                 {
                     id: 1,
@@ -2478,7 +2368,7 @@
                 // 文章板块翻译
                 'articlesTitle': '命理文章',
                 'basicTheory': '命学基础',
-                'celebrityViews': '名人论命',
+                'celebrityViews': '名人八字',
                 'flowerFruitMethod': '花果论心法',
                 'essays': '杂谈随笔',
                 'viewMore': '查看更多',
@@ -8789,6 +8679,9 @@
 
         // 文章板块功能实现
         document.addEventListener('DOMContentLoaded', function() {
+            // 初始化文章板块
+            initArticleSections();
+            
             // 初始化留言表单
             initContactForm();
             
@@ -8806,8 +8699,39 @@
                 // 使用本地存储的数据
                 articlesData = JSON.parse(savedData);
             } else {
-                // 使用内联文章数据作为默认值
-                articlesData = articles;
+                // 从articles.json加载数据
+                fetch('articles.json')
+                    .then(response => response.json())
+                    .then(data => {
+                        articlesData = data;
+                        // 遍历所有文章分类
+                        Object.keys(articlesData).forEach(category => {
+                            const grid = document.getElementById(`${category}-grid`);
+                            if (grid) {
+                                // 清空现有内容
+                                grid.innerHTML = '';
+                                // 生成文章卡片 - 只显示精华文章
+                                const categoryArticles = articlesData[category];
+                                const featuredArticles = categoryArticles.filter(article => article.isFeatured);
+                                
+                                featuredArticles.forEach(article => {
+                                    const card = createArticleCard(article, category);
+                                    grid.appendChild(card);
+                                });
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        console.error('从articles.json加载数据出错:', error);
+                        // 使用空数据作为默认值
+                        articlesData = {
+                            'basic-theory': [], 
+                            'celebrity-views': [], 
+                            'flower-fruit-method': [], 
+                            'essays': []
+                        };
+                    });
+                return;
             }
             
             // 遍历所有文章分类
@@ -9075,8 +8999,9 @@
                 
                 // 添加复制链接功能
                 wechatOverlay.querySelector('.copy-wechat-link-btn').addEventListener('click', () => {
-                    const shareUrl = window.location.origin + window.location.pathname;
-                    navigator.clipboard.writeText(shareUrl)
+                    // 创建包含标题和链接的分享文本
+                    const shareText = `${title} - 正缘方位网\n\n${url}\n\n快来看看这篇精彩的命理文章吧！`;
+                    navigator.clipboard.writeText(shareText)
                         .then(() => {
                             alert('分享链接已复制到剪贴板！');
                         })
@@ -9136,7 +9061,9 @@
                 
                 // 添加复制链接功能
                 youtubeOverlay.querySelector('.copy-youtube-link-btn').addEventListener('click', () => {
-                    navigator.clipboard.writeText(baseUrl)
+                    // 创建包含标题和链接的分享文本
+                    const shareText = `${title} - 正缘方位网\n\n${url}\n\n快来看看这篇精彩的命理文章吧！`;
+                    navigator.clipboard.writeText(shareText)
                         .then(() => {
                             alert('文章链接已复制到剪贴板！');
                         })
@@ -9149,7 +9076,9 @@
             
             // 复制链接
             overlay.querySelector('.copy-link-btn').addEventListener('click', () => {
-                navigator.clipboard.writeText(url)
+                // 创建包含标题和链接的分享文本
+                const shareText = `${title} - 正缘方位网\n\n${url}\n\n快来看看这篇精彩的命理文章吧！`;
+                navigator.clipboard.writeText(shareText)
                     .then(() => {
                         alert('链接已复制到剪贴板！');
                     })
@@ -9255,10 +9184,10 @@
     </script>
     </div>
     <!-- 下部区域 - 推广信息 -->
-    <div style="text-align: center; margin: 0 0 0 0; padding: 1rem; background-color: #ffffff; border-radius: 0; width: 100%; box-sizing: border-box; position: fixed; bottom: 40px; left: 0; z-index: 100; border: 1px solid var(--border-color);">
+    <div style="text-align: center; margin: 0 0 0 0; padding: 1rem; background-color: #ffffff; border-radius: 0; width: 100%; box-sizing: border-box;  border: 1px solid var(--border-color);">
         <p style="color: var(--light-text); font-size: 0.9rem; margin: 0;"><span data-translate="promotionalText">还可以试试我们的</span> <a href="zodiac_match.html" style="color: var(--accent-color); text-decoration: none; font-size: 0.9rem;"><span data-translate="zodiacTool">八字感情查询工具</span></a>，<span data-translate="getMoreAnalysis">获取更多命理分析。</span> <a href="weixin://addfriend/officialaccount/pixuan1989" style="color: var(--accent-color); text-decoration: underline; font-size: 0.9rem;"><span data-translate="contactUs">联系我们</span> <span style="color: var(--light-text);">pixuan1989</span></a></p>
     </div>
-    <footer style="position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; padding: 10px; background-color: #ffffff; border-top: 1px solid var(--border-color); margin-top: 0; z-index: 100;">
+    <footer style="text-align: center; padding: 1rem 0; margin-top: auto; border-top: 1px solid var(--border-color); background-color: #ffffff;">
         <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap;">
             <p style="margin: 0; color: var(--light-text); font-size: 0.9rem; display: inline;">苏ICP备2025226852号-1丨苏公网安备32020602003711号</p>
         </div>

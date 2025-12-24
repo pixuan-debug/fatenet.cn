@@ -503,13 +503,16 @@
                         <select id="category-filter">
                             <option value="all">所有分类</option>
                             <option value="basic-theory">基础理论</option>
-                            <option value="celebrity-views">名人观点</option>
+                            <option value="celebrity-views">名人八字</option>
                             <option value="flower-fruit-method">花果论心法</option>
                             <option value="essays">命理随笔</option>
                         </select>
                     </div>
-                    <div class="search-box">
-                        <input type="text" id="search-input" placeholder="搜索文章标题或内容...">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button id="load-from-json-btn" class="btn" onclick="loadArticlesFromJSON()">从articles.json加载数据</button>
+                        <div class="search-box">
+                            <input type="text" id="search-input" placeholder="搜索文章标题或内容...">
+                        </div>
                     </div>
                 </div>
                 <div id="articles-list" class="articles-container"></div>
@@ -539,7 +542,7 @@
                         <label for="article-category">分类</label>
                         <select id="article-category" name="category" required>
                             <option value="basic-theory">基础理论</option>
-                            <option value="celebrity-views">名人观点</option>
+                            <option value="celebrity-views">名人八字</option>
                             <option value="flower-fruit-method">花果论心法</option>
                             <option value="essays">命理随笔</option>
                         </select>
@@ -923,26 +926,49 @@
                 try {
                     // 使用本地存储的数据
                     articlesData = JSON.parse(savedData);
+                    renderArticles();
                 } catch (error) {
                     console.error('解析localStorage数据出错:', error);
-                    // 解析出错时，初始化空的文章数据结构
-                    articlesData = {
-                        'basic-theory': [],
-                        'celebrity-views': [],
-                        'flower-fruit-method': [],
-                        'essays': []
-                    };
+                    // 解析出错时，从articles.json加载数据
+                    loadArticlesFromJSON();
                 }
             } else {
-                // 没有数据时，初始化空的文章数据结构
-                articlesData = {
-                    'basic-theory': [],
-                    'celebrity-views': [],
-                    'flower-fruit-method': [],
-                    'essays': []
-                };
+                // 本地存储没有数据时，从articles.json加载
+                loadArticlesFromJSON();
             }
-            renderArticles();
+        }
+        
+        // 从articles.json加载文章数据
+        function loadArticlesFromJSON() {
+            // 创建文件选择对话框
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        // 使用articles.json中的数据
+                        articlesData = data;
+                        // 将数据保存到localStorage
+                        saveArticles();
+                        renderArticles();
+                        showMessage('从articles.json加载数据成功！', 'success');
+                    } catch (error) {
+                        console.error('解析articles.json数据出错:', error);
+                        showMessage('解析articles.json数据失败，请检查文件格式！', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            
+            // 触发文件选择对话框
+            input.click();
         }
         
         // 渲染文章列表
@@ -1006,7 +1032,7 @@
         function getCategoryName(categoryKey) {
             const categoryMap = {
                 'basic-theory': '基础理论',
-                'celebrity-views': '名人观点',
+                'celebrity-views': '名人八字',
                 'flower-fruit-method': '花果论心法',
                 'essays': '命理随笔'
             };

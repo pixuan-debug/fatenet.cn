@@ -37,6 +37,9 @@
             background-color: var(--background-color);
             color: var(--text-color);
             line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         
         /* 头部样式 */
@@ -82,6 +85,10 @@
         }
         
         /* 主要内容样式 */
+        main {
+            flex: 1;
+        }
+        
         .main-content {
             max-width: 800px;
             margin: 2rem auto;
@@ -308,19 +315,18 @@
         
         /* 页脚样式 */
         footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--light-text);
+            font-size: 0.9rem;
             background-color: var(--card-bg);
-            box-shadow: var(--shadow-light);
-            padding: 2rem 0;
-            margin-top: 2rem;
         }
         
         .footer-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 2rem;
-            text-align: center;
-            color: var(--light-text);
-            font-size: 0.9rem;
         }
         
         /* 错误信息样式 */
@@ -418,109 +424,74 @@
     </footer>
     
     <script>
-        // 全局变量
-        let currentArticle = null;
-        let articlesData = {
-            'basic-theory': [],
-            'celebrity-views': [],
-            'flower-fruit-method': [
-                {
-                    id: 1,
-                    title: '花果论心法的基本原理',
-                    excerpt: '花果论心法是八字命理学中的一种重要方法，它以植物的生长过程来比喻人的命运发展。',
-                    date: '2024-02-20',
-                    views: 678,
-                    likes: 32,
-                    category: 'flower-fruit-method',
-                    content: '花果论心法是八字命理学中的一种重要方法，它以植物的生长过程来比喻人的命运发展。花果论心法认为，八字中的天干代表“花”，即人的先天资质和潜力；地支代表“果”，即人的后天成就和结果。\n\n花果论心法的基本原理是：通过分析八字中天干地支的组合关系，来预测人的命运发展趋势。例如，如果八字中天干的组合良好，说明人的先天资质优秀；如果地支的组合良好，说明人的后天成就显著。\n\n花果论心法在八字命理学中有着广泛的应用，它可以帮助命理师更准确地预测人的命运和运势，同时也可以帮助人们更好地了解自己的先天资质和后天发展潜力，从而更好地规划自己的人生。'
-                },
-                {
-                    id: 2,
-                    title: '花果论心法在婚姻预测中的应用',
-                    excerpt: '婚姻是人生中的重要组成部分，花果论心法可以帮助我们预测婚姻的吉凶祸福。',
-                    date: '2024-02-26',
-                    views: 543,
-                    likes: 29,
-                    category: 'flower-fruit-method',
-                    content: '婚姻是人生中的重要组成部分，对于每个人来说都至关重要。在八字命理学中，花果论心法被广泛应用于婚姻预测。\n\n根据花果论心法，八字中的日支代表婚姻宫，直接关系到婚姻的吉凶祸福。如果日支与其他干支的组合良好，说明婚姻幸福美满；如果日支与其他干支的组合不佳，说明婚姻可能会遇到一些困难和挑战。\n\n此外，花果论心法还可以通过分析八字中的财星、官星等十神来预测婚姻的情况。例如，对于女性来说，官星代表丈夫；对于男性来说，财星代表妻子。如果这些十神在八字中组合良好，说明婚姻关系稳定；如果组合不佳，说明婚姻可能会出现问题。\n\n需要注意的是，花果论心法只是一种预测方法，不能完全决定婚姻的命运。婚姻的幸福与否还需要靠双方的共同努力和经营。'
-                }
-            ],
-            'essays': [
-                {
-                    id: 1,
-                    title: '命理学与现代科学的关系',
-                    excerpt: '命理学作为中国传统文化的重要组成部分，与现代科学之间存在着怎样的关系？',
-                    date: '2024-03-04',
-                    views: 890,
-                    likes: 41,
-                    category: 'essays',
-                    content: '命理学作为中国传统文化的重要组成部分，有着悠久的历史和广泛的影响。随着现代科学的发展，越来越多的人开始思考命理学与现代科学之间的关系。\n\n命理学与现代科学有着明显的不同。现代科学强调实证和逻辑推理，通过实验和观察来验证理论的正确性；而命理学则更多地依赖于经验和直觉，通过分析天干地支的组合来预测人的命运和运势。\n\n然而，命理学与现代科学之间也存在着一些相似之处。例如，两者都试图解释世界的运行规律，帮助人们更好地了解自己和周围的世界。此外，命理学中的一些概念，如五行相生相克，与现代科学中的系统论和生态学有着相似之处。\n\n对于命理学与现代科学的关系，我们应该采取理性的态度。既不能完全否定命理学的价值，也不能盲目相信命理学的预测。我们应该将命理学作为一种文化遗产来研究和保护，同时用现代科学的方法来分析和验证其合理性。'
-                },
-                {
-                    id: 2,
-                    title: '命理学对人生的启示',
-                    excerpt: '命理学不仅可以预测人的命运和运势，还可以给我们的人生带来重要的启示。',
-                    date: '2024-03-11',
-                    views: 765,
-                    likes: 38,
-                    category: 'essays',
-                    content: '命理学作为中国传统文化的重要组成部分，不仅可以预测人的命运和运势，还可以给我们的人生带来重要的启示。\n\n首先，命理学告诉我们，每个人都有自己独特的天赋和潜力。通过分析八字，我们可以了解自己的优势和劣势，从而更好地规划自己的职业和人生道路。\n\n其次，命理学强调平衡和和谐的重要性。八字中的五行需要保持平衡，人的生活也需要保持平衡。我们应该在工作和生活之间找到平衡，在物质和精神之间找到平衡，这样才能获得真正的幸福和快乐。\n\n最后，命理学提醒我们，命运是可以改变的。虽然出生时间对人的命运有一定的影响，但人的主观能动性也起着重要的作用。通过自己的努力和修行，我们可以改变自己的命运，实现自己的人生目标。\n\n总之，命理学对现代人生有着重要的启示和指导意义。我们应该理性地对待命理学，从中汲取有益的智慧，为自己的人生增添色彩。'
-                },
-                {
-                    id: 3,
-                    title: '学习命理学的心得体会',
-                    excerpt: '学习命理学需要长期的实践和积累，本文将分享作者学习命理学的心得体会和经验教训。',
-                    date: '2024-03-18',
-                    views: 456,
-                    likes: 25,
-                    category: 'essays',
-                    content: '学习命理学已经有几年的时间了，在这个过程中，我收获了很多，也遇到了很多困难和挑战。今天，我想分享一下自己学习命理学的心得体会，希望对初学者有所帮助。\n\n首先，学习命理学需要有浓厚的兴趣和持之以恒的精神。命理学是一门复杂的学问，需要学习很多基础知识，如天干地支、五行相生相克、十神关系等。只有对命理学有浓厚的兴趣，才能坚持学习下去。\n\n其次，学习命理学需要注重实践。命理学是一门实用的学问，只有通过实践才能真正掌握其精髓。在学习过程中，我们应该多找一些实际的八字案例来分析，不断积累经验。\n\n此外，学习命理学需要保持谦虚的态度。命理学是一门博大精深的学问，没有人能够完全掌握其所有知识。我们应该虚心向老师和同行学习，不断提高自己的水平。\n\n最后，学习命理学需要有正确的心态。命理学可以帮助我们了解自己和周围的世界，但不能完全决定我们的命运。我们应该理性地对待命理学的预测结果，不要过分迷信。\n\n总之，学习命理学是一个漫长而充实的过程，需要我们不断地努力和探索。希望我的心得体会能够对初学者有所帮助，也希望更多的人能够了解和喜爱命理学这门古老而神秘的学问。'
-                }
-            ]
-        };
+        // 文章数据
+        let articles = {};
         
         // 页面加载时执行
         document.addEventListener('DOMContentLoaded', function() {
-            // 优先从JSON文件加载最新数据，不使用localStorage缓存，确保数据是最新的
-            fetchArticlesFromJson();
-        });
-
-        function fetchArticlesFromJson() {
-            fetch('articles.json')
+            console.log('DOM加载完成，开始加载文章数据');
+            
+            // 先尝试从localStorage加载数据
+            const savedData = localStorage.getItem('articlesData');
+            if (savedData) {
+                try {
+                    console.log('尝试从localStorage加载数据');
+                    articles = JSON.parse(savedData);
+                    
+                    // 确保所有分类都有数据，避免渲染时出错
+                    ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'].forEach(category => {
+                        if (!articles[category]) {
+                            articles[category] = [];
+                            console.log('分类', category, '数据为空，初始化为空数组');
+                        } else {
+                            console.log('分类', category, '包含', articles[category].length, '篇文章');
+                        }
+                    });
+                    
+                    // 加载文章详情
+                    loadArticleDetail();
+                    return;
+                } catch (error) {
+                    console.error('从localStorage解析数据失败:', error);
+                    console.log('尝试从articles.json加载数据');
+                }
+            } else {
+                console.log('localStorage中没有数据，尝试从articles.json加载');
+            }
+            
+            // 从articles.json加载数据，添加缓存控制
+            fetch('articles.json', {
+                cache: 'no-cache'
+            })
                 .then(response => {
+                    console.log('articles.json响应状态:', response.status);
                     if (!response.ok) {
-                        throw new Error('网络响应失败');
+                        throw new Error('网络响应失败，状态码: ' + response.status);
                     }
                     return response.json();
                 })
                 .then(data => {
-                    console.log('成功从articles.json加载文章数据');
-                    articlesData = data;
-                    // 将数据保存到localStorage作为备份
-                    localStorage.setItem('articlesData', JSON.stringify(articlesData));
+                    console.log('成功加载articles.json数据:', data);
+                    articles = data;
                     
-                    // 继续处理页面逻辑
+                    // 确保所有分类都有数据，避免渲染时出错
+                    ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'].forEach(category => {
+                        if (!articles[category]) {
+                            articles[category] = [];
+                            console.log('分类', category, '数据为空，初始化为空数组');
+                        } else {
+                            console.log('分类', category, '包含', articles[category].length, '篇文章');
+                        }
+                    });
+                    
+                    // 加载文章详情
                     loadArticleDetail();
                 })
                 .catch(error => {
                     console.error('从articles.json加载数据失败:', error);
-                    // 如果JSON加载失败，尝试从localStorage加载作为备选
-                    const localStorageArticles = localStorage.getItem('articlesData');
-                    if (localStorageArticles) {
-                        try {
-                            articlesData = JSON.parse(localStorageArticles);
-                            console.log('从localStorage加载备份数据');
-                            loadArticleDetail();
-                        } catch (e) {
-                            console.error('从所有来源加载文章数据失败:', e);
-                            showError('无法加载文章数据');
-                        }
-                    } else {
-                        console.error('无法从任何来源加载文章数据');
-                        showError('无法加载文章数据');
-                    }
+                    showError('文章数据加载失败: ' + error.message);
                 });
-        }
+        });
         
         // 加载文章详情
         function loadArticleDetail() {
@@ -529,56 +500,36 @@
             const id = parseInt(params.get('id'));
             const category = params.get('category');
             
+            console.log('获取到的URL参数:', { id, category });
+            
             // 检查参数是否存在
-            if (!id || !category) {
-                showError('缺少必要的文章参数');
+            if (!id || !category || isNaN(id)) {
+                console.error('缺少必要的文章参数或ID无效');
+                showError('缺少必要的文章参数或ID无效');
                 return;
             }
             
-            // 查找文章
-            const article = findArticleByIdAndCategory(id, category);
+            // 检查分类是否存在
+            if (!articles[category]) {
+                console.error('分类', category, '不存在或数据为空');
+                showError('分类不存在或数据为空');
+                return;
+            }
+            
+            // 查找对应文章
+            const article = articles[category].find(article => article.id === id);
+            
+            console.log('查找文章结果:', article);
+            console.log('分类', category, '中的所有文章:', articles[category]);
+            
             if (!article) {
+                console.error('找不到指定的文章，ID:', id, '分类:', category);
                 showError('找不到指定的文章');
                 return;
             }
             
-            // 显示文章详情
+            // 显示文章
             displayArticle(article);
-            
-            // 初始化点赞功能
-            initLikeButton(article);
-            
-            // 初始化分享功能
-            initShareButton(article);
-        }
-        
-        // 根据ID和分类查找文章
-        function findArticleByIdAndCategory(id, category) {
-            if (!articlesData[category]) {
-                return null;
-            }
-            return articlesData[category].find(article => {
-                // 处理各种可能的ID类型不匹配情况
-                const articleId = article.id;
-                return parseInt(articleId) === id || articleId === id || articleId === String(id);
-            });
-        }
-        
-        // 显示错误信息
-        function showError(message) {
-            const errorDiv = document.getElementById('error-message');
-            const articleDiv = document.getElementById('article-detail');
-            
-            errorDiv.innerHTML = `
-                <h2>${message}</h2>
-                <p>请返回首页查看其他文章</p>
-                <a href="index.html" class="back-btn" style="display: inline-flex; margin-top: 1rem;">
-                    <i class="fa fa-home"></i>
-                    返回首页
-                </a>
-            `;
-            errorDiv.style.display = 'block';
-            articleDiv.style.display = 'none';
         }
         
         // 显示文章详情
@@ -593,6 +544,7 @@
             document.getElementById('article-date').textContent = article.date;
             document.getElementById('article-category').textContent = getCategoryName(article.category);
             document.getElementById('article-views').textContent = article.views || 0;
+            document.getElementById('like-count').textContent = article.likes || 0;
             
             // 更新文章内容
             const contentDiv = document.getElementById('article-content');
@@ -624,104 +576,72 @@
             
             contentDiv.innerHTML = contentHTML;
             
-            // 更新点赞数
-            document.getElementById('like-count').textContent = article.likes || 0;
-            
             // 显示文章详情，隐藏错误信息
             articleDiv.style.display = 'block';
             errorDiv.style.display = 'none';
             
-            // 保存当前文章
-            currentArticle = article;
+            // 初始化点赞功能
+            initLikeButton(article);
+            
+            // 初始化分享功能
+            initShareButton(article);
         }
         
         // 获取分类名称
         function getCategoryName(category) {
             const categoryNames = {
                 'basic-theory': '命学基础',
-                'celebrity-views': '名人观点',
+                'celebrity-views': '名人八字',
                 'flower-fruit-method': '花果论心法',
                 'essays': '杂谈随笔'
             };
             return categoryNames[category] || category;
         }
         
+        // 显示错误信息
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            const articleDiv = document.getElementById('article-detail');
+            
+            errorDiv.innerHTML = `
+                <h2>${message}</h2>
+                <p>请返回首页查看其他文章</p>
+                <a href="index.html" class="back-btn" style="display: inline-flex; margin-top: 1rem;">
+                    <i class="fa fa-home"></i>
+                    返回首页
+                </a>
+            `;
+            errorDiv.style.display = 'block';
+            articleDiv.style.display = 'none';
+        }
+        
         // 初始化点赞按钮
         function initLikeButton(article) {
             const likeBtn = document.getElementById('like-btn');
-            
-            // 检查是否已点赞
-            const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
-            const isLiked = likedArticles.includes(`${article.category}-${article.id}`);
-            
-            if (isLiked) {
-                likeBtn.classList.add('liked');
-            }
+            const likeCount = document.getElementById('like-count');
             
             // 添加点击事件
             likeBtn.addEventListener('click', function() {
-                const likeCount = document.getElementById('like-count');
-                let likes = parseInt(likeCount.textContent);
-                
                 if (likeBtn.classList.contains('liked')) {
                     // 取消点赞
                     likeBtn.classList.remove('liked');
-                    likes--;
-                    removeFromLikedArticles(article);
+                    article.likes--;
                 } else {
                     // 添加点赞
                     likeBtn.classList.add('liked');
-                    likes++;
-                    addToLikedArticles(article);
+                    article.likes++;
                 }
                 
-                // 更新点赞数
-                likeCount.textContent = likes;
-                
-                // 更新文章数据
-                updateArticleLikes(article, likes);
+                // 更新点赞数显示
+                likeCount.textContent = article.likes;
             });
-        }
-        
-        // 添加到已点赞文章
-        function addToLikedArticles(article) {
-            const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
-            const key = `${article.category}-${article.id}`;
-            if (!likedArticles.includes(key)) {
-                likedArticles.push(key);
-                localStorage.setItem('likedArticles', JSON.stringify(likedArticles));
-            }
-        }
-        
-        // 从已点赞文章中移除
-        function removeFromLikedArticles(article) {
-            const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
-            const key = `${article.category}-${article.id}`;
-            const index = likedArticles.indexOf(key);
-            if (index > -1) {
-                likedArticles.splice(index, 1);
-                localStorage.setItem('likedArticles', JSON.stringify(likedArticles));
-            }
-        }
-        
-        // 更新文章点赞数
-        function updateArticleLikes(article, likes) {
-            // 更新内存中的文章数据
-            article.likes = likes;
-            
-            // 更新localStorage中的文章数据
-            const categoryArticles = articlesData[article.category];
-            const index = categoryArticles.findIndex(a => a.id === article.id);
-            if (index > -1) {
-                categoryArticles[index].likes = likes;
-                localStorage.setItem('articlesData', JSON.stringify(articlesData));
-            }
         }
         
         // 初始化分享按钮
         function initShareButton(article) {
             const shareBtn = document.getElementById('share-btn');
             
+            // 添加点击事件
             shareBtn.addEventListener('click', function() {
                 openShareModal(article);
             });
@@ -729,32 +649,51 @@
         
         // 打开分享弹窗
         function openShareModal(article) {
-            const baseUrl = window.location.href;
+            const url = window.location.href;
+            const title = article.title;
+            const summary = article.excerpt || '';
             
-            // 创建分享弹窗HTML
+            // 创建分享弹窗HTML，与index.html保持一致
             const shareHTML = `
-                <div class="share-overlay">
-                    <div class="share-modal">
-                        <h3>分享文章</h3>
-                        <div class="share-options">
-                            <a href="https://twitter.com/intent/tweet?url=${encodeURIComponent(baseUrl)}&text=${encodeURIComponent(article.title)}" target="_blank" class="share-option">
-                                <i class="fa fa-twitter" style="color: #1DA1F2;"></i>
-                                <span>Twitter</span>
-                            </a>
-                            <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(baseUrl)}" target="_blank" class="share-option">
-                                <i class="fa fa-facebook" style="color: #4267B2;"></i>
-                                <span>Facebook</span>
-                            </a>
-                            <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(baseUrl)}" target="_blank" class="share-option">
-                                <i class="fa fa-linkedin" style="color: #0077B5;"></i>
-                                <span>LinkedIn</span>
-                            </a>
-                            <button class="share-option copy-link" style="border: none; font-family: inherit;">
-                                <i class="fa fa-link" style="color: #666;"></i>
+                <div class="share-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1001; display: flex; justify-content: center; align-items: center;">
+                    <div class="share-modal" style="background: white; padding: 2rem; border-radius: 8px; max-width: 400px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                        <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--text-color); text-align: center;">分享到</h3>
+                        <div class="share-options" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                            <!-- 微信分享 -->
+                            <button class="share-option-btn wechat-btn" style="padding: 1rem; border: none; border-radius: 8px; background: #07C160; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                                <i class="fa fa-weixin" style="font-size: 1.5rem;"></i>
+                                <span>微信</span>
+                            </button>
+                            
+                            <!-- 微博分享 -->
+                            <button class="share-option-btn weibo-btn" style="padding: 1rem; border: none; border-radius: 8px; background: #E6162D; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                                <i class="fa fa-weibo" style="font-size: 1.5rem;"></i>
+                                <span>微博</span>
+                            </button>
+                            
+                            <!-- X（原Twitter）分享 -->
+                            <button class="share-option-btn twitter-btn" style="padding: 1rem; border: none; border-radius: 8px; background: #1DA1F2; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                                <i class="fa fa-twitter" style="font-size: 1.5rem;"></i>
+                                <span>X</span>
+                            </button>
+                            
+                            <!-- YouTube分享 -->
+                            <button class="share-option-btn youtube-btn" style="padding: 1rem; border: none; border-radius: 8px; background: #FF0000; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                                <i class="fa fa-youtube" style="font-size: 1.5rem;"></i>
+                                <span>YouTube</span>
+                            </button>
+                            
+                            <!-- 复制链接 -->
+                            <button class="share-option-btn copy-link-btn" style="padding: 1rem; border: none; border-radius: 8px; background: var(--primary-color); color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                                <i class="fa fa-link" style="font-size: 1.5rem;"></i>
                                 <span>复制链接</span>
                             </button>
                         </div>
-                        <button class="close-btn">关闭</button>
+                        <div style="text-align: center;">
+                            <button class="close-share-btn" style="padding: 0.75rem 1.5rem; background: var(--accent-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+                                关闭
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -762,18 +701,138 @@
             // 添加到页面
             document.body.insertAdjacentHTML('beforeend', shareHTML);
             
-            // 添加关闭事件
+            // 添加事件监听
             const overlay = document.querySelector('.share-overlay');
-            overlay.querySelector('.close-btn').addEventListener('click', () => overlay.remove());
+            const closeBtn = overlay.querySelector('.close-share-btn');
+            
+            // 关闭弹窗
+            closeBtn.addEventListener('click', () => overlay.remove());
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) overlay.remove();
             });
             
-            // 添加复制链接功能
-            overlay.querySelector('.copy-link').addEventListener('click', () => {
-                navigator.clipboard.writeText(baseUrl)
+            // 微信分享
+            overlay.querySelector('.wechat-btn').addEventListener('click', () => {
+                // 创建微信分享弹窗，包含二维码
+                const wechatShareHTML = `
+                    <div class="wechat-share-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 1002; display: flex; justify-content: center; align-items: center;">
+                        <div class="wechat-share-content" style="background: white; padding: 2rem; border-radius: 8px; max-width: 400px; width: 90%; text-align: center;">
+                            <h3 style="margin-top: 0; margin-bottom: 1rem; color: var(--text-color);">微信分享</h3>
+                            <p style="margin-bottom: 1.5rem; color: #666;">请使用微信扫描下方二维码分享此文章</p>
+                            <div class="qrcode-container" style="margin-bottom: 1.5rem; padding: 1rem; background: white; border-radius: 8px; display: flex; justify-content: center;">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(window.location.origin + window.location.pathname)}" alt="微信分享二维码" style="width: 200px; height: 200px;">
+                            </div>
+                            <div style="margin-bottom: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; word-break: break-all; font-size: 0.8rem; color: #666;">
+                                <strong>分享链接：</strong><br>${window.location.origin + window.location.pathname}
+                            </div>
+                            <p style="margin-bottom: 1.5rem; color: #999; font-size: 0.9rem;">
+                                提示：扫描后可分享到微信好友、朋友圈或收藏<br>
+                                如二维码无法扫描，请手动复制上方链接
+                            </p>
+                            <button class="copy-wechat-link-btn" style="margin-bottom: 1rem; padding: 0.75rem 1.5rem; background: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+                                复制分享链接
+                            </button>
+                            <button class="close-wechat-share-btn" style="padding: 0.75rem 1.5rem; background: var(--accent-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+                                关闭
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // 添加到页面
+                document.body.insertAdjacentHTML('beforeend', wechatShareHTML);
+                
+                // 添加关闭事件
+                const wechatOverlay = document.querySelector('.wechat-share-overlay');
+                wechatOverlay.querySelector('.close-wechat-share-btn').addEventListener('click', () => wechatOverlay.remove());
+                wechatOverlay.addEventListener('click', (e) => {
+                    if (e.target === wechatOverlay) wechatOverlay.remove();
+                });
+                
+                // 添加复制链接功能
+                wechatOverlay.querySelector('.copy-wechat-link-btn').addEventListener('click', () => {
+                    // 创建包含标题和链接的分享文本
+                    const shareText = `${title} - 正缘方位网\n\n${url}\n\n快来看看这篇精彩的命理文章吧！`;
+                    navigator.clipboard.writeText(shareText)
+                        .then(() => {
+                            alert('分享链接已复制到剪贴板！');
+                        })
+                        .catch(err => {
+                            console.error('复制失败:', err);
+                            alert('复制失败，请手动复制链接');
+                        });
+                });
+            });
+            
+            // 微博分享
+            overlay.querySelector('.weibo-btn').addEventListener('click', () => {
+                const weiboUrl = `https://service.weibo.com/share/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}&summary=${encodeURIComponent(summary)}`;
+                window.open(weiboUrl, '_blank', 'width=600,height=400');
+            });
+            
+            // X（原Twitter）分享
+            overlay.querySelector('.twitter-btn').addEventListener('click', () => {
+                const xUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
+                window.open(xUrl, '_blank', 'width=600,height=400');
+            });
+            
+            // YouTube分享
+            overlay.querySelector('.youtube-btn').addEventListener('click', () => {
+                // YouTube主要用于分享视频，这里提供相关提示和链接
+                const baseUrl = window.location.origin + window.location.pathname;
+                const youtubeShareHTML = `
+                    <div class="youtube-share-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 1002; display: flex; justify-content: center; align-items: center;">
+                        <div class="youtube-share-content" style="background: white; padding: 2rem; border-radius: 8px; max-width: 400px; width: 90%; text-align: center;">
+                            <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--text-color);">YouTube分享</h3>
+                            <p style="margin-bottom: 1.5rem; color: #666;">
+                                YouTube主要用于分享视频内容。<br>
+                                您可以将此链接分享到YouTube视频的描述或评论中。
+                            </p>
+                            <div style="margin-bottom: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; word-break: break-all; font-size: 0.8rem; color: #666;">
+                                <strong>文章链接：</strong><br>${baseUrl}
+                            </div>
+                            <button class="copy-youtube-link-btn" style="margin-bottom: 1rem; padding: 0.75rem 1.5rem; background: #FF0000; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+                                复制文章链接
+                            </button>
+                            <button class="close-youtube-share-btn" style="padding: 0.75rem 1.5rem; background: var(--accent-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+                                关闭
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // 添加到页面
+                document.body.insertAdjacentHTML('beforeend', youtubeShareHTML);
+                
+                // 添加关闭事件
+                const youtubeOverlay = document.querySelector('.youtube-share-overlay');
+                youtubeOverlay.querySelector('.close-youtube-share-btn').addEventListener('click', () => youtubeOverlay.remove());
+                youtubeOverlay.addEventListener('click', (e) => {
+                    if (e.target === youtubeOverlay) youtubeOverlay.remove();
+                });
+                
+                // 添加复制链接功能
+                youtubeOverlay.querySelector('.copy-youtube-link-btn').addEventListener('click', () => {
+                    // 创建包含标题和链接的分享文本
+                    const shareText = `${title} - 正缘方位网\n\n${url}\n\n快来看看这篇精彩的命理文章吧！`;
+                    navigator.clipboard.writeText(shareText)
+                        .then(() => {
+                            alert('文章链接已复制到剪贴板！');
+                        })
+                        .catch(err => {
+                            console.error('复制失败:', err);
+                            alert('复制失败，请手动复制链接');
+                        });
+                });
+            });
+            
+            // 复制链接
+            overlay.querySelector('.copy-link-btn').addEventListener('click', () => {
+                // 创建包含标题和链接的分享文本
+                const shareText = `${title} - 正缘方位网\n\n${url}\n\n快来看看这篇精彩的命理文章吧！`;
+                navigator.clipboard.writeText(shareText)
                     .then(() => {
-                        alert('文章链接已复制到剪贴板！');
+                        alert('链接已复制到剪贴板！');
                     })
                     .catch(err => {
                         console.error('复制失败:', err);

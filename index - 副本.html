@@ -2065,10 +2065,10 @@
                 </div>
             </div>
             
-            <!-- 名人论命板块 -->
+            <!-- 名人八字板块 -->
             <div class="article-category">
                 <div class="category-header">
-                    <h3 class="category-title" data-translate="celebrityViews">名人论命</h3>
+                    <h3 class="category-title" data-translate="celebrityViews">名人八字</h3>
                     <button class="view-more-btn" data-translate="viewMore">查看更多 <i class="fa fa-arrow-right"></i></button>
                 </div>
                 <div class="masonry-grid" id="celebrity-views-grid">
@@ -2374,7 +2374,7 @@
                 // 文章板块翻译
                 'articlesTitle': '命理文章',
                 'basicTheory': '命学基础',
-                'celebrityViews': '名人论命',
+                'celebrityViews': '名人八字',
                 'flowerFruitMethod': '花果论心法',
                 'essays': '杂谈随笔',
                 'viewMore': '查看更多',
@@ -8705,8 +8705,39 @@
                 // 使用本地存储的数据
                 articlesData = JSON.parse(savedData);
             } else {
-                // 使用内联文章数据作为默认值
-                articlesData = articles;
+                // 从articles.json加载数据
+                fetch('articles.json')
+                    .then(response => response.json())
+                    .then(data => {
+                        articlesData = data;
+                        // 遍历所有文章分类
+                        Object.keys(articlesData).forEach(category => {
+                            const grid = document.getElementById(`${category}-grid`);
+                            if (grid) {
+                                // 清空现有内容
+                                grid.innerHTML = '';
+                                // 生成文章卡片 - 只显示精华文章
+                                const categoryArticles = articlesData[category];
+                                const featuredArticles = categoryArticles.filter(article => article.isFeatured);
+                                
+                                featuredArticles.forEach(article => {
+                                    const card = createArticleCard(article, category);
+                                    grid.appendChild(card);
+                                });
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        console.error('从articles.json加载数据出错:', error);
+                        // 使用空数据作为默认值
+                        articlesData = {
+                            'basic-theory': [], 
+                            'celebrity-views': [], 
+                            'flower-fruit-method': [], 
+                            'essays': []
+                        };
+                    });
+                return;
             }
             
             // 遍历所有文章分类
