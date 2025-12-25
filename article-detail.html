@@ -423,6 +423,9 @@
         </div>
     </footer>
     
+    <!-- 引入模拟API服务 -->
+    <script src="mock-api.js"></script>
+    
     <script>
         // 文章数据
         let articles = {};
@@ -634,7 +637,79 @@
                 
                 // 更新点赞数显示
                 likeCount.textContent = article.likes;
+                
+                // 更新本地存储
+                updateLocalStorage(article);
+                
+                // 同步到管理后台
+                syncLikeData(article);
             });
+        }
+        
+        // 更新本地存储
+        function updateLocalStorage(article) {
+            try {
+                // 获取当前localStorage中的文章数据
+                const savedData = localStorage.getItem('articlesData');
+                let articlesData = savedData ? JSON.parse(savedData) : {};
+                
+                // 确保分类存在
+                if (!articlesData[article.category]) {
+                    articlesData[article.category] = [];
+                }
+                
+                // 查找并更新文章
+                const articleIndex = articlesData[article.category].findIndex(a => a.id === article.id);
+                if (articleIndex > -1) {
+                    // 更新现有文章
+                    articlesData[article.category][articleIndex] = article;
+                } else {
+                    // 添加新文章
+                    articlesData[article.category].push(article);
+                }
+                
+                // 保存到localStorage
+                localStorage.setItem('articlesData', JSON.stringify(articlesData));
+                console.log('文章数据已更新到localStorage');
+            } catch (error) {
+                console.error('更新localStorage失败:', error);
+            }
+        }
+        
+        // 同步点赞数据到管理后台
+        function syncLikeData(article) {
+            // 准备同步数据
+            const syncData = {
+                type: 'like',
+                articleId: article.id,
+                category: article.category,
+                likes: article.likes,
+                timestamp: Date.now(),
+                eventId: `like_${article.id}_${Date.now()}`
+            };
+            
+            // 尝试发送到管理后台
+            sendSyncRequest('/api/sync/event', syncData);
+        }
+        
+        // 发送同步请求
+        async function sendSyncRequest(url, data) {
+            try {
+                // 使用模拟API服务同步数据
+                const result = await mockApi.syncArticle(data);
+                console.log('Sync successful:', result);
+                
+                // 同时将同步数据保存到localStorage作为备份
+                const pendingSyncs = JSON.parse(localStorage.getItem('pendingSyncs') || '[]');
+                pendingSyncs.push(data);
+                localStorage.setItem('pendingSyncs', JSON.stringify(pendingSyncs));
+            } catch (error) {
+                console.error('Sync request failed:', error);
+                // 保存到本地，以便后续重试
+                const failedSyncs = JSON.parse(localStorage.getItem('failedSyncs') || '[]');
+                failedSyncs.push({ data, error: error.message, timestamp: Date.now() });
+                localStorage.setItem('failedSyncs', JSON.stringify(failedSyncs));
+            }
         }
         
         // 初始化分享按钮

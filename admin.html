@@ -310,6 +310,111 @@
             background-color: #f9f9f9;
         }
         
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .modal-close:hover {
+            color: #333;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        /* 分类选择样式 */
+        .category-move-form .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .category-move-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .category-move-form select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: white;
+        }
+        
+        .category-move-form select:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            .modal-content {
+                margin: 25% auto;
+                width: 95%;
+                padding: 15px;
+            }
+            
+            .modal-footer {
+                justify-content: center;
+            }
+        }
+        
         .image-upload-item input[type="file"] {
             padding: 8px;
             border: 1px solid #ddd;
@@ -478,14 +583,15 @@
             <div id="message" class="message"></div>
             
             <!-- 头部 -->
-            <div class="admin-header">
-                <h1>文章管理系统</h1>
-                <div style="display: flex; gap: 10px;">
-                    <button id="auto-cleanup-btn" class="btn" onclick="autoCleanup()">一键清理</button>
-                    <button id="clear-data-btn" class="btn btn-danger" onclick="clearAllArticlesData()">清除所有文章数据</button>
-                    <button id="logout-btn" class="btn btn-secondary">退出登录</button>
-                </div>
+        <div class="admin-header">
+            <h1>文章管理系统</h1>
+            <div style="display: flex; gap: 10px;">
+                <button id="sync-data-btn" class="btn" onclick="syncPendingData()">同步数据</button>
+                <button id="auto-cleanup-btn" class="btn" onclick="autoCleanup()">一键清理</button>
+                <button id="clear-data-btn" class="btn btn-danger" onclick="clearAllArticlesData()">清除所有文章数据</button>
+                <button id="logout-btn" class="btn btn-secondary">退出登录</button>
             </div>
+        </div>
             
             <!-- 标签页 -->
             <div class="tabs">
@@ -621,6 +727,46 @@
         </div>
     </div>
     
+    <!-- 移动分类模态框 -->
+    <div id="move-category-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>移动文章分类</h3>
+                <button type="button" class="modal-close" onclick="closeMoveCategoryModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="move-category-form" class="category-move-form">
+                    <input type="hidden" id="move-article-id">
+                    <input type="hidden" id="move-article-old-category">
+                    <div class="form-group">
+                        <label for="move-article-title">文章标题</label>
+                        <input type="text" id="move-article-title" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="move-article-current-category">当前分类</label>
+                        <input type="text" id="move-article-current-category" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="move-article-new-category">目标分类</label>
+                        <select id="move-article-new-category" required>
+                            <option value="basic-theory">基础理论</option>
+                            <option value="celebrity-views">名人八字</option>
+                            <option value="flower-fruit-method">花果论心法</option>
+                            <option value="essays">命理随笔</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeMoveCategoryModal()">取消</button>
+                <button type="button" class="btn" onclick="confirmMoveArticle()">确认移动</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 引入模拟API服务 -->
+    <script src="mock-api.js"></script>
+    
     <script>
         // 管理员密码（可修改）
         const ADMIN_PASSWORD = 'admin123';
@@ -644,6 +790,7 @@
                         document.getElementById('admin-page').style.display = 'block';
                         loadArticles();
                         initAdminEventListeners(); // 登录成功后初始化管理页面的事件监听器
+                        initAutoSync(); // 启动自动同步功能
                     } else {
                         alert('密码错误！');
                     }
@@ -717,8 +864,22 @@
                         
                         if (id) {
                             // 编辑现有文章
-                            const articleIndex = articlesData[category].findIndex(a => a.id === parseInt(id));
-                            if (articleIndex > -1) {
+                            // 查找文章在所有分类中的位置
+                            let found = false;
+                            let oldCategory = '';
+                            let articleIndex = -1;
+                            
+                            // 遍历所有分类查找文章
+                            Object.keys(articlesData).forEach(cat => {
+                                const index = articlesData[cat].findIndex(a => a.id === parseInt(id));
+                                if (index > -1) {
+                                    found = true;
+                                    oldCategory = cat;
+                                    articleIndex = index;
+                                }
+                            });
+                            
+                            if (found) {
                                 articleData = {
                                     id: parseInt(id),
                                     title,
@@ -726,14 +887,29 @@
                                     content,
                                     date,
                                     likes,
-                                    views: article.views || 0,
+                                    views: articlesData[oldCategory][articleIndex].views || 0,
                                     isFeatured,
                                     images: imagesArray,
                                     category
                                 };
                                 
-                                // 更新内存中的文章数据
-                                articlesData[category][articleIndex] = articleData;
+                                // 如果分类发生变化，从原分类移除并添加到新分类
+                                if (oldCategory !== category) {
+                                    // 从原分类移除
+                                    articlesData[oldCategory].splice(articleIndex, 1);
+                                    
+                                    // 添加到新分类
+                                    if (!articlesData[category]) {
+                                        articlesData[category] = [];
+                                    }
+                                    articlesData[category].push(articleData);
+                                    
+                                    // 记录操作日志
+                                    logMoveArticleAction(articleData, oldCategory, category);
+                                } else {
+                                    // 分类未变化，直接更新
+                                    articlesData[category][articleIndex] = articleData;
+                                }
                                 
                                 // 保存到本地存储，确保articles.html能读取到
                                 saveArticles();
@@ -853,6 +1029,14 @@
                     }
                 });
             }
+            
+            // 添加同步功能按钮事件
+            const syncBtn = document.getElementById('sync-data-btn');
+            if (syncBtn) {
+                syncBtn.addEventListener('click', function() {
+                    syncPendingData();
+                });
+            }
         }
         
         // 加载留言数据
@@ -915,6 +1099,105 @@
         function saveMessages() {
             localStorage.setItem('messagesData', JSON.stringify(messagesData, null, 2));
             renderMessages();
+        }
+        
+        // 同步待处理数据
+        async function syncPendingData() {
+            try {
+                // 获取待同步数据
+                const pendingSyncs = JSON.parse(localStorage.getItem('pendingSyncs') || '[]');
+                if (pendingSyncs.length === 0) {
+                    showMessage('没有待同步的数据', 'success');
+                    return;
+                }
+                
+                // 处理每个同步事件
+                let processedCount = 0;
+                let failedCount = 0;
+                
+                for (const event of pendingSyncs) {
+                    try {
+                        // 使用模拟API服务同步数据
+                        const result = await mockApi.syncArticle(event);
+                        console.log('Sync successful:', result);
+                        
+                        // 同时在本地处理同步事件
+                        processSyncEvent(event);
+                        processedCount++;
+                    } catch (error) {
+                        console.error('处理同步事件失败:', error);
+                        failedCount++;
+                    }
+                }
+                
+                // 清理已处理的数据
+                localStorage.removeItem('pendingSyncs');
+                
+                // 保存更新后的文章数据
+                saveArticles();
+                
+                // 显示同步结果
+                showMessage(`成功处理 ${processedCount} 条同步数据，失败 ${failedCount} 条`, 'success');
+                
+                // 重新渲染文章列表
+                renderArticles();
+            } catch (error) {
+                console.error('同步数据失败:', error);
+                showMessage('同步数据失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 处理单个同步事件
+        function processSyncEvent(event) {
+            const { type, articleId, category, likes, views, timestamp, eventId } = event;
+            
+            // 确保分类存在
+            if (!articlesData[category]) {
+                articlesData[category] = [];
+            }
+            
+            // 查找文章
+            const articleIndex = articlesData[category].findIndex(a => a.id === articleId);
+            if (articleIndex > -1) {
+                // 更新文章数据
+                const article = articlesData[category][articleIndex];
+                
+                // 根据事件类型更新不同字段
+                if (type === 'like') {
+                    // 更新点赞数
+                    article.likes = likes;
+                } else if (type === 'view') {
+                    // 更新浏览量
+                    article.views = views;
+                }
+                
+                // 更新最后更新时间
+                article.last_updated = new Date(timestamp).toISOString();
+                
+                // 更新版本号
+                article.version = (article.version || 0) + 1;
+                
+                console.log('处理同步事件:', event, '结果:', article);
+            } else {
+                console.log('未找到文章:', articleId, '分类:', category);
+            }
+        }
+        
+        // 定期自动同步
+        function scheduleAutoSync() {
+            // 每3分钟检查一次待同步数据
+            setInterval(() => {
+                syncPendingData();
+            }, 3 * 60 * 1000);
+        }
+        
+        // 初始化自动同步
+        function initAutoSync() {
+            // 立即执行一次同步
+            syncPendingData();
+            
+            // 启动定期同步
+            scheduleAutoSync();
         }
         
         // 加载文章数据
@@ -1021,6 +1304,7 @@
                     <div class="article-actions">
                         <button class="btn" onclick="toggleFeatured('${article.category}', ${article.id})">${article.isFeatured ? '取消精华' : '设为精华'}</button>
                         <button class="btn" onclick="editArticle('${article.category}', ${article.id})">编辑</button>
+                        <button class="btn" onclick="moveArticle('${article.category}', ${article.id})">移动分类</button>
                         <button class="btn btn-danger" onclick="deleteArticle('${article.category}', ${article.id})">删除</button>
                     </div>
                 `;
@@ -1106,6 +1390,109 @@
                     saveArticles();
                 }
             }
+        }
+        
+        // 打开移动分类模态框
+        function moveArticle(category, id) {
+            const article = articlesData[category].find(a => a.id === id);
+            if (article) {
+                // 填充表单数据
+                document.getElementById('move-article-id').value = id;
+                document.getElementById('move-article-old-category').value = category;
+                document.getElementById('move-article-title').value = article.title;
+                document.getElementById('move-article-current-category').value = getCategoryName(category);
+                
+                // 默认选择原分类
+                document.getElementById('move-article-new-category').value = category;
+                
+                // 显示模态框
+                document.getElementById('move-category-modal').style.display = 'block';
+                
+                // 阻止点击模态框外部关闭（可选）
+                window.addEventListener('click', function(event) {
+                    const modal = document.getElementById('move-category-modal');
+                    if (event.target === modal) {
+                        closeMoveCategoryModal();
+                    }
+                });
+            }
+        }
+        
+        // 关闭移动分类模态框
+        function closeMoveCategoryModal() {
+            document.getElementById('move-category-modal').style.display = 'none';
+        }
+        
+        // 确认移动文章分类
+        function confirmMoveArticle() {
+            const id = parseInt(document.getElementById('move-article-id').value);
+            const oldCategory = document.getElementById('move-article-old-category').value;
+            const newCategory = document.getElementById('move-article-new-category').value;
+            
+            // 防止同一分类移动
+            if (oldCategory === newCategory) {
+                showMessage('新分类与原分类相同，无需移动！', 'error');
+                return;
+            }
+            
+            // 确认移动
+            if (confirm('确定要将文章移动到新分类吗？')) {
+                try {
+                    // 查找文章
+                    const articleIndex = articlesData[oldCategory].findIndex(a => a.id === id);
+                    if (articleIndex > -1) {
+                        const article = articlesData[oldCategory][articleIndex];
+                        
+                        // 更新文章分类
+                        article.category = newCategory;
+                        
+                        // 从原分类移除
+                        articlesData[oldCategory].splice(articleIndex, 1);
+                        
+                        // 添加到新分类
+                        if (!articlesData[newCategory]) {
+                            articlesData[newCategory] = [];
+                        }
+                        articlesData[newCategory].push(article);
+                        
+                        // 保存数据
+                        saveArticles();
+                        
+                        // 记录操作日志
+                        logMoveArticleAction(article, oldCategory, newCategory);
+                        
+                        // 显示成功消息
+                        showMessage('文章已成功移动到新分类！', 'success');
+                        
+                        // 关闭模态框
+                        closeMoveCategoryModal();
+                    } else {
+                        throw new Error('找不到指定文章');
+                    }
+                } catch (error) {
+                    console.error('移动文章分类失败:', error);
+                    showMessage('移动文章分类失败：' + error.message, 'error');
+                }
+            }
+        }
+        
+        // 记录移动文章操作日志
+        function logMoveArticleAction(article, oldCategory, newCategory) {
+            const logEntry = {
+                action: 'move_article',
+                articleId: article.id,
+                articleTitle: article.title,
+                oldCategory: oldCategory,
+                newCategory: newCategory,
+                operator: 'admin',
+                timestamp: new Date().toISOString(),
+                ip: 'local'
+            };
+            
+            // 保存日志到localStorage
+            let logs = JSON.parse(localStorage.getItem('admin_action_logs') || '[]');
+            logs.push(logEntry);
+            localStorage.setItem('admin_action_logs', JSON.stringify(logs));
         }
         
         // 切换精华状态
@@ -1458,6 +1845,7 @@
         
         // 初始化：只加载留言数据，文章数据在登录后加载
         loadMessages();
-    </script>
+</script>
+
 </body>
 </html>

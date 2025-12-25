@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据同步功能部署测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .test-header {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .test-summary {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .summary-item {
+            display: inline-block;
+            margin-right: 20px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .summary-total {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        .summary-passed {
+            background-color: #e8f5e8;
+            color: #388e3c;
+        }
+        .summary-failed {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+        .summary-rate {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+        .test-results {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #999;
+        }
+        .test-item.passed {
+            background-color: #f1f8e9;
+            border-left-color: #8bc34a;
+        }
+        .test-item.failed {
+            background-color: #ffebee;
+            border-left-color: #f44336;
+        }
+        .test-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .test-status {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .test-error {
+            background-color: rgba(244, 67, 54, 0.1);
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .test-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: #2196f3;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0b7dda;
+        }
+        .btn-success {
+            background-color: #4caf50;
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #45a049;
+        }
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #da190b;
+        }
+        .conclusion {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        .conclusion.pass {
+            background-color: #e8f5e8;
+            color: #388e3c;
+        }
+        .conclusion.fail {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>数据同步功能部署测试</h1>
+    
+    <div class="test-header">
+        <div>
+            <h2>测试概况</h2>
+            <p>验证数据同步功能的完整性、准确性和性能表现</p>
+        </div>
+        <div class="test-actions">
+            <button class="btn btn-primary" onclick="runTests()">运行测试</button>
+            <button class="btn btn-success" onclick="viewReport()">查看报告</button>
+            <button class="btn btn-danger" onclick="clearReport()">清除报告</button>
+        </div>
+    </div>
+    
+    <div class="test-summary">
+        <div class="summary-item summary-total">总测试数: <span id="total-tests">0</span></div>
+        <div class="summary-item summary-passed">通过数: <span id="passed-tests">0</span></div>
+        <div class="summary-item summary-failed">失败数: <span id="failed-tests">0</span></div>
+        <div class="summary-item summary-rate">通过率: <span id="pass-rate">0%</span></div>
+    </div>
+    
+    <div class="test-results">
+        <h3>详细测试结果</h3>
+        <div id="test-results-list">
+            <p>点击"运行测试"按钮开始测试</p>
+        </div>
+    </div>
+    
+    <div id="conclusion" class="conclusion"></div>
+    
+    <!-- 引入模拟API服务 -->
+    <script src="mock-api.js"></script>
+    
+    <!-- 引入测试脚本 -->
+    <script src="test-deployment.js"></script>
+    
+    <script>
+        // 运行测试
+        async function runTests() {
+            // 清空之前的测试结果
+            document.getElementById('test-results-list').innerHTML = '<p>测试正在进行中...</p>';
+            
+            // 运行所有测试
+            const results = await runAllTests();
+            
+            // 显示测试结果
+            displayTestResults(results);
+            
+            // 生成并保存测试报告
+            const report = generateTestReport(results);
+            localStorage.setItem('syncTestReport', JSON.stringify(report, null, 2));
+        }
+        
+        // 显示测试结果
+        function displayTestResults(results) {
+            // 更新汇总信息
+            document.getElementById('total-tests').textContent = results.total;
+            document.getElementById('passed-tests').textContent = results.passed;
+            document.getElementById('failed-tests').textContent = results.failed;
+            document.getElementById('pass-rate').textContent = ((results.passed / results.total) * 100).toFixed(2) + '%';
+            
+            // 显示详细测试结果
+            const resultsList = document.getElementById('test-results-list');
+            resultsList.innerHTML = '';
+            
+            results.tests.forEach(test => {
+                const testItem = document.createElement('div');
+                testItem.className = `test-item ${test.status}`;
+                
+                let testHTML = `<div class="test-name">${test.name}</div>`;
+                testHTML += `<div class="test-status">状态: ${test.status === 'passed' ? '通过' : '失败'}</div>`;
+                
+                if (test.status === 'failed' && test.error) {
+                    testHTML += `<div class="test-error">错误信息: ${test.error}</div>`;
+                }
+                
+                testItem.innerHTML = testHTML;
+                resultsList.appendChild(testItem);
+            });
+            
+            // 显示结论
+            const conclusionDiv = document.getElementById('conclusion');
+            if (results.failed === 0) {
+                conclusionDiv.className = 'conclusion pass';
+                conclusionDiv.textContent = '🎉 所有测试通过，可以部署！';
+            } else {
+                conclusionDiv.className = 'conclusion fail';
+                conclusionDiv.textContent = `❌ 存在 ${results.failed} 个测试失败，需要修复后再部署！`;
+            }
+        }
+        
+        // 查看测试报告
+        function viewReport() {
+            const report = localStorage.getItem('syncTestReport');
+            if (report) {
+                const reportObj = JSON.parse(report);
+                
+                // 创建报告弹窗
+                const reportHTML = `
+                    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 20px; overflow-y: auto;">
+                        <div style="background: white; padding: 30px; border-radius: 8px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto;">
+                            <h2 style="margin-top: 0;">数据同步功能测试报告</h2>
+                            <p style="color: #666;">测试时间: ${new Date(reportObj.testTime).toLocaleString()}</p>
+                            <div style="margin: 20px 0;">
+                                <div style="display: inline-block; margin-right: 20px; padding: 10px 20px; background: #e3f2fd; border-radius: 20px; font-weight: bold; color: #1976d2;">总测试数: ${reportObj.totalTests}</div>
+                                <div style="display: inline-block; margin-right: 20px; padding: 10px 20px; background: #e8f5e8; border-radius: 20px; font-weight: bold; color: #388e3c;">通过数: ${reportObj.passedTests}</div>
+                                <div style="display: inline-block; margin-right: 20px; padding: 10px 20px; background: #ffebee; border-radius: 20px; font-weight: bold; color: #d32f2f;">失败数: ${reportObj.failedTests}</div>
+                                <div style="display: inline-block; margin-right: 20px; padding: 10px 20px; background: #fff3e0; border-radius: 20px; font-weight: bold; color: #f57c00;">通过率: ${reportObj.passRate}</div>
+                            </div>
+                            <h3>详细测试结果</h3>
+                            <div style="margin: 20px 0;">
+                                ${reportObj.detailedResults.map(test => `
+                                    <div style="margin-bottom: 15px; padding: 15px; border-radius: 6px; border-left: 4px solid ${test.status === 'passed' ? '#8bc34a' : '#f44336'}; background: ${test.status === 'passed' ? '#f1f8e9' : '#ffebee'};">
+                                        <div style="font-weight: bold;">${test.name}</div>
+                                        <div style="color: #666; font-size: 0.9em;">状态: ${test.status === 'passed' ? '通过' : '失败'}</div>
+                                        ${test.status === 'failed' && test.error ? `<div style="margin-top: 10px; padding: 10px; background: rgba(244, 67, 54, 0.1); border-radius: 4px; font-family: monospace; font-size: 0.9em;">错误信息: ${test.error}</div>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <h3>结论</h3>
+                            <div style="padding: 20px; border-radius: 8px; font-weight: bold; text-align: center; font-size: 1.2em; margin: 20px 0; background: ${reportObj.conclusion.includes('可以部署') ? '#e8f5e8' : '#ffebee'}; color: ${reportObj.conclusion.includes('可以部署') ? '#388e3c' : '#d32f2f'};">
+                                ${reportObj.conclusion}
+                            </div>
+                            <div style="text-align: center; margin-top: 30px;">
+                                <button onclick="this.closest('.fixed').remove();" style="padding: 10px 20px; background: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">关闭报告</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.insertAdjacentHTML('beforeend', reportHTML);
+            } else {
+                alert('没有找到测试报告，请先运行测试！');
+            }
+        }
+        
+        // 清除测试报告
+        function clearReport() {
+            if (confirm('确定要清除测试报告吗？')) {
+                localStorage.removeItem('syncTestReport');
+                alert('测试报告已清除！');
+            }
+        }
+        
+        // 页面加载时检查是否有之前的测试报告
+        window.addEventListener('load', () => {
+            const report = localStorage.getItem('syncTestReport');
+            if (report) {
+                const reportObj = JSON.parse(report);
+                
+                // 显示之前的测试结果
+                const results = {
+                    total: reportObj.totalTests,
+                    passed: reportObj.passedTests,
+                    failed: reportObj.failedTests,
+                    tests: reportObj.detailedResults
+                };
+                
+                displayTestResults(results);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -399,6 +399,9 @@
         </div>
     </footer>
     
+    <!-- 引入模拟API服务 -->
+    <script src="mock-api.js"></script>
+    
     <script>
         // 文章数据
         let articlesData = {};
@@ -424,6 +427,9 @@
             
             loadArticles();
             initFilterButtons();
+            
+            // 启动定期同步
+            scheduleDataSync();
         });
         
         // 加载文章数据
@@ -571,11 +577,92 @@
             const articleCards = document.querySelectorAll('.article-card');
             articleCards.forEach(card => {
                 card.addEventListener('click', () => {
-                    const id = card.getAttribute('data-id');
+                    const id = parseInt(card.getAttribute('data-id'));
                     const category = card.getAttribute('data-category');
+                    
+                    // 更新文章浏览量
+                    updateArticleViews(id, category);
+                    
+                    // 打开文章详情页
                     window.open(`article-detail.html?id=${id}&category=${category}`, '_blank');
                 });
             });
+        }
+        
+        // 更新文章浏览量
+        function updateArticleViews(articleId, category) {
+            // 获取当前文章
+            const categoryArticles = articlesData[category];
+            if (Array.isArray(categoryArticles)) {
+                const articleIndex = categoryArticles.findIndex(a => a.id === articleId);
+                if (articleIndex > -1) {
+                    // 更新浏览量
+                    categoryArticles[articleIndex].views = (categoryArticles[articleIndex].views || 0) + 1;
+                    
+                    // 更新本地存储
+                    localStorage.setItem('articlesData', JSON.stringify(articlesData));
+                    
+                    // 同步到管理后台
+                    syncViewData(categoryArticles[articleIndex]);
+                }
+            }
+        }
+        
+        // 同步浏览量数据
+        function syncViewData(article) {
+            // 准备同步数据
+            const syncData = {
+                type: 'view',
+                articleId: article.id,
+                category: article.category,
+                views: article.views,
+                timestamp: Date.now(),
+                eventId: `view_${article.id}_${Date.now()}`
+            };
+            
+            // 尝试发送到管理后台
+            sendSyncRequest('/api/sync/event', syncData);
+        }
+        
+        // 发送同步请求
+        async function sendSyncRequest(url, data) {
+            try {
+                // 使用模拟API服务同步数据
+                const result = await mockApi.syncArticle(data);
+                console.log('Sync successful:', result);
+                
+                // 同时将同步数据保存到localStorage作为备份
+                const pendingSyncs = JSON.parse(localStorage.getItem('pendingSyncs') || '[]');
+                pendingSyncs.push(data);
+                localStorage.setItem('pendingSyncs', JSON.stringify(pendingSyncs));
+            } catch (error) {
+                console.error('Sync request failed:', error);
+                // 保存到本地，以便后续重试
+                const failedSyncs = JSON.parse(localStorage.getItem('failedSyncs') || '[]');
+                failedSyncs.push({ data, error: error.message, timestamp: Date.now() });
+                localStorage.setItem('failedSyncs', JSON.stringify(failedSyncs));
+            }
+        }
+        
+        // 定期同步数据
+        function scheduleDataSync() {
+            // 每5分钟同步一次数据
+            setInterval(() => {
+                // 从localStorage加载最新数据
+                const savedData = localStorage.getItem('articlesData');
+                if (savedData) {
+                    try {
+                        const latestData = JSON.parse(savedData);
+                        // 更新全局文章数据
+                        articlesData = latestData;
+                        // 重新渲染当前分类的文章
+                        renderArticles(currentCategory);
+                        console.log('数据已同步，重新渲染文章列表');
+                    } catch (error) {
+                        console.error('同步数据解析失败:', error);
+                    }
+                }
+            }, 5 * 60 * 1000); // 5分钟
         }
         
         // 获取分类名称
