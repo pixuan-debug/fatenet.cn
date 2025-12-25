@@ -7,19 +7,54 @@ let articles = {
 };
 
 // 从articles.json加载文章数据
-function loadArticles() {
-    fetch('articles.json')
-        .then(response => response.json())
-        .then(data => {
-            articles = data;
-            renderAllArticles();
-        })
-        .catch(error => {
-            console.error('加载文章数据失败:', error);
-            // 如果加载失败，使用默认数据
-            console.log('使用默认文章数据');
-            renderAllArticles();
+async function loadArticles() {
+    // 缓存过期时间：24小时（毫秒）
+    const CACHE_EXPIRY = 24 * 60 * 60 * 1000;
+    
+    // 尝试从本地存储加载
+    const savedData = localStorage.getItem('articlesData');
+    const savedTimestamp = localStorage.getItem('articlesDataTimestamp');
+    const now = Date.now();
+    
+    if (savedData && savedTimestamp) {
+        try {
+            const parsedData = JSON.parse(savedData);
+            const timestamp = parseInt(savedTimestamp, 10);
+            
+            // 检查缓存是否过期
+            if (now - timestamp < CACHE_EXPIRY) {
+                articles = parsedData;
+                renderAllArticles();
+                return;
+            }
+        } catch (parseError) {
+            console.error('解析本地存储数据出错:', parseError);
+            // 清除损坏的本地存储数据
+            localStorage.removeItem('articlesData');
+            localStorage.removeItem('articlesDataTimestamp');
+        }
+    }
+    
+    // 从articles.json加载数据
+    try {
+        const response = await fetch('articles.json', {
+            cache: 'no-cache'
         });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        articles = data;
+        // 保存到本地存储，并添加时间戳
+        localStorage.setItem('articlesData', JSON.stringify(data));
+        localStorage.setItem('articlesDataTimestamp', now.toString());
+        renderAllArticles();
+    } catch (error) {
+        console.error('加载文章数据失败:', error);
+        // 如果加载失败，使用默认数据
+        console.log('使用默认文章数据');
+        renderAllArticles();
+    }
 }
 
 // 渲染所有文章

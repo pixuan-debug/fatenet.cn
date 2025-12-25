@@ -17,29 +17,46 @@ function initArticles() {
     async function loadArticles() {
         let articlesData = null;
         
+        // 缓存过期时间：24小时（毫秒）
+        const CACHE_EXPIRY = 24 * 60 * 60 * 1000;
+        
         // 尝试从本地存储加载
         const savedData = localStorage.getItem('articlesData');
-        if (savedData) {
+        const savedTimestamp = localStorage.getItem('articlesDataTimestamp');
+        const now = Date.now();
+        
+        if (savedData && savedTimestamp) {
             try {
-                articlesData = JSON.parse(savedData);
-                renderArticles(articlesData);
-                return;
+                const parsedData = JSON.parse(savedData);
+                const timestamp = parseInt(savedTimestamp, 10);
+                
+                // 检查缓存是否过期
+                if (now - timestamp < CACHE_EXPIRY) {
+                    articlesData = parsedData;
+                    renderArticles(articlesData);
+                    return;
+                }
             } catch (parseError) {
                 console.error('解析本地存储数据出错:', parseError);
                 // 清除损坏的本地存储数据
                 localStorage.removeItem('articlesData');
+                localStorage.removeItem('articlesDataTimestamp');
             }
         }
         
         // 从articles.json加载数据
         try {
-            const response = await fetch('articles.json');
+            // 添加缓存控制，确保获取最新数据
+            const response = await fetch('articles.json', {
+                cache: 'no-cache'
+            });
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             articlesData = await response.json();
-            // 保存到本地存储
+            // 保存到本地存储，并添加时间戳
             localStorage.setItem('articlesData', JSON.stringify(articlesData));
+            localStorage.setItem('articlesDataTimestamp', now.toString());
             renderArticles(articlesData);
         } catch (fetchError) {
             console.error('从articles.json加载数据出错:', fetchError);
