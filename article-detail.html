@@ -543,10 +543,13 @@
             // 更新文章标题
             document.getElementById('article-title').textContent = article.title;
             
+            // 更新浏览量
+            article.views = (article.views || 0) + 1;
+            
             // 更新文章元信息
             document.getElementById('article-date').textContent = article.date;
             document.getElementById('article-category').textContent = getCategoryName(article.category);
-            document.getElementById('article-views').textContent = article.views || 0;
+            document.getElementById('article-views').textContent = article.views;
             document.getElementById('like-count').textContent = article.likes || 0;
             
             // 更新文章内容
@@ -582,6 +585,12 @@
             // 显示文章详情，隐藏错误信息
             articleDiv.style.display = 'block';
             errorDiv.style.display = 'none';
+            
+            // 更新本地存储
+            updateLocalStorage(article);
+            
+            // 同步浏览量数据到后台
+            syncViewData(article);
             
             // 初始化点赞功能
             initLikeButton(article);
@@ -686,6 +695,22 @@
                 likes: article.likes,
                 timestamp: Date.now(),
                 eventId: `like_${article.id}_${Date.now()}`
+            };
+            
+            // 尝试发送到管理后台
+            sendSyncRequest('/api/sync/event', syncData);
+        }
+        
+        // 同步浏览量数据到管理后台
+        function syncViewData(article) {
+            // 准备同步数据
+            const syncData = {
+                type: 'view',
+                articleId: article.id,
+                category: article.category,
+                views: article.views,
+                timestamp: Date.now(),
+                eventId: `view_${article.id}_${Date.now()}`
             };
             
             // 尝试发送到管理后台
