@@ -45,10 +45,10 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="theme-color" content="#ffffff">
     <script src="https://cdn.tailwindcss.com" defer></script>
-        <!-- 缃戠珯鍔犺浇浼樺寲鑴氭湰 -->
-        <script src="optimize_loading.js" defer></script>
-        <!-- 鏂囩珷鍔犺浇鑴氭湰 -->
-        <script src="articles.js"></script>
+    <!-- 缃戠珯鍔犺浇浼樺寲鑴氭湰 -->
+    <script src="optimize_loading.js" defer></script>
+    <!-- 鏂囩珷鍔犺浇鑴氭湰 -->
+    <script src="articles.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <!-- 寮曞叆涓浗椋庡瓧浣?-->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet" crossorigin media="print" onload="this.media='all'">
@@ -104,6 +104,12 @@
         }
         
         /* 纭繚瀹瑰櫒鍜屼富鍐呭鍖哄煙姝ｇ‘鎵╁睍 */
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
         main {
             flex: 1;
         }
@@ -2172,8 +2178,7 @@
         <!-- 椤佃剼绉昏嚦椤甸潰搴曢儴 -->
     </div>
     
-    <script>
-        // 鏂囩珷鏁版嵁浠巃rticles.json鏂囦欢鍔犺浇// 澶氳瑷€缈昏瘧鏁版嵁缁撴瀯
+    <script>\s*// 鏂囩珷鏁版嵁浠巃rticles.json鏂囦欢鍔犺浇\s*// 澶氳瑷€缈昏瘧鏁版嵁缁撴瀯
         const translations = {
             'zh-CN': {
                 // 椤甸潰鏍囬鍜屾爣绛鹃〉
@@ -8909,9 +8914,8 @@
                 
                 // 娣诲姞澶嶅埗閾炬帴鍔熻兘
                 wechatOverlay.querySelector('.copy-wechat-link-btn').addEventListener('click', () => {
-                    // 鍒涘缓鍖呭惈鏍囬鍜岄摼鎺ョ殑鍒嗕韩鏂囨湰
-                    const shareText = `${title} - 姝ｇ紭鏂逛綅缃慭n\n${url}\n\n蹇潵鐪嬬湅杩欑瘒绮惧僵鐨勫懡鐞嗘枃绔犲惂锛乣;
-                    navigator.clipboard.writeText(shareText)
+                    const shareUrl = window.location.origin + window.location.pathname;
+                    navigator.clipboard.writeText(shareUrl)
                         .then(() => {
                             alert('鍒嗕韩閾炬帴宸插鍒跺埌鍓创鏉匡紒');
                         })
@@ -8971,9 +8975,7 @@
                 
                 // 娣诲姞澶嶅埗閾炬帴鍔熻兘
                 youtubeOverlay.querySelector('.copy-youtube-link-btn').addEventListener('click', () => {
-                    // 鍒涘缓鍖呭惈鏍囬鍜岄摼鎺ョ殑鍒嗕韩鏂囨湰
-                    const shareText = `${title} - 姝ｇ紭鏂逛綅缃慭n\n${url}\n\n蹇潵鐪嬬湅杩欑瘒绮惧僵鐨勫懡鐞嗘枃绔犲惂锛乣;
-                    navigator.clipboard.writeText(shareText)
+                    navigator.clipboard.writeText(baseUrl)
                         .then(() => {
                             alert('鏂囩珷閾炬帴宸插鍒跺埌鍓创鏉匡紒');
                         })
@@ -8986,9 +8988,7 @@
             
             // 澶嶅埗閾炬帴
             overlay.querySelector('.copy-link-btn').addEventListener('click', () => {
-                // 鍒涘缓鍖呭惈鏍囬鍜岄摼鎺ョ殑鍒嗕韩鏂囨湰
-                const shareText = `${title} - 姝ｇ紭鏂逛綅缃慭n\n${url}\n\n蹇潵鐪嬬湅杩欑瘒绮惧僵鐨勫懡鐞嗘枃绔犲惂锛乣;
-                navigator.clipboard.writeText(shareText)
+                navigator.clipboard.writeText(url)
                     .then(() => {
                         alert('閾炬帴宸插鍒跺埌鍓创鏉匡紒');
                     })
@@ -9094,10 +9094,10 @@
     </script>
     </div>
     <!-- 涓嬮儴鍖哄煙 - 鎺ㄥ箍淇℃伅 -->
-    <div style="text-align: center; margin: 0 0 0 0; padding: 1rem; background-color: #ffffff; border-radius: 0; width: 100%; box-sizing: border-box;  border: 1px solid var(--border-color);">
+    <div style="text-align: center; margin: 0 0 0 0; padding: 1rem; background-color: #ffffff; border-radius: 0; width: 100%; box-sizing: border-box; position: fixed; bottom: 40px; left: 0; z-index: 100; border: 1px solid var(--border-color);">
         <p style="color: var(--light-text); font-size: 0.9rem; margin: 0;"><span data-translate="promotionalText">杩樺彲浠ヨ瘯璇曟垜浠殑</span> <a href="zodiac_match.html" style="color: var(--accent-color); text-decoration: none; font-size: 0.9rem;"><span data-translate="zodiacTool">鍏瓧鎰熸儏鏌ヨ宸ュ叿</span></a>锛?span data-translate="getMoreAnalysis">鑾峰彇鏇村鍛界悊鍒嗘瀽銆?/span> <a href="weixin://addfriend/officialaccount/pixuan1989" style="color: var(--accent-color); text-decoration: underline; font-size: 0.9rem;"><span data-translate="contactUs">鑱旂郴鎴戜滑</span> <span style="color: var(--light-text);">pixuan1989</span></a></p>
     </div>
-    <footer style="text-align: center; padding: 1rem 0; margin-top: auto; border-top: 1px solid var(--border-color); background-color: #ffffff;">
+    <footer style="position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; padding: 10px; background-color: #ffffff; border-top: 1px solid var(--border-color); margin-top: 0; z-index: 100;">
         <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap;">
             <p style="margin: 0; color: var(--light-text); font-size: 0.9rem; display: inline;">鑻廔CP澶?025226852鍙?1涓ㄨ嫃鍏綉瀹夊32020602003711鍙?/p>
         </div>
