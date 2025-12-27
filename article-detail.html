@@ -424,80 +424,270 @@
     </footer>
     
     <!-- 引入模拟API服务 -->
-    <script src="mock-api.js"></script>
+
     
     <script>
         // 文章数据
         let articles = {};
         
-        // 页面加载时执行
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM加载完成，开始加载文章数据');
-            
-            // 先尝试从localStorage加载数据
-            const savedData = localStorage.getItem('articlesData');
-            if (savedData) {
-                try {
-                    console.log('尝试从localStorage加载数据');
-                    articles = JSON.parse(savedData);
-                    
-                    // 确保所有分类都有数据，避免渲染时出错
-                    ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'].forEach(category => {
-                        if (!articles[category]) {
-                            articles[category] = [];
-                            console.log('分类', category, '数据为空，初始化为空数组');
-                        } else {
-                            console.log('分类', category, '包含', articles[category].length, '篇文章');
-                        }
-                    });
-                    
-                    // 加载文章详情
-                    loadArticleDetail();
-                    return;
-                } catch (error) {
-                    console.error('从localStorage解析数据失败:', error);
-                    console.log('尝试从articles.json加载数据');
-                }
-            } else {
-                console.log('localStorage中没有数据，尝试从articles.json加载');
+        // 从后台获取最新文章数据
+    async function fetchLatestArticlesFromApi() {
+        try {
+            const response = await fetch('/api/v1/articles');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
-            // 从articles.json加载数据，添加缓存控制
-            fetch('articles.json', {
-                cache: 'no-cache'
-            })
-                .then(response => {
-                    console.log('articles.json响应状态:', response.status);
-                    if (!response.ok) {
-                        throw new Error('网络响应失败，状态码: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('成功加载articles.json数据:', data);
-                    articles = data;
-                    
-                    // 确保所有分类都有数据，避免渲染时出错
-                    ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'].forEach(category => {
-                        if (!articles[category]) {
-                            articles[category] = [];
-                            console.log('分类', category, '数据为空，初始化为空数组');
-                        } else {
-                            console.log('分类', category, '包含', articles[category].length, '篇文章');
-                        }
-                    });
-                    
-                    // 加载文章详情
-                    loadArticleDetail();
-                })
-                .catch(error => {
-                    console.error('从articles.json加载数据失败:', error);
-                    showError('文章数据加载失败: ' + error.message);
-                });
+            const apiResponse = await response.json();
+            if (apiResponse.code === 200 && apiResponse.data) {
+                return apiResponse.data;
+            }
+            return null;
+        } catch (error) {
+            console.error('从后台获取文章数据失败:', error);
+            return null;
+        }
+    }
+
+    // 合并本地数据和后台数据
+    function mergeArticlesData(localData, apiData) {
+        // 如果没有后台数据，直接返回本地数据
+        if (!apiData) {
+            return localData;
+        }
+        
+        // 创建分类映射，方便查找
+        const categoryMap = {};
+        Object.keys(localData).forEach(category => {
+            categoryMap[category] = new Map();
+            localData[category].forEach(article => {
+                categoryMap[category].set(article.id, article);
+            });
         });
         
+        // 合并后台数据到本地数据
+        const mergedData = { ...localData };
+        
+        // 确保所有分类都有数据
+        ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'].forEach(category => {
+            if (!mergedData[category]) {
+                mergedData[category] = [];
+                categoryMap[category] = new Map();
+            }
+        });
+        
+        // 遍历后台数据，合并到本地数据
+        Object.keys(apiData).forEach(category => {
+            if (!mergedData[category]) {
+                mergedData[category] = [];
+                categoryMap[category] = new Map();
+            }
+            
+            apiData[category].forEach(apiArticle => {
+                const localArticle = categoryMap[category].get(apiArticle.article_id || apiArticle.id);
+                
+                if (localArticle) {
+                    // 合并数据，优先保留本地修改的精华状态等，使用后台的点赞和浏览量
+                    localArticle.likes = apiArticle.likes || localArticle.likes || 0;
+                    localArticle.views = apiArticle.views || localArticle.views || 0;
+                    localArticle.last_updated = apiArticle.last_updated || localArticle.last_updated || new Date().toISOString();
+                    localArticle.version = apiArticle.version || (localArticle.version || 0) + 1;
+                } else {
+                    // 添加新文章
+                    mergedData[category].push({
+                        id: apiArticle.article_id || apiArticle.id,
+                        title: apiArticle.title || '未命名文章',
+                        excerpt: apiArticle.excerpt || '',
+                        content: apiArticle.content || '',
+                        date: apiArticle.date || apiArticle.last_updated?.split('T')[0] || new Date().toISOString().split('T')[0],
+                        likes: apiArticle.likes || 0,
+                        views: apiArticle.views || 0,
+                        isFeatured: apiArticle.isFeatured || false,
+                        images: Array.isArray(apiArticle.images) ? apiArticle.images : [],
+                        category: apiArticle.category || category,
+                        last_updated: apiArticle.last_updated || new Date().toISOString(),
+                        version: apiArticle.version || 1
+                    });
+                }
+            });
+        });
+        
+        return mergedData;
+    }
+
+    // 页面加载时执行
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log('DOM加载完成，开始加载文章数据');
+        
+        // 先尝试从localStorage加载数据
+        const savedData = localStorage.getItem('articlesData');
+        let localData = {};
+        if (savedData) {
+            try {
+                console.log('尝试从localStorage加载数据');
+                localData = JSON.parse(savedData);
+            } catch (error) {
+                console.error('从localStorage解析数据失败:', error);
+                localData = {};
+            }
+        } else {
+            console.log('localStorage中没有数据');
+        }
+        
+        // 确保所有分类都有数据
+        ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'].forEach(category => {
+            if (!localData[category]) {
+                localData[category] = [];
+            }
+        });
+        
+        // 尝试从后台获取最新数据
+        const apiData = await fetchLatestArticlesFromApi();
+        
+        if (apiData) {
+            console.log('从后台获取到最新数据，开始合并数据');
+            // 合并后台数据和本地数据
+            articles = mergeArticlesData(localData, apiData);
+            // 保存到本地存储
+            localStorage.setItem('articlesData', JSON.stringify(articles));
+            console.log('数据合并完成，保存到localStorage');
+            // 加载文章详情
+            loadArticleDetail();
+            return;
+        }
+        
+        // 如果无法从后台获取数据，使用本地数据
+        if (savedData) {
+            console.log('使用localStorage数据');
+            articles = localData;
+            // 加载文章详情
+            loadArticleDetail();
+            return;
+        }
+        
+        // 尝试从articles.json加载数据
+        console.log('尝试从articles.json加载数据');
+        try {
+            const response = await fetch('articles.json');
+            if (response.ok) {
+                const jsonData = await response.json();
+                console.log('成功从articles.json加载数据');
+                articles = jsonData;
+                // 保存到localStorage
+                localStorage.setItem('articlesData', JSON.stringify(articles));
+                // 加载文章详情
+                loadArticleDetail();
+                return;
+            }
+        } catch (error) {
+            console.error('从articles.json加载数据失败:', error);
+        }
+        
+        // 使用直接嵌入的默认文章数据
+        console.log('使用直接嵌入的默认文章数据');
+        articles = {
+            "basic-theory": [
+                {
+                    "id": 1,
+                    "title": "什么是八字？",
+                    "excerpt": "“八字”也叫“生辰八字”，是指一个人出生时的年、月、日、时所对应的天干地支。",
+                    "content": "“八字”也叫“生辰八字”，是指一个人出生时的年、月、日、时所对应的天干地支。天干有十个，分别是甲、乙、丙、丁、戊、己、庚、辛、壬、癸；地支有十二个，分别是子、丑、寅、卯、辰、巳、午、未、申、酉、戌、亥。天干和地支按照一定的顺序组合起来，形成六十个不同的组合，这就是“六十甲子”。",
+                    "date": "2025-12-22",
+                    "likes": 0,
+                    "views": 0,
+                    "isFeatured": true,
+                    "images": [],
+                    "category": "basic-theory"
+                },
+                {
+                    "id": 2,
+                    "title": "五行",
+                    "excerpt": "木火土金水。",
+                    "content": "木火土金水。生：木生火，火生土，土生金，金生水，水生木循环往复；克：木克土，土克水，水克火，火克金，金克木。",
+                    "date": "2025-12-23",
+                    "likes": 0,
+                    "views": 0,
+                    "isFeatured": true,
+                    "images": [],
+                    "category": "basic-theory"
+                }
+            ],
+            "celebrity-views": [
+                {
+                    "id": 1,
+                    "title": "慈禧太后八字",
+                    "excerpt": "如果也不具备党势那么还可以看象，象法难度比较大但精准，是命理师不断专研学习的必经之路。",
+                    "content": "乙    丁    乙    己\n未    亥    丑    卯\n全局八个字皆有用，无一字浪费和搞破坏不和谐，所以能掌皇权。",
+                    "date": "2025-12-23",
+                    "likes": 0,
+                    "views": 0,
+                    "isFeatured": true,
+                    "images": [],
+                    "category": "celebrity-views"
+                },
+                {
+                    "id": 2,
+                    "title": "李嘉诚八字",
+                    "excerpt": "李嘉诚八字的详细分析。",
+                    "content": "李嘉诚八字：\n戊 己 庚 丁\n辰 未 午 亥\n\n不知道此时辰是否真伪，但目前是网络上比较公认的时辰。",
+                    "date": "2025-12-24",
+                    "likes": 0,
+                    "views": 0,
+                    "isFeatured": true,
+                    "images": [],
+                    "category": "celebrity-views"
+                }
+            ],
+            "flower-fruit-method": [
+                {
+                    "id": 1,
+                    "title": "大运流年以及命局的作用关系",
+                    "excerpt": "重点：先说清楚大运流年和原局的关系，流年可以作用大运和原局。",
+                    "content": "重点：先说清楚大运流年和原局的关系，流年可以作用大运和原局；大运可以作用原局；原局不能反向作用大运和流年，同样大运也不能作用于流年。",
+                    "date": "2025-12-23",
+                    "likes": 0,
+                    "views": 0,
+                    "isFeatured": true,
+                    "images": [],
+                    "category": "flower-fruit-method"
+                }
+            ],
+            "essays": [
+                {
+                    "id": 1,
+                    "title": "长生十二宫",
+                    "excerpt": "现在长生十二宫目前存在两种争议。",
+                    "content": "现在长生十二宫目前存在两种争议。a.阴阳同生共死 b.阳生阴死，阴生阳死",
+                    "date": "2025-12-23",
+                    "likes": 0,
+                    "views": 0,
+                    "isFeatured": true,
+                    "images": [],
+                    "category": "essays"
+                },
+                {
+                    "id": 2,
+                    "title": "刑冲合害破合的概念",
+                    "excerpt": "首先分为天干五合，地支六合和三合。",
+                    "content": "首先分为天干五合，地支六合和三合。1.6.1.天干五合：天干一共 10 位两两相合，所以一共有 5 对相合。",
+                    "date": "2025-12-23",
+                    "likes": 0,
+                    "views": 0,
+                    "isFeatured": true,
+                    "images": [],
+                    "category": "essays"
+                }
+            ]
+        };
+        
+        // 保存到localStorage
+        localStorage.setItem('articlesData', JSON.stringify(articles));
+        
         // 加载文章详情
-        function loadArticleDetail() {
+        loadArticleDetail();
+    });
+    
+    // 加载文章详情
+    function loadArticleDetail() {
             // 获取URL参数
             const params = new URLSearchParams(window.location.search);
             const id = parseInt(params.get('id'));
@@ -633,7 +823,7 @@
             const likeCount = document.getElementById('like-count');
             
             // 添加点击事件
-            likeBtn.addEventListener('click', function() {
+            likeBtn.addEventListener('click', async function() {
                 if (likeBtn.classList.contains('liked')) {
                     // 取消点赞
                     likeBtn.classList.remove('liked');
@@ -648,7 +838,7 @@
                 likeCount.textContent = article.likes;
                 
                 // 更新本地存储
-                updateLocalStorage(article);
+                await updateLocalStorage(article);
                 
                 // 同步到管理后台
                 syncLikeData(article);
@@ -656,16 +846,48 @@
         }
         
         // 更新本地存储
-        function updateLocalStorage(article) {
+        async function updateLocalStorage(article) {
             try {
                 // 获取当前localStorage中的文章数据
-                const savedData = localStorage.getItem('articlesData');
-                let articlesData = savedData ? JSON.parse(savedData) : {};
+                let savedData = localStorage.getItem('articlesData');
+                let articlesData = savedData ? JSON.parse(savedData) : null;
                 
-                // 确保分类存在
-                if (!articlesData[article.category]) {
-                    articlesData[article.category] = [];
+                // 如果localStorage中没有数据，尝试从articles.json加载完整数据
+                if (!articlesData) {
+                    console.log('localStorage中没有文章数据，尝试从articles.json加载');
+                    try {
+                        const response = await fetch('articles.json');
+                        if (response.ok) {
+                            articlesData = await response.json();
+                            console.log('成功从articles.json加载完整文章数据');
+                        } else {
+                            // 如果articles.json加载失败，使用直接嵌入的默认数据
+                            articlesData = {
+                                "basic-theory": [],
+                                "celebrity-views": [],
+                                "flower-fruit-method": [],
+                                "essays": []
+                            };
+                            console.log('使用默认空数据结构');
+                        }
+                    } catch (error) {
+                        // 如果网络请求失败，使用直接嵌入的默认数据
+                        articlesData = {
+                            "basic-theory": [],
+                            "celebrity-views": [],
+                            "flower-fruit-method": [],
+                            "essays": []
+                        };
+                        console.log('使用默认空数据结构');
+                    }
                 }
+                
+                // 确保所有分类都存在
+                ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'].forEach(category => {
+                    if (!articlesData[category]) {
+                        articlesData[category] = [];
+                    }
+                });
                 
                 // 查找并更新文章
                 const articleIndex = articlesData[article.category].findIndex(a => a.id === article.id);
@@ -680,6 +902,47 @@
                 // 保存到localStorage
                 localStorage.setItem('articlesData', JSON.stringify(articlesData));
                 console.log('文章数据已更新到localStorage');
+                
+                // 同时更新mockDatabase中的数据，确保admin页面能获取到最新数据
+                // 这是一个临时解决方案，实际项目中应该通过API调用来同步数据
+                if (window.mockDatabase) {
+                    // 确保分类存在
+                    if (!window.mockDatabase.articles) {
+                        window.mockDatabase.articles = {
+                            'basic-theory': [],
+                            'celebrity-views': [],
+                            'flower-fruit-method': [],
+                            'essays': []
+                        };
+                    }
+                    
+                    if (!window.mockDatabase.articles[article.category]) {
+                        window.mockDatabase.articles[article.category] = [];
+                    }
+                    
+                    // 查找并更新文章
+                    const mockArticleIndex = window.mockDatabase.articles[article.category].findIndex(a => a.id === article.id);
+                    if (mockArticleIndex > -1) {
+                        // 更新现有文章
+                        window.mockDatabase.articles[article.category][mockArticleIndex] = {
+                            ...window.mockDatabase.articles[article.category][mockArticleIndex],
+                            ...article,
+                            version: (window.mockDatabase.articles[article.category][mockArticleIndex].version || 0) + 1,
+                            last_updated: new Date().toISOString()
+                        };
+                    } else {
+                        // 添加新文章
+                        window.mockDatabase.articles[article.category].push({
+                            ...article,
+                            version: 1,
+                            last_updated: new Date().toISOString()
+                        });
+                    }
+                    
+                    // 保存到localStorage
+                    localStorage.setItem('mockDatabase', JSON.stringify(window.mockDatabase));
+                    console.log('文章数据已更新到mockDatabase');
+                }
             } catch (error) {
                 console.error('更新localStorage失败:', error);
             }
@@ -720,14 +983,24 @@
         // 发送同步请求
         async function sendSyncRequest(url, data) {
             try {
-                // 使用模拟API服务同步数据
-                const result = await mockApi.syncArticle(data);
+                // 使用真实API服务同步数据
+                const response = await fetch('/api/v1/articles/sync', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
                 console.log('Sync successful:', result);
                 
-                // 同时将同步数据保存到localStorage作为备份
-                const pendingSyncs = JSON.parse(localStorage.getItem('pendingSyncs') || '[]');
-                pendingSyncs.push(data);
-                localStorage.setItem('pendingSyncs', JSON.stringify(pendingSyncs));
+                // 清除当前数据的pending状态，因为已经成功同步
+                // 不再将成功同步的数据添加到pendingSyncs中
             } catch (error) {
                 console.error('Sync request failed:', error);
                 // 保存到本地，以便后续重试

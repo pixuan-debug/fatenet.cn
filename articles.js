@@ -1,165 +1,315 @@
-// 文章数据，将从articles.json文件加载
-let articles = {
-    'basic-theory': [],
-    'celebrity-views': [],
-    'flower-fruit-method': [],
-    'essays': []
-};
+// 文章数据管理
 
-// 从articles.json加载文章数据
-async function loadArticles() {
-    // 缓存过期时间：24小时（毫秒）
-    const CACHE_EXPIRY = 24 * 60 * 60 * 1000;
-    
-    // 尝试从本地存储加载
-    const savedData = localStorage.getItem('articlesData');
-    const savedTimestamp = localStorage.getItem('articlesDataTimestamp');
-    const now = Date.now();
-    
-    if (savedData && savedTimestamp) {
+// 数据收集器类
+class DataCollector {
+    constructor() {
+        this.pendingSyncData = JSON.parse(localStorage.getItem('pendingSyncData')) || [];
+        this.syncInterval = null;
+        this.API_URL = '/api/v1/articles/sync';
+        this.syncStatus = 'idle';
+        // 设备唯一标识符
+        this.deviceId = this.getOrGenerateDeviceId();
+        // 本地操作记录，用于去重
+        this.localActions = JSON.parse(localStorage.getItem('localActions')) || {};
+        this.init();
+    }
+
+    init() {
+        // 设置定期同步
+        this.setSyncInterval(60000); // 60秒同步一次
+    }
+
+    // 获取或生成设备唯一标识符
+    getOrGenerateDeviceId() {
+        let deviceId = localStorage.getItem('deviceId');
+        if (!deviceId) {
+            // 生成随机设备ID
+            deviceId = 'device_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+            localStorage.setItem('deviceId', deviceId);
+        }
+        return deviceId;
+    }
+
+    // 保存本地操作记录
+    saveLocalActions() {
+        localStorage.setItem('localActions', JSON.stringify(this.localActions));
+    }
+
+    // 设置同步间隔
+    setSyncInterval(ms) {
+        if (this.syncInterval) {
+            clearInterval(this.syncInterval);
+        }
+        this.syncInterval = setInterval(() => {
+            this.syncPendingData();
+        }, ms);
+    }
+
+    // 记录文章点赞
+    recordLike(articleId, category) {
+        const actionKey = `like_${articleId}_${category}`;
+        
+        // 检查是否已经点赞过，避免重复
+        if (this.localActions[actionKey]) {
+            console.log('已经点赞过该文章，跳过重复记录');
+            return;
+        }
+        
+        const event = {
+            eventId: Date.now(),
+            type: 'like',
+            articleId: articleId,
+            category: category,
+            timestamp: Date.now(),
+            deviceId: this.deviceId
+        };
+        
+        // 记录到本地操作记录
+        this.localActions[actionKey] = true;
+        this.saveLocalActions();
+        
+        this.pendingSyncData.push(event);
+        this.saveToLocalStorage();
+        this.syncPendingData(); // 立即尝试同步
+    }
+
+    // 记录文章浏览
+    recordView(articleId, category) {
+        const actionKey = `view_${articleId}_${category}`;
+        
+        // 检查是否已经浏览过，避免重复
+        if (this.localActions[actionKey]) {
+            console.log('已经浏览过该文章，跳过重复记录');
+            return;
+        }
+        
+        const event = {
+            eventId: Date.now(),
+            type: 'view',
+            articleId: articleId,
+            category: category,
+            timestamp: Date.now(),
+            deviceId: this.deviceId
+        };
+        
+        // 记录到本地操作记录
+        this.localActions[actionKey] = true;
+        this.saveLocalActions();
+        
+        this.pendingSyncData.push(event);
+        this.saveToLocalStorage();
+    }
+
+    // 保存到本地存储
+    saveToLocalStorage() {
+        localStorage.setItem('pendingSyncData', JSON.stringify(this.pendingSyncData));
+    }
+
+    // 同步待处理数据到API
+    async syncPendingData() {
+        if (this.pendingSyncData.length === 0 || this.syncStatus === 'syncing') {
+            return;
+        }
+
+        this.syncStatus = 'syncing';
+        
         try {
-            const parsedData = JSON.parse(savedData);
-            const timestamp = parseInt(savedTimestamp, 10);
+            // 计算每条文章的总点赞和总浏览
+            const aggregatedData = this.aggregateData();
             
-            // 检查缓存是否过期
-            if (now - timestamp < CACHE_EXPIRY) {
-                articles = parsedData;
-                renderAllArticles();
-                return;
+            // 发送同步请求
+            for (const data of aggregatedData) {
+                const response = await this.sendSyncRequest(data);
+                if (response && response.success) {
+                    // 同步成功，从待处理列表中移除相关事件
+                    this.removeSyncedEvents(data.eventIds);
+                }
             }
-        } catch (parseError) {
-            console.error('解析本地存储数据出错:', parseError);
-            // 清除损坏的本地存储数据
-            localStorage.removeItem('articlesData');
-            localStorage.removeItem('articlesDataTimestamp');
+        } catch (error) {
+            console.error('同步数据失败:', error);
+        } finally {
+            this.syncStatus = 'idle';
         }
     }
-    
-    // 从articles.json加载数据
-    try {
-        const response = await fetch('articles.json', {
-            cache: 'no-cache'
+
+    // 聚合数据
+    aggregateData() {
+        const articleDataMap = new Map();
+        
+        // 遍历所有待处理事件
+        this.pendingSyncData.forEach(event => {
+            const key = `${event.articleId}-${event.category}`;
+            
+            if (!articleDataMap.has(key)) {
+                articleDataMap.set(key, {
+                    articleId: event.articleId,
+                    category: event.category,
+                    likes: 0,
+                    views: 0,
+                    eventIds: []
+                });
+            }
+            
+            const data = articleDataMap.get(key);
+            data.eventIds.push(event.eventId);
+            
+            if (event.type === 'like') {
+                data.likes++;
+            } else if (event.type === 'view') {
+                data.views++;
+            }
         });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        
+        // 转换为数组并添加sync类型
+        return Array.from(articleDataMap.values()).map(data => ({
+            eventId: Date.now(),
+            type: 'sync',
+            articleId: data.articleId,
+            category: data.category,
+            likes: data.likes,
+            views: data.views,
+            timestamp: Date.now(),
+            eventIds: data.eventIds
+        }));
+    }
+
+    // 发送同步请求
+    async sendSyncRequest(data) {
+        try {
+            // 移除eventIds，API不需要
+            const { eventIds, ...syncData } = data;
+            
+            const response = await fetch(this.API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(syncData)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP错误! 状态: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            return {
+                success: result.code === 200,
+                data: result
+            };
+        } catch (error) {
+            console.error('发送同步请求失败:', error);
+            return {
+                success: false,
+                error: error.message
+            };
         }
-        const data = await response.json();
-        articles = data;
-        // 保存到本地存储，并添加时间戳
-        localStorage.setItem('articlesData', JSON.stringify(data));
-        localStorage.setItem('articlesDataTimestamp', now.toString());
-        renderAllArticles();
-    } catch (error) {
-        console.error('加载文章数据失败:', error);
-        // 如果加载失败，使用默认数据
-        console.log('使用默认文章数据');
-        renderAllArticles();
+    }
+
+    // 移除已同步的事件
+    removeSyncedEvents(syncedEventIds) {
+        this.pendingSyncData = this.pendingSyncData.filter(event => 
+            !syncedEventIds.includes(event.eventId)
+        );
+        this.saveToLocalStorage();
+    }
+
+    // 停止同步
+    stopSync() {
+        if (this.syncInterval) {
+            clearInterval(this.syncInterval);
+            this.syncInterval = null;
+        }
     }
 }
 
-// 渲染所有文章
-function renderAllArticles() {
-    // 清空所有文章容器
-    document.getElementById('basic-theory-grid').innerHTML = '';
-    document.getElementById('celebrity-views-grid').innerHTML = '';
-    document.getElementById('flower-fruit-method-grid').innerHTML = '';
-    document.getElementById('essays-grid').innerHTML = '';
+// 初始化数据收集器
+const dataCollector = new DataCollector();
 
-    // 渲染每个分类的文章
-    renderArticles('basic-theory');
-    renderArticles('celebrity-views');
-    renderArticles('flower-fruit-method');
-    renderArticles('essays');
+// 获取单篇文章
+async function fetchArticle(articleId, category) {
+    try {
+        let url = `/api/v1/articles/${articleId}`;
+        if (category) {
+            url += `?category=${category}`;
+        }
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP错误! 状态: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        return result.code === 200 ? result.data : null;
+    } catch (error) {
+        console.error('获取文章失败:', error);
+        return null;
+    }
 }
 
-// 渲染特定分类的文章
-function renderArticles(category) {
-    const articlesList = articles[category] || [];
-    const container = document.getElementById(`${category}-grid`);
-    
-    articlesList.forEach(article => {
-        const articleCard = document.createElement('div');
-        articleCard.className = 'article-card';
-        articleCard.innerHTML = `
-            <h3 class="article-title">${article.title}</h3>
-            <p class="article-excerpt">${article.excerpt}</p>
-            <div class="article-meta">
-                <span class="article-date">
-                    <i class="fa fa-calendar"></i>
-                    ${article.date}
-                </span>
-                <div class="article-actions">
-                    <button class="action-btn like-btn" onclick="likeArticle(${article.id}, '${category}')">
-                        <i class="fa fa-heart"></i>
-                        <span>${article.likes || 0}</span>
-                    </button>
-                    <button class="action-btn view-btn" onclick="viewArticle(${article.id}, '${category}')">
-                        <i class="fa fa-eye"></i>
-                        <span>${article.views || 0}</span>
-                    </button>
-                </div>
-            </div>
-        `;
-        container.appendChild(articleCard);
-    });
+// 获取文章列表
+async function fetchArticles(category = null, useCache = false) {
+    try {
+        let url = '/api/v1/articles';
+        if (category) {
+            url += `?category=${category}&useCache=${useCache}`;
+        } else {
+            url += `?useCache=${useCache}`;
+        }
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP错误! 状态: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        return result.code === 200 ? result.data : null;
+    } catch (error) {
+        console.error('获取文章失败:', error);
+        return null;
+    }
 }
 
 // 点赞文章
-function likeArticle(articleId, category) {
-    const articlesList = articles[category] || [];
-    const article = articlesList.find(a => a.id === articleId);
-    if (article) {
-        article.likes = (article.likes || 0) + 1;
-        renderAllArticles();
+async function likeArticle(articleId, category) {
+    try {
+        // 记录点赞
+        dataCollector.recordLike(articleId, category);
+        
+        console.log('点赞文章:', articleId, category);
+        
+        // 立即同步数据
+        await dataCollector.syncPendingData();
+        
+        return { success: true, message: '点赞成功，数据已同步' };
+    } catch (error) {
+        console.error('点赞失败:', error);
+        return { success: false, message: '点赞失败，请稍后重试' };
     }
 }
 
-// 查看文章详情
-function viewArticle(articleId, category) {
-    const articlesList = articles[category] || [];
-    const article = articlesList.find(a => a.id === articleId);
-    if (article) {
-        article.views = (article.views || 0) + 1;
+// 浏览文章
+async function viewArticle(articleId, category) {
+    try {
+        // 记录浏览
+        dataCollector.recordView(articleId, category);
         
-        // 创建文章详情弹窗
-        const modal = document.createElement('div');
-        modal.className = 'contact-modal active';
-        modal.innerHTML = `
-            <div class="contact-modal-content">
-                <div class="modal-header">
-                    <h3>${article.title}</h3>
-                    <button class="modal-close-btn" onclick="this.closest('.contact-modal').remove()">&times;</button>
-                </div>
-                <div class="modal-body article-detail">
-                    <div class="article-meta">
-                        <span class="article-date">
-                            <i class="fa fa-calendar"></i>
-                            ${article.date}
-                        </span>
-                        <div class="article-actions">
-                            <button class="action-btn like-btn" onclick="likeArticle(${article.id}, '${category}')">
-                                <i class="fa fa-heart"></i>
-                                <span>${article.likes || 0}</span>
-                            </button>
-                            <span class="action-btn">
-                                <i class="fa fa-eye"></i>
-                                <span>${article.views}</span>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="article-content">
-                        ${article.content.replace(/\n/g, '<br>')}
-                    </div>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
+        console.log('浏览文章:', articleId, category);
         
-        renderAllArticles();
+        // 立即同步数据
+        await dataCollector.syncPendingData();
+        
+        return { success: true, message: '浏览记录成功，数据已同步' };
+    } catch (error) {
+        console.error('记录浏览失败:', error);
+        return { success: false, message: '记录浏览失败' };
     }
 }
 
-// 页面加载完成后加载文章
-document.addEventListener('DOMContentLoaded', function() {
-    loadArticles();
-});
+// 导出
+window.articleManager = {
+    fetchArticles,
+    fetchArticle,
+    likeArticle,
+    viewArticle,
+    dataCollector
+};

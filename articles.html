@@ -399,8 +399,7 @@
         </div>
     </footer>
     
-    <!-- 引入模拟API服务 -->
-    <script src="mock-api.js"></script>
+
     
     <script>
         // 文章数据
@@ -433,7 +432,7 @@
         });
         
         // 加载文章数据
-        function loadArticles() {
+        async function loadArticles() {
             // 先尝试从localStorage加载数据
             const savedData = localStorage.getItem('articlesData');
             if (savedData) {
@@ -448,29 +447,24 @@
                     });
                     // 重新渲染文章列表
                     renderArticles(currentCategory);
-                    return;
                 } catch (error) {
                     console.error('从localStorage解析数据失败:', error);
-                    console.log('尝试从articles.json加载数据');
+                    await fetchArticlesFromApi();
                 }
             } else {
-                console.log('localStorage中没有数据，尝试从articles.json加载');
+                await fetchArticlesFromApi();
             }
-            
-            // 从articles.json加载数据，添加缓存控制
-            fetch('articles.json', {
-                cache: 'no-cache'
-            })
-                .then(response => {
-                    console.log('articles.json响应状态:', response.status);
-                    if (!response.ok) {
-                        throw new Error('网络响应失败，状态码: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('成功加载articles.json数据:', data);
-                    articlesData = data;
+        }
+
+        // 从API获取文章数据
+        async function fetchArticlesFromApi() {
+            try {
+                const response = await fetch('/api/v1/articles?useCache=false');
+                if (response.ok) {
+                    const result = await response.json();
+                    const apiArticles = result.data || {};
+                    console.log('成功从API获取文章数据:', Object.keys(apiArticles).length, '个分类');
+                    articlesData = apiArticles;
                     
                     // 确保所有分类都有数据，避免渲染时出错
                     ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'].forEach(category => {
@@ -478,22 +472,117 @@
                             articlesData[category] = [];
                         }
                     });
+                    
+                    // 将数据保存到localStorage
+                    localStorage.setItem('articlesData', JSON.stringify(articlesData));
+                    
                     // 重新渲染文章列表
                     renderArticles(currentCategory);
-                })
-                .catch(error => {
-                    console.error('从articles.json加载数据失败:', error);
-                    // 如果加载失败，使用空数据
-                    articlesData = {
-                        'basic-theory': [],
-                        'celebrity-views': [],
-                        'flower-fruit-method': [],
-                        'essays': []
-                    };
-                    console.log('使用空数据，分类数量:', Object.keys(articlesData).length);
+                    return;
+                }
+            } catch (error) {
+                console.error('从API获取数据时发生错误:', error);
+            }
+            
+            // 尝试从articles.json加载数据
+            console.log('尝试从articles.json加载数据');
+            try {
+                const response = await fetch('articles.json');
+                if (response.ok) {
+                    const jsonData = await response.json();
+                    console.log('成功从articles.json加载数据');
+                    articlesData = jsonData;
+                    // 保存到localStorage
+                    localStorage.setItem('articlesData', JSON.stringify(articlesData));
                     // 重新渲染文章列表
                     renderArticles(currentCategory);
-                });
+                    return;
+                }
+            } catch (error) {
+                console.error('从articles.json加载数据失败:', error);
+            }
+            
+            // 使用直接嵌入的默认文章数据
+            console.log('使用直接嵌入的默认文章数据');
+            articlesData = {
+                "basic-theory": [
+                    {
+                        "id": 1,
+                        "title": "什么是八字？",
+                        "excerpt": "“八字”也叫“生辰八字”，是指一个人出生时的年、月、日、时所对应的天干地支。",
+                        "date": "2025-12-22",
+                        "likes": 0,
+                        "views": 0,
+                        "category": "basic-theory"
+                    },
+                    {
+                        "id": 2,
+                        "title": "五行",
+                        "excerpt": "木火土金水。",
+                        "date": "2025-12-23",
+                        "likes": 0,
+                        "views": 0,
+                        "category": "basic-theory"
+                    }
+                ],
+                "celebrity-views": [
+                    {
+                        "id": 1,
+                        "title": "慈禧太后八字",
+                        "excerpt": "如果也不具备党势那么还可以看象，象法难度比较大但精准，是命理师不断专研学习的必经之路。",
+                        "date": "2025-12-23",
+                        "likes": 0,
+                        "views": 0,
+                        "category": "celebrity-views"
+                    },
+                    {
+                        "id": 2,
+                        "title": "李嘉诚八字",
+                        "excerpt": "李嘉诚八字的详细分析。",
+                        "date": "2025-12-24",
+                        "likes": 0,
+                        "views": 0,
+                        "category": "celebrity-views"
+                    }
+                ],
+                "flower-fruit-method": [
+                    {
+                        "id": 1,
+                        "title": "大运流年以及命局的作用关系",
+                        "excerpt": "重点：先说清楚大运流年和原局的关系，流年可以作用大运和原局。",
+                        "date": "2025-12-23",
+                        "likes": 0,
+                        "views": 0,
+                        "category": "flower-fruit-method"
+                    }
+                ],
+                "essays": [
+                    {
+                        "id": 1,
+                        "title": "长生十二宫",
+                        "excerpt": "现在长生十二宫目前存在两种争议。",
+                        "date": "2025-12-23",
+                        "likes": 0,
+                        "views": 0,
+                        "category": "essays"
+                    },
+                    {
+                        "id": 2,
+                        "title": "刑冲合害破合的概念",
+                        "excerpt": "首先分为天干五合，地支六合和三合。",
+                        "date": "2025-12-23",
+                        "likes": 0,
+                        "views": 0,
+                        "category": "essays"
+                    }
+                ]
+            };
+            
+            // 保存到localStorage
+            localStorage.setItem('articlesData', JSON.stringify(articlesData));
+            
+            // 重新渲染文章列表
+            renderArticles(currentCategory);
         }
         
         // 渲染文章列表
@@ -627,14 +716,24 @@
         // 发送同步请求
         async function sendSyncRequest(url, data) {
             try {
-                // 使用模拟API服务同步数据
-                const result = await mockApi.syncArticle(data);
+                // 使用真实API服务同步数据
+                const response = await fetch('/api/v1/articles/sync', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
                 console.log('Sync successful:', result);
                 
-                // 同时将同步数据保存到localStorage作为备份
-                const pendingSyncs = JSON.parse(localStorage.getItem('pendingSyncs') || '[]');
-                pendingSyncs.push(data);
-                localStorage.setItem('pendingSyncs', JSON.stringify(pendingSyncs));
+                // 清除当前数据的pending状态，因为已经成功同步
+                // 不再将成功同步的数据添加到pendingSyncs中
             } catch (error) {
                 console.error('Sync request failed:', error);
                 // 保存到本地，以便后续重试
