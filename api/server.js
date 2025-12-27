@@ -115,55 +115,117 @@ function importInitialArticles() {
             return;
         }
         
-        // 初始文章数据
-        const initialArticles = [
-            { article_id: 1, category: 'basic-theory', title: '命学基础理论', likes: 120, views: 2500 },
-            { article_id: 2, category: 'celebrity-views', title: '名人八字分析', likes: 95, views: 1800 },
-            { article_id: 3, category: 'flower-fruit-method', title: '花果论心法详解', likes: 88, views: 1500 },
-            { article_id: 4, category: 'essays', title: '命理随笔：命运与性格', likes: 75, views: 1200 },
-            { article_id: 5, category: 'basic-theory', title: '八字入门指南', likes: 105, views: 2200 },
-            { article_id: 6, category: 'celebrity-views', title: '企业家八字研究', likes: 82, views: 1600 },
-            { article_id: 7, category: 'flower-fruit-method', title: '花果论实战案例', likes: 90, views: 1700 }
-        ];
-        
-        // 批量插入初始文章数据
-        const sql = `INSERT OR IGNORE INTO articles 
-                    (article_id, category, title, likes, views, last_updated) 
-                    VALUES (?, ?, ?, ?, ?, ?)`;
-        
-        let insertedCount = 0;
-        
-        // 使用事务批量插入
-        db.serialize(() => {
-            db.run('BEGIN TRANSACTION');
+        try {
+            // 从articles.json文件导入完整文章数据
+            const articlesJsonPath = path.join(__dirname, '..', 'articles.json');
+            const articlesData = JSON.parse(fs.readFileSync(articlesJsonPath, 'utf8'));
             
-            initialArticles.forEach(article => {
-                db.run(sql, [
-                    article.article_id,
-                    article.category,
-                    article.title,
-                    article.likes,
-                    article.views,
-                    new Date().toISOString()
-                ], function(err) {
-                    if (err) {
-                        console.error('插入初始文章失败:', err.message);
-                    } else {
-                        insertedCount++;
-                    }
+            console.log('从articles.json读取到文章数据，分类数:', Object.keys(articlesData).length);
+            
+            // 准备要插入的数据
+            let initialArticles = [];
+            Object.keys(articlesData).forEach(category => {
+                articlesData[category].forEach(article => {
+                    initialArticles.push({
+                        article_id: article.id,
+                        category: category,
+                        title: article.title,
+                        content: article.content,
+                        likes: article.likes || 0,
+                        views: article.views || 0,
+                        last_updated: new Date().toISOString()
+                    });
                 });
             });
             
-            db.run('COMMIT', (err) => {
-                if (err) {
-                    console.error('提交事务失败:', err.message);
-                } else {
-                    console.log(`成功导入 ${insertedCount} 篇初始文章`);
-                    // 更新缓存
-                    updateCacheFromDatabase();
-                }
+            console.log('准备插入', initialArticles.length, '篇文章');
+            
+            // 批量插入初始文章数据
+            const sql = `INSERT OR IGNORE INTO articles 
+                        (article_id, category, title, content, likes, views, last_updated) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?)`;
+            
+            let insertedCount = 0;
+            
+            // 使用事务批量插入
+            db.serialize(() => {
+                db.run('BEGIN TRANSACTION');
+                
+                initialArticles.forEach(article => {
+                    db.run(sql, [
+                        article.article_id,
+                        article.category,
+                        article.title,
+                        article.content,
+                        article.likes,
+                        article.views,
+                        article.last_updated
+                    ], function(err) {
+                        if (err) {
+                            console.error('插入初始文章失败:', err.message);
+                        } else {
+                            insertedCount++;
+                        }
+                    });
+                });
+                
+                db.run('COMMIT', (err) => {
+                    if (err) {
+                        console.error('提交事务失败:', err.message);
+                    } else {
+                        console.log(`成功导入 ${insertedCount} 篇初始文章`);
+                        // 更新缓存
+                        updateCacheFromDatabase();
+                    }
+                });
             });
-        });
+        } catch (error) {
+            console.error('从articles.json导入数据失败:', error.message);
+            // 如果导入失败，使用默认数据
+            const initialArticles = [
+                { article_id: 1, category: 'basic-theory', title: '命学基础理论', content: '命学基础理论内容...', likes: 120, views: 2500 },
+                { article_id: 2, category: 'celebrity-views', title: '名人八字分析', content: '名人八字分析内容...', likes: 95, views: 1800 },
+                { article_id: 3, category: 'flower-fruit-method', title: '花果论心法详解', content: '花果论心法详解内容...', likes: 88, views: 1500 },
+                { article_id: 4, category: 'essays', title: '命理随笔：命运与性格', content: '命理随笔内容...', likes: 75, views: 1200 }
+            ];
+            
+            const sql = `INSERT OR IGNORE INTO articles 
+                        (article_id, category, title, content, likes, views, last_updated) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?)`;
+            
+            let insertedCount = 0;
+            
+            db.serialize(() => {
+                db.run('BEGIN TRANSACTION');
+                
+                initialArticles.forEach(article => {
+                    db.run(sql, [
+                        article.article_id,
+                        article.category,
+                        article.title,
+                        article.content,
+                        article.likes,
+                        article.views,
+                        new Date().toISOString()
+                    ], function(err) {
+                        if (err) {
+                            console.error('插入默认文章失败:', err.message);
+                        } else {
+                            insertedCount++;
+                        }
+                    });
+                });
+                
+                db.run('COMMIT', (err) => {
+                    if (err) {
+                        console.error('提交默认数据事务失败:', err.message);
+                    } else {
+                        console.log(`成功导入 ${insertedCount} 篇默认文章`);
+                        updateCacheFromDatabase();
+                    }
+                });
+            });
+        }
     });
 }
 
