@@ -13,6 +13,9 @@
     <!-- 引入中国风字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
     
+    <!-- 文章数据管理脚本 -->
+    <script src="articles.js"></script>
+    
     <style>
         /* 全局样式 */
         :root {
@@ -842,24 +845,52 @@
             
             // 添加点击事件
             likeBtn.addEventListener('click', async function() {
-                if (likeBtn.classList.contains('liked')) {
-                    // 取消点赞
-                    likeBtn.classList.remove('liked');
-                    article.likes--;
+                // 使用articleManager处理点赞，确保数据同步到服务器
+                if (window.articleManager && window.articleManager.likeArticle) {
+                    const result = await window.articleManager.likeArticle(article.id, article.category);
+                    if (result.success) {
+                        if (likeBtn.classList.contains('liked')) {
+                            // 取消点赞
+                            likeBtn.classList.remove('liked');
+                            article.likes--;
+                        } else {
+                            // 添加点赞
+                            likeBtn.classList.add('liked');
+                            article.likes++;
+                        }
+                        
+                        // 更新点赞数显示
+                        likeCount.textContent = article.likes;
+                        
+                        // 更新本地存储
+                        await updateLocalStorage(article);
+                        
+                        // 强制从服务器同步最新数据，确保所有设备数据一致
+                        if (window.articleManager.syncLocalStorage) {
+                            await window.articleManager.syncLocalStorage();
+                        }
+                    }
                 } else {
-                    // 添加点赞
-                    likeBtn.classList.add('liked');
-                    article.likes++;
+                    // 备选方案：直接更新本地数据
+                    if (likeBtn.classList.contains('liked')) {
+                        // 取消点赞
+                        likeBtn.classList.remove('liked');
+                        article.likes--;
+                    } else {
+                        // 添加点赞
+                        likeBtn.classList.add('liked');
+                        article.likes++;
+                    }
+                    
+                    // 更新点赞数显示
+                    likeCount.textContent = article.likes;
+                    
+                    // 更新本地存储
+                    await updateLocalStorage(article);
+                    
+                    // 同步到管理后台
+                    syncLikeData(article);
                 }
-                
-                // 更新点赞数显示
-                likeCount.textContent = article.likes;
-                
-                // 更新本地存储
-                await updateLocalStorage(article);
-                
-                // 同步到管理后台
-                syncLikeData(article);
             });
         }
         

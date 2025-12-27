@@ -47,6 +47,8 @@
     <script src="https://cdn.tailwindcss.com" defer></script>
     <!-- 网站加载优化脚本 -->
     <script src="optimize_loading.js" defer></script>
+    <!-- 文章数据管理脚本 -->
+    <script src="articles.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <!-- 引入中国风字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet" crossorigin media="print" onload="this.media='all'">
@@ -8973,6 +8975,31 @@
         
         // 处理点赞功能
         async function handleLike(article, category, countElement = null) {
+            // 使用articleManager处理点赞，确保数据同步到服务器
+            if (window.articleManager && window.articleManager.likeArticle) {
+                const result = await window.articleManager.likeArticle(article.id, category);
+                if (result.success) {
+                    // 更新文章点赞数
+                    article.likes++;
+                    
+                    // 更新所有相关的点赞数显示
+                    const allLikeBtns = document.querySelectorAll(`.like-btn[data-id="${article.id}"][data-category="${category}"]`);
+                    allLikeBtns.forEach(btn => {
+                        const count = btn.querySelector('.like-count');
+                        if (count) {
+                            count.textContent = article.likes;
+                            btn.classList.add('liked');
+                        }
+                    });
+                    
+                    // 强制从服务器同步最新数据，确保所有设备数据一致
+                    if (window.articleManager.syncLocalStorage) {
+                        await window.articleManager.syncLocalStorage();
+                    }
+                }
+                return;
+            }
+            // 原始逻辑作为备选方案
             // 更新文章点赞数
             article.likes++;
             

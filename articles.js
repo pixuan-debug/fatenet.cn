@@ -323,17 +323,60 @@ async function syncLocalStorage() {
     try {
         console.log('开始同步本地存储...');
         // 获取最新文章数据
-        const articlesData = await fetchArticles();
+        const articlesData = await fetchArticles(null, false); // 强制从服务器获取最新数据，不使用缓存
         if (articlesData) {
+            // 获取本地存储的当前数据
+            const localData = localStorage.getItem('articlesData');
+            let currentData = localData ? JSON.parse(localData) : {};
+            
+            // 合并数据，使用服务器数据作为权威源，保留本地修改的精华状态
+            const mergedData = mergeArticlesData(currentData, articlesData);
+            
             // 更新本地存储
-            await updateLocalArticlesData(articlesData);
+            await updateLocalArticlesData(mergedData);
             // 触发自定义事件，通知其他组件数据已更新
-            window.dispatchEvent(new CustomEvent('articlesDataUpdated', { detail: articlesData }));
+            window.dispatchEvent(new CustomEvent('articlesDataUpdated', { detail: mergedData }));
             console.log('本地存储同步完成');
         }
     } catch (error) {
         console.error('同步本地存储失败:', error);
     }
+}
+
+// 合并文章数据，解决冲突
+function mergeArticlesData(localData, serverData) {
+    // 创建合并结果
+    const mergedData = { ...serverData };
+    
+    // 遍历所有分类
+    Object.keys(mergedData).forEach(category => {
+        if (!mergedData[category] || !Array.isArray(mergedData[category])) {
+            mergedData[category] = [];
+        }
+        
+        // 如果本地有该分类的数据
+        if (localData[category] && Array.isArray(localData[category])) {
+            // 遍历本地文章，保留本地修改的精华状态和其他重要字段
+            localData[category].forEach(localArticle => {
+                // 查找对应服务器文章
+                const serverArticleIndex = mergedData[category].findIndex(
+                    serverArticle => serverArticle.id === localArticle.id
+                );
+                
+                if (serverArticleIndex !== -1) {
+                    // 保留本地修改的字段
+                    const serverArticle = mergedData[category][serverArticleIndex];
+                    mergedData[category][serverArticleIndex] = {
+                        ...serverArticle,
+                        isFeatured: localArticle.isFeatured || serverArticle.isFeatured || false,
+                        // 其他需要保留的本地字段
+                    };
+                }
+            });
+        }
+    });
+    
+    return mergedData;
 }
 
 // 监听localStorage变化，实现跨页面数据同步
@@ -349,6 +392,11 @@ window.addEventListener('storage', (event) => {
 // 页面加载时同步数据
 document.addEventListener('DOMContentLoaded', async () => {
     await syncLocalStorage();
+    
+    // 设置定期同步，每30秒从服务器获取一次最新数据
+    setInterval(async () => {
+        await syncLocalStorage();
+    }, 30000);
 });
 
 // 导出
