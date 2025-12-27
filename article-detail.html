@@ -702,18 +702,30 @@
                 return;
             }
             
+            // 从localStorage获取最新文章数据
+            let articlesData = articles;
+            const savedData = localStorage.getItem('articlesData');
+            if (savedData) {
+                try {
+                    articlesData = JSON.parse(savedData);
+                    console.log('使用localStorage中的最新文章数据');
+                } catch (error) {
+                    console.error('解析localStorage数据失败:', error);
+                }
+            }
+            
             // 检查分类是否存在
-            if (!articles[category]) {
+            if (!articlesData[category]) {
                 console.error('分类', category, '不存在或数据为空');
                 showError('分类不存在或数据为空');
                 return;
             }
             
             // 查找对应文章
-            const article = articles[category].find(article => article.id === id);
+            const article = articlesData[category].find(article => article.id === id);
             
             console.log('查找文章结果:', article);
-            console.log('分类', category, '中的所有文章:', articles[category]);
+            console.log('分类', category, '中的所有文章:', articlesData[category]);
             
             if (!article) {
                 console.error('找不到指定的文章，ID:', id, '分类:', category);
@@ -724,6 +736,12 @@
             // 显示文章
             displayArticle(article);
         }
+        
+        // 监听数据更新事件，重新加载文章
+        window.addEventListener('articlesDataUpdated', (event) => {
+            console.log('检测到文章数据更新，重新加载文章详情...');
+            loadArticleDetail();
+        });
         
         // 显示文章详情
         function displayArticle(article) {
@@ -902,6 +920,15 @@
                 // 保存到localStorage
                 localStorage.setItem('articlesData', JSON.stringify(articlesData));
                 console.log('文章数据已更新到localStorage');
+                
+                // 触发数据更新事件，通知其他组件
+                window.dispatchEvent(new CustomEvent('articlesDataUpdated', { detail: articlesData }));
+                
+                // 如果有articleManager，调用syncLocalStorage确保数据同步到服务器
+                if (window.articleManager && window.articleManager.syncLocalStorage) {
+                    await window.articleManager.syncLocalStorage();
+                    console.log('数据已同步到服务器');
+                }
                 
                 // 同时更新mockDatabase中的数据，确保admin页面能获取到最新数据
                 // 这是一个临时解决方案，实际项目中应该通过API调用来同步数据

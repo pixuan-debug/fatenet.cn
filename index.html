@@ -9552,11 +9552,26 @@
         };
         
         // 简单直接的文章渲染函数
-        function renderArticlesNow() {
+        function renderArticlesNow(articlesData = null) {
             console.log('直接渲染文章...');
             
+            // 确定要使用的文章数据
+            let currentArticles = articlesData || allArticles;
+            
+            // 尝试从localStorage获取最新数据
+            const savedData = localStorage.getItem('articlesData');
+            if (savedData) {
+                try {
+                    const localStorageData = JSON.parse(savedData);
+                    currentArticles = localStorageData;
+                    console.log('使用localStorage中的最新数据');
+                } catch (error) {
+                    console.error('解析localStorage数据失败:', error);
+                }
+            }
+            
             // 遍历所有分类
-            Object.keys(allArticles).forEach(category => {
+            Object.keys(currentArticles).forEach(category => {
                 const gridId = `${category}-grid`;
                 const grid = document.getElementById(gridId);
                 
@@ -9564,7 +9579,7 @@
                     console.log(`渲染分类: ${category}`);
                     grid.innerHTML = ''; // 清空现有内容
                     
-                    const articles = allArticles[category];
+                    const articles = currentArticles[category];
                     
                     articles.forEach(article => {
                         // 创建文章卡片
@@ -9584,8 +9599,47 @@
                         `;
                         
                         // 添加点击事件
-                        card.addEventListener('click', () => {
-                            window.open(`article-detail.html?id=${article.id}&category=${category}`, '_blank');
+                        card.addEventListener('click', (e) => {
+                            // 防止点赞按钮触发卡片跳转
+                            if (!e.target.closest('.like-btn')) {
+                                window.open(`article-detail.html?id=${article.id}&category=${category}`, '_blank');
+                            }
+                        });
+                        
+                        // 添加点赞事件
+                        const likeBtn = card.querySelector('.like-btn');
+                        likeBtn.addEventListener('click', async (e) => {
+                            e.stopPropagation(); // 阻止事件冒泡
+                            
+                            const articleId = parseInt(e.target.closest('.like-btn').dataset.id);
+                            const articleCategory = e.target.closest('.like-btn').dataset.category;
+                            
+                            try {
+                                // 调用articleManager的点赞功能
+                                if (window.articleManager && window.articleManager.likeArticle) {
+                                    const result = await window.articleManager.likeArticle(articleId, articleCategory);
+                                    if (result.success) {
+                                        // 同步最新数据
+                                        await window.articleManager.syncLocalStorage();
+                                    }
+                                } else {
+                                    // 直接更新本地数据
+                                    const savedData = localStorage.getItem('articlesData');
+                                    if (savedData) {
+                                        const articlesData = JSON.parse(savedData);
+                                        const articleToUpdate = articlesData[articleCategory].find(a => a.id === articleId);
+                                        if (articleToUpdate) {
+                                            articleToUpdate.likes += 1;
+                                            localStorage.setItem('articlesData', JSON.stringify(articlesData));
+                                            // 触发数据更新事件
+                                            window.dispatchEvent(new CustomEvent('articlesDataUpdated', { detail: articlesData }));
+                                            console.log('点赞成功，数据已更新');
+                                        }
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('点赞失败:', error);
+                            }
                         });
                         
                         grid.appendChild(card);
@@ -9596,8 +9650,21 @@
             });
         }
         
+        // 监听数据更新事件，重新渲染文章
+        window.addEventListener('articlesDataUpdated', (event) => {
+            console.log('检测到文章数据更新，重新渲染...');
+            renderArticlesNow(event.detail);
+        });
+        
         // 页面加载完成后立即渲染文章
-        window.addEventListener('DOMContentLoaded', renderArticlesNow);
+        window.addEventListener('DOMContentLoaded', async () => {
+            renderArticlesNow();
+            // 如果有articleManager，尝试同步数据
+            if (window.articleManager && window.articleManager.syncLocalStorage) {
+                await window.articleManager.syncLocalStorage();
+            }
+        });
+        
         // 确保页面完全加载后再渲染一次
         window.addEventListener('load', renderArticlesNow);
         

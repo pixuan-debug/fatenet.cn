@@ -305,11 +305,58 @@ async function viewArticle(articleId, category) {
     }
 }
 
+// 更新本地存储中的文章数据
+async function updateLocalArticlesData(articlesData) {
+    try {
+        // 存储最新文章数据到localStorage
+        localStorage.setItem('articlesData', JSON.stringify(articlesData));
+        console.log('本地文章数据已更新');
+        return true;
+    } catch (error) {
+        console.error('更新本地文章数据失败:', error);
+        return false;
+    }
+}
+
+// 从服务器获取最新数据并同步到本地存储
+async function syncLocalStorage() {
+    try {
+        console.log('开始同步本地存储...');
+        // 获取最新文章数据
+        const articlesData = await fetchArticles();
+        if (articlesData) {
+            // 更新本地存储
+            await updateLocalArticlesData(articlesData);
+            // 触发自定义事件，通知其他组件数据已更新
+            window.dispatchEvent(new CustomEvent('articlesDataUpdated', { detail: articlesData }));
+            console.log('本地存储同步完成');
+        }
+    } catch (error) {
+        console.error('同步本地存储失败:', error);
+    }
+}
+
+// 监听localStorage变化，实现跨页面数据同步
+window.addEventListener('storage', (event) => {
+    if (event.key === 'articlesData') {
+        console.log('检测到localStorage变化，刷新文章数据...');
+        // 触发自定义事件，通知其他组件数据已更新
+        const articlesData = event.newValue ? JSON.parse(event.newValue) : null;
+        window.dispatchEvent(new CustomEvent('articlesDataUpdated', { detail: articlesData }));
+    }
+});
+
+// 页面加载时同步数据
+document.addEventListener('DOMContentLoaded', async () => {
+    await syncLocalStorage();
+});
+
 // 导出
 window.articleManager = {
     fetchArticles,
     fetchArticle,
     likeArticle,
     viewArticle,
-    dataCollector
+    dataCollector,
+    syncLocalStorage
 };
