@@ -324,22 +324,52 @@ async function syncLocalStorage() {
         console.log('开始同步本地存储...');
         // 获取最新文章数据
         const articlesResponse = await fetchArticles(null, false); // 强制从服务器获取最新数据，不使用缓存
-        if (articlesResponse && articlesResponse.articles) {
+        
+        // 处理不同的API响应格式
+        let serverArticles = {};
+        if (articlesResponse) {
+            if (articlesResponse.articles) {
+                // 响应包含articles字段
+                serverArticles = articlesResponse.articles;
+            } else if (typeof articlesResponse === 'object' && !Array.isArray(articlesResponse)) {
+                // 响应本身就是文章对象
+                serverArticles = articlesResponse;
+            }
+        }
+        
+        if (Object.keys(serverArticles).length > 0) {
             // 获取本地存储的当前数据
             const localData = localStorage.getItem('articlesData');
             let currentData = localData ? JSON.parse(localData) : {};
             
             // 合并数据，使用服务器数据作为权威源，保留本地修改的精华状态
-            const mergedData = mergeArticlesData(currentData, articlesResponse.articles);
+            const mergedData = mergeArticlesData(currentData, serverArticles);
             
             // 更新本地存储
             await updateLocalArticlesData(mergedData);
             // 触发自定义事件，通知其他组件数据已更新
             window.dispatchEvent(new CustomEvent('articlesDataUpdated', { detail: mergedData }));
             console.log('本地存储同步完成');
+        } else {
+            console.log('未获取到有效文章数据，跳过同步');
         }
     } catch (error) {
         console.error('同步本地存储失败:', error);
+        // 同步失败时，确保本地存储有数据，使用默认数据
+        const localData = localStorage.getItem('articlesData');
+        if (!localData) {
+            try {
+                // 尝试从articles.json加载默认数据
+                const response = await fetch('articles.json');
+                if (response.ok) {
+                    const defaultData = await response.json();
+                    await updateLocalArticlesData(defaultData);
+                    console.log('使用articles.json作为默认数据');
+                }
+            } catch (jsonError) {
+                console.error('加载articles.json失败:', jsonError);
+            }
+        }
     }
 }
 

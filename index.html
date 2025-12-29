@@ -9599,11 +9599,11 @@
                         console.log('使用localStorage中的最新数据');
                     } catch (error) {
                         console.error('解析localStorage数据失败:', error);
-                        currentArticles = allArticles;
+                        currentArticles = articles; // 使用页面中定义的articles对象
                     }
                 } else {
-                    // 如果localStorage没有数据，使用默认数据
-                    currentArticles = allArticles;
+                    // 如果localStorage没有数据，使用页面中定义的默认数据
+                    currentArticles = articles;
                     console.log('使用默认文章数据');
                 }
             }

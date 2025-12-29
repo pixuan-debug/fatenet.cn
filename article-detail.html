@@ -695,8 +695,35 @@
     // 直接获取单篇文章的函数
     async function fetchArticle(articleId, category) {
         try {
+            // 先从本地articles对象查找文章
+            if (articles[category]) {
+                const localArticle = articles[category].find(article => article.id === articleId);
+                if (localArticle) {
+                    console.log('从本地articles对象找到文章:', localArticle);
+                    return localArticle;
+                }
+            }
+            
+            // 尝试从articles.json获取文章
+            try {
+                const jsonResponse = await fetch('articles.json');
+                if (jsonResponse.ok) {
+                    const jsonData = await jsonResponse.json();
+                    if (jsonData[category]) {
+                        const jsonArticle = jsonData[category].find(article => article.id === articleId);
+                        if (jsonArticle) {
+                            console.log('从articles.json找到文章:', jsonArticle);
+                            return jsonArticle;
+                        }
+                    }
+                }
+            } catch (jsonError) {
+                console.error('从articles.json获取文章失败:', jsonError);
+            }
+            
+            // 最后尝试从API获取文章
             let url = `/api/v1/articles/${articleId}?category=${category}`;
-            console.log('直接调用fetch获取文章:', url);
+            console.log('直接调用API获取文章:', url);
             const response = await fetch(url);
             if (!response.ok) {
                 throw new Error(`HTTP错误! 状态: ${response.status}`);
@@ -783,9 +810,30 @@
                 article.images = article.images || [];
                 article.category = article.category || category;
             } else {
-                console.error('找不到指定的文章，ID:', id, '分类:', category);
-                showError('找不到指定的文章');
-                return;
+                // 如果从服务器也找不到文章，尝试直接从articles.json文件读取完整数据
+                console.error('从服务器也找不到文章，尝试从articles.json读取完整数据...');
+                try {
+                    const response = await fetch('articles.json');
+                    if (response.ok) {
+                        const jsonData = await response.json();
+                        console.log('成功从articles.json读取完整数据');
+                        // 更新articles变量
+                        articles = jsonData;
+                        // 更新localStorage
+                        localStorage.setItem('articlesData', JSON.stringify(jsonData));
+                        // 重新查找文章
+                        article = jsonData[category]?.find(a => a.id === id);
+                        console.log('从articles.json重新查找文章结果:', article);
+                    }
+                } catch (jsonError) {
+                    console.error('从articles.json读取数据失败:', jsonError);
+                }
+                
+                if (!article) {
+                    console.error('找不到指定的文章，ID:', id, '分类:', category);
+                    showError('找不到指定的文章');
+                    return;
+                }
             }
             
             // 如果从服务器获取到文章，更新本地数据
