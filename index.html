@@ -9583,17 +9583,28 @@
             console.log('直接渲染文章...');
             
             // 确定要使用的文章数据
-            let currentArticles = articlesData || allArticles;
+            let currentArticles;
             
-            // 尝试从localStorage获取最新数据
-            const savedData = localStorage.getItem('articlesData');
-            if (savedData) {
-                try {
-                    const localStorageData = JSON.parse(savedData);
-                    currentArticles = localStorageData;
-                    console.log('使用localStorage中的最新数据');
-                } catch (error) {
-                    console.error('解析localStorage数据失败:', error);
+            // 如果有传入的文章数据，直接使用它，不再从localStorage获取
+            if (articlesData) {
+                currentArticles = articlesData;
+                console.log('使用传入的文章数据');
+            } else {
+                // 尝试从localStorage获取最新数据
+                const savedData = localStorage.getItem('articlesData');
+                if (savedData) {
+                    try {
+                        const localStorageData = JSON.parse(savedData);
+                        currentArticles = localStorageData;
+                        console.log('使用localStorage中的最新数据');
+                    } catch (error) {
+                        console.error('解析localStorage数据失败:', error);
+                        currentArticles = allArticles;
+                    }
+                } else {
+                    // 如果localStorage没有数据，使用默认数据
+                    currentArticles = allArticles;
+                    console.log('使用默认文章数据');
                 }
             }
             
