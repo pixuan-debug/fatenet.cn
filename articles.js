@@ -323,14 +323,14 @@ async function syncLocalStorage() {
     try {
         console.log('开始同步本地存储...');
         // 获取最新文章数据
-        const articlesData = await fetchArticles(null, false); // 强制从服务器获取最新数据，不使用缓存
-        if (articlesData) {
+        const articlesResponse = await fetchArticles(null, false); // 强制从服务器获取最新数据，不使用缓存
+        if (articlesResponse && articlesResponse.articles) {
             // 获取本地存储的当前数据
             const localData = localStorage.getItem('articlesData');
             let currentData = localData ? JSON.parse(localData) : {};
             
             // 合并数据，使用服务器数据作为权威源，保留本地修改的精华状态
-            const mergedData = mergeArticlesData(currentData, articlesData);
+            const mergedData = mergeArticlesData(currentData, articlesResponse.articles);
             
             // 更新本地存储
             await updateLocalArticlesData(mergedData);

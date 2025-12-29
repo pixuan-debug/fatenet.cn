@@ -780,9 +780,16 @@
             displayArticle(article);
         }
         
-        // 监听数据更新事件，重新加载文章
+        // 监听数据更新事件，只在当前文章不存在时重新加载
         window.addEventListener('articlesDataUpdated', (event) => {
-            console.log('检测到文章数据更新，重新加载文章详情...');
+            console.log('检测到文章数据更新...');
+            const articleDiv = document.getElementById('article-detail');
+            // 如果文章详情已经显示，不再重新加载
+            if (articleDiv.style.display === 'block') {
+                console.log('文章已经显示，跳过重新加载');
+                return;
+            }
+            // 否则重新加载文章详情
             loadArticleDetail();
         });
         
