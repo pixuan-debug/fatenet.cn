@@ -38,3 +38,10 @@ build
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Database files
+api/database/
+*.db
+
+# Test files
+test-*.html
