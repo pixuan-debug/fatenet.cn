@@ -443,6 +443,9 @@
             const apiResponse = await response.json();
             if (apiResponse.code === 200 && apiResponse.data && apiResponse.data.articles) {
                 return apiResponse.data.articles;
+            } else if (apiResponse.code === 200 && apiResponse.data) {
+                // 如果返回的数据直接是文章对象，而不是包含articles字段，直接返回
+                return apiResponse.data;
             }
             return null;
         } catch (error) {
@@ -689,6 +692,23 @@
         await loadArticleDetail();
     });
     
+    // 直接获取单篇文章的函数
+    async function fetchArticle(articleId, category) {
+        try {
+            let url = `/api/v1/articles/${articleId}?category=${category}`;
+            console.log('直接调用fetch获取文章:', url);
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP错误! 状态: ${response.status}`);
+            }
+            const result = await response.json();
+            return result.code === 200 ? result.data : null;
+        } catch (error) {
+            console.error('直接调用fetch获取文章失败:', error);
+            return null;
+        }
+    }
+
     // 加载文章详情
     async function loadArticleDetail() {
             // 获取URL参数
@@ -731,13 +751,15 @@
             // 如果本地找不到文章，尝试从服务器获取
             if (!article) {
                 console.log('本地未找到文章，尝试从服务器获取...');
-                if (window.articleManager && window.articleManager.fetchArticle) {
-                    article = await window.articleManager.fetchArticle(id, category);
-                    console.log('从服务器获取文章结果:', article);
-                } else {
-                    // 直接调用fetchArticle函数
-                    article = await fetchArticle(id, category);
-                    console.log('直接调用fetchArticle获取文章结果:', article);
+                article = await fetchArticle(id, category);
+                console.log('从服务器获取文章结果:', article);
+            }
+            
+            // 转换文章格式，确保id字段存在
+            if (article) {
+                // 如果文章数据来自服务器，可能使用article_id而不是id
+                if (article.article_id && !article.id) {
+                    article.id = article.article_id;
                 }
             }
             
@@ -748,7 +770,7 @@
             }
             
             // 如果从服务器获取到文章，更新本地数据
-            if (article && !articlesData[category].some(a => a.id === id)) {
+            if (article && !articlesData[category].some(a => a.id === article.id)) {
                 articlesData[category].push(article);
                 localStorage.setItem('articlesData', JSON.stringify(articlesData));
                 console.log('已将服务器获取的文章添加到本地存储');
