@@ -51,33 +51,40 @@ const server = http.createServer((req, res) => {
   }
   
   // Get file path for static files
-  let filePath = path.join(ROOT_DIR, req.url === '/' ? '/index.html' : req.url);
-  
-  // Check if file exists
-  fs.access(filePath, fs.constants.F_OK, (err) => {
-    if (err) {
-      res.writeHead(404, { 'Content-Type': 'text/html' });
-      res.end('<h1>404 Not Found</h1>');
-      return;
-    }
+    let filePath = path.join(ROOT_DIR, req.url === '/' ? '/index.html' : req.url.split('?')[0]);
     
-    // Get file extension
-    const extname = path.extname(filePath);
-    // Set content type based on file extension
-    const contentType = mimeTypes[extname] || 'application/octet-stream';
+    console.log(`Request URL: ${req.url}`);
+    console.log(`Mapped to: ${filePath}`);
     
-    // Read and serve file
-    fs.readFile(filePath, (err, content) => {
-      if (err) {
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('Internal Server Error');
-        return;
-      }
-      
-      res.writeHead(200, { 'Content-Type': contentType });
-      res.end(content, 'utf-8');
+    // Check if file exists
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            console.log(`File not found: ${filePath}`);
+            res.writeHead(404, { 'Content-Type': 'text/html' });
+            res.end('<h1>404 Not Found</h1>');
+            return;
+        }
+        
+        // Get file extension
+        const extname = path.extname(filePath);
+        // Set content type based on file extension
+        const contentType = mimeTypes[extname] || 'application/octet-stream';
+        
+        console.log(`Serving file: ${filePath} with content-type: ${contentType}`);
+        
+        // Read and serve file
+        fs.readFile(filePath, (err, content) => {
+            if (err) {
+                console.log(`Error reading file: ${filePath}`, err);
+                res.writeHead(500, { 'Content-Type': 'text/plain' });
+                res.end('Internal Server Error');
+                return;
+            }
+            
+            res.writeHead(200, { 'Content-Type': contentType });
+            res.end(content, 'utf-8');
+        });
     });
-  });
 });
 
 server.listen(PORT, () => {
