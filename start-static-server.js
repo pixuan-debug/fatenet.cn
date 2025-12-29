@@ -44,7 +44,7 @@ const server = http.createServer((req, res) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
   
   // Check if it's an API request
-  if (req.url.startsWith('/api/v1/')) {
+  if (req.url.startsWith('/api/')) {
     // Proxy API requests to the API server
     proxy.web(req, res);
     return;
