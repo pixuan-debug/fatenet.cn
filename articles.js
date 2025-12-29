@@ -345,35 +345,39 @@ async function syncLocalStorage() {
 
 // 合并文章数据，解决冲突
 function mergeArticlesData(localData, serverData) {
-    // 创建合并结果
-    const mergedData = { ...serverData };
+    // 创建合并结果，以本地数据为基础
+    const mergedData = { ...localData };
     
-    // 遍历所有分类
-    Object.keys(mergedData).forEach(category => {
+    // 遍历服务器所有分类
+    Object.keys(serverData).forEach(category => {
+        // 确保分类存在
         if (!mergedData[category] || !Array.isArray(mergedData[category])) {
             mergedData[category] = [];
         }
         
-        // 如果本地有该分类的数据
-        if (localData[category] && Array.isArray(localData[category])) {
-            // 遍历本地文章，保留本地修改的精华状态和其他重要字段
-            localData[category].forEach(localArticle => {
-                // 查找对应服务器文章
-                const serverArticleIndex = mergedData[category].findIndex(
-                    serverArticle => serverArticle.id === localArticle.id
-                );
-                
-                if (serverArticleIndex !== -1) {
-                    // 保留本地修改的字段
-                    const serverArticle = mergedData[category][serverArticleIndex];
-                    mergedData[category][serverArticleIndex] = {
-                        ...serverArticle,
-                        isFeatured: localArticle.isFeatured || serverArticle.isFeatured || false,
-                        // 其他需要保留的本地字段
-                    };
-                }
-            });
-        }
+        // 遍历服务器文章，更新或添加到本地数据
+        serverData[category].forEach(serverArticle => {
+            // 查找对应本地文章
+            const localArticleIndex = mergedData[category].findIndex(
+                localArticle => localArticle.id === serverArticle.id
+            );
+            
+            if (localArticleIndex !== -1) {
+                // 本地已存在，更新文章数据
+                const localArticle = mergedData[category][localArticleIndex];
+                mergedData[category][localArticleIndex] = {
+                    ...localArticle, // 保留本地数据
+                    ...serverArticle, // 更新服务器数据
+                    isFeatured: localArticle.isFeatured || serverArticle.isFeatured || false, // 保留本地精华状态
+                    likes: serverArticle.likes || localArticle.likes || 0, // 使用服务器点赞数
+                    views: serverArticle.views || localArticle.views || 0, // 使用服务器浏览量
+                    last_updated: serverArticle.last_updated || localArticle.last_updated || new Date().toISOString() // 使用服务器更新时间
+                };
+            } else {
+                // 本地不存在，添加新文章
+                mergedData[category].push(serverArticle);
+            }
+        });
     });
     
     return mergedData;
