@@ -833,13 +833,81 @@ function updateCache(data) {
     console.log('缓存已更新，时间:', cache.lastUpdated);
 }
 
-// 从articles.json文件同步数据 - 不再从JSON文件同步，直接从数据库获取
+// 从articles.json文件同步数据到数据库
 async function syncFromJsonFile() {
     try {
-        console.log('跳过从JSON文件同步数据（已删除articles.json）');
-        return {};
+        console.log('开始从JSON文件同步数据...');
+        
+        // 从articles.json文件读取完整文章数据
+        const articlesJsonPath = path.join(__dirname, '..', 'articles.json');
+        const articlesData = JSON.parse(fs.readFileSync(articlesJsonPath, 'utf8'));
+        
+        console.log('从articles.json读取到文章数据，分类数:', Object.keys(articlesData).length);
+        
+        // 准备要插入或更新的数据
+        let syncData = [];
+        Object.keys(articlesData).forEach(category => {
+            articlesData[category].forEach(article => {
+                syncData.push({
+                    article_id: article.id,
+                    category: category,
+                    title: article.title,
+                    content: article.content,
+                    likes: article.likes || 0,
+                    views: article.views || 0,
+                    last_updated: article.last_updated || new Date().toISOString()
+                });
+            });
+        });
+        
+        console.log('准备同步', syncData.length, '篇文章');
+        
+        // 使用事务批量插入或更新数据
+        return new Promise((resolve, reject) => {
+            db.serialize(() => {
+                db.run('BEGIN TRANSACTION');
+                
+                const sql = `INSERT OR REPLACE INTO articles 
+                            (article_id, category, title, content, likes, views, last_updated, version) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?, COALESCE((SELECT version FROM articles WHERE article_id = ? AND category = ?), 0) + 1)`;
+                
+                let processedCount = 0;
+                let errorOccurred = false;
+                
+                syncData.forEach(article => {
+                    db.run(sql, [
+                        article.article_id,
+                        article.category,
+                        article.title,
+                        article.content,
+                        article.likes,
+                        article.views,
+                        article.last_updated,
+                        article.article_id,
+                        article.category
+                    ], function(err) {
+                        if (err) {
+                            console.error('同步文章失败:', err.message);
+                            errorOccurred = true;
+                        } else {
+                            processedCount++;
+                        }
+                    });
+                });
+                
+                db.run('COMMIT', (err) => {
+                    if (err || errorOccurred) {
+                        console.error('提交同步事务失败:', err?.message || '未知错误');
+                        reject(err || new Error('同步数据失败'));
+                    } else {
+                        console.log(`成功同步 ${processedCount} 篇文章到数据库`);
+                        resolve({ total: processedCount });
+                    }
+                });
+            });
+        });
     } catch (error) {
-        console.error('同步数据失败:', error);
+        console.error('从JSON文件同步数据失败:', error.message);
         throw error;
     }
 }
