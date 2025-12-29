@@ -761,9 +761,28 @@
                 if (article.article_id && !article.id) {
                     article.id = article.article_id;
                 }
-            }
-            
-            if (!article) {
+                
+                // 确保文章标题存在
+                if (!article.title || article.title.trim() === '') {
+                    console.error('文章标题为空，ID:', id, '分类:', category);
+                    showError('找不到指定的文章');
+                    return;
+                }
+                
+                // 确保文章内容存在
+                if (!article.content) {
+                    article.content = '';
+                }
+                
+                // 确保其他必要字段存在
+                article.excerpt = article.excerpt || '';
+                article.date = article.date || new Date().toISOString().split('T')[0];
+                article.likes = article.likes || 0;
+                article.views = article.views || 0;
+                article.isFeatured = article.isFeatured || false;
+                article.images = article.images || [];
+                article.category = article.category || category;
+            } else {
                 console.error('找不到指定的文章，ID:', id, '分类:', category);
                 showError('找不到指定的文章');
                 return;
