@@ -9694,20 +9694,19 @@
             renderArticlesNow(event.detail);
         });
         
-        // 页面加载完成后立即渲染文章
+        // 页面加载完成后先同步数据，再渲染文章
         window.addEventListener('DOMContentLoaded', async () => {
-            renderArticlesNow();
-            // 如果有articleManager，尝试同步数据
+            // 如果有articleManager，先同步数据
             if (window.articleManager && window.articleManager.syncLocalStorage) {
                 await window.articleManager.syncLocalStorage();
+            } else {
+                // 没有articleManager时直接渲染
+                renderArticlesNow();
             }
         });
         
-        // 确保页面完全加载后再渲染一次
+        // 确保页面完全加载后再渲染一次（作为后备）
         window.addEventListener('load', renderArticlesNow);
-        
-        // 立即执行一次渲染
-        renderArticlesNow();
     </script>
     
     </body>

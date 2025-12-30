@@ -375,37 +375,31 @@ async function syncLocalStorage() {
 
 // 合并文章数据，解决冲突
 function mergeArticlesData(localData, serverData) {
-    // 创建合并结果，以本地数据为基础
-    const mergedData = { ...localData };
+    // 创建合并结果，以服务器数据为权威源
+    const mergedData = { ...serverData };
     
-    // 遍历服务器所有分类
-    Object.keys(serverData).forEach(category => {
-        // 确保分类存在
-        if (!mergedData[category] || !Array.isArray(mergedData[category])) {
+    // 遍历所有分类，合并本地精华状态
+    Object.keys(mergedData).forEach(category => {
+        // 确保分类存在且是数组
+        if (!Array.isArray(mergedData[category])) {
             mergedData[category] = [];
         }
         
-        // 遍历服务器文章，更新或添加到本地数据
-        serverData[category].forEach(serverArticle => {
+        // 遍历服务器文章，合并本地精华状态
+        mergedData[category].forEach((serverArticle, index) => {
             // 查找对应本地文章
-            const localArticleIndex = mergedData[category].findIndex(
-                localArticle => localArticle.id === serverArticle.id
-            );
-            
-            if (localArticleIndex !== -1) {
-                // 本地已存在，更新文章数据
-                const localArticle = mergedData[category][localArticleIndex];
-                mergedData[category][localArticleIndex] = {
-                    ...localArticle, // 保留本地数据
-                    ...serverArticle, // 更新服务器数据
-                    isFeatured: localArticle.isFeatured || serverArticle.isFeatured || false, // 保留本地精华状态
-                    likes: serverArticle.likes || localArticle.likes || 0, // 使用服务器点赞数
-                    views: serverArticle.views || localArticle.views || 0, // 使用服务器浏览量
-                    last_updated: serverArticle.last_updated || localArticle.last_updated || new Date().toISOString() // 使用服务器更新时间
-                };
-            } else {
-                // 本地不存在，添加新文章
-                mergedData[category].push(serverArticle);
+            if (localData[category] && Array.isArray(localData[category])) {
+                const localArticle = localData[category].find(
+                    localArticle => localArticle.id === serverArticle.id
+                );
+                
+                if (localArticle) {
+                    // 保留本地精华状态
+                    mergedData[category][index] = {
+                        ...serverArticle, // 以服务器数据为主
+                        isFeatured: localArticle.isFeatured || serverArticle.isFeatured || false // 保留本地精华状态
+                    };
+                }
             }
         });
     });
