@@ -454,71 +454,8 @@
         }
     }
 
-    // 合并本地数据和后台数据
-    function mergeArticlesData(localData, apiData) {
-        // 如果没有后台数据，直接返回本地数据
-        if (!apiData) {
-            return localData;
-        }
-        
-        // 创建分类映射，方便查找
-        const categoryMap = {};
-        Object.keys(localData).forEach(category => {
-            categoryMap[category] = new Map();
-            localData[category].forEach(article => {
-                categoryMap[category].set(article.id, article);
-            });
-        });
-        
-        // 合并后台数据到本地数据
-        const mergedData = { ...localData };
-        
-        // 确保所有分类都有数据
-        ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'].forEach(category => {
-            if (!mergedData[category]) {
-                mergedData[category] = [];
-                categoryMap[category] = new Map();
-            }
-        });
-        
-        // 遍历后台数据，合并到本地数据
-        Object.keys(apiData).forEach(category => {
-            if (!mergedData[category]) {
-                mergedData[category] = [];
-                categoryMap[category] = new Map();
-            }
-            
-            apiData[category].forEach(apiArticle => {
-                const localArticle = categoryMap[category].get(apiArticle.article_id || apiArticle.id);
-                
-                if (localArticle) {
-                    // 合并数据，优先保留本地修改的精华状态等，使用后台的点赞和浏览量
-                    localArticle.likes = apiArticle.likes || localArticle.likes || 0;
-                    localArticle.views = apiArticle.views || localArticle.views || 0;
-                    localArticle.last_updated = apiArticle.last_updated || localArticle.last_updated || new Date().toISOString();
-                    localArticle.version = apiArticle.version || (localArticle.version || 0) + 1;
-                } else {
-                    // 添加新文章
-                    mergedData[category].push({
-                        id: apiArticle.article_id || apiArticle.id,
-                        title: apiArticle.title || '未命名文章',
-                        excerpt: apiArticle.excerpt || '',
-                        content: apiArticle.content || '',
-                        date: apiArticle.date || apiArticle.last_updated?.split('T')[0] || new Date().toISOString().split('T')[0],
-                        likes: apiArticle.likes || 0,
-                        views: apiArticle.views || 0,
-                        isFeatured: apiArticle.isFeatured || false,
-                        images: Array.isArray(apiArticle.images) ? apiArticle.images : [],
-                        category: apiArticle.category || category,
-                        last_updated: apiArticle.last_updated || new Date().toISOString(),
-                        version: apiArticle.version || 1
-                    });
-                }
-            });
-        });
-        
-        return mergedData;
-    }
+    // 使用articles.js中定义的mergeArticlesData函数
+    // 不再需要本地定义的函数
 
     // 页面加载时执行
     document.addEventListener('DOMContentLoaded', async function() {
@@ -693,48 +630,8 @@
     });
     
     // 直接获取单篇文章的函数
-    async function fetchArticle(articleId, category) {
-        try {
-            // 先从本地articles对象查找文章
-            if (articles[category]) {
-                const localArticle = articles[category].find(article => article.id === articleId);
-                if (localArticle) {
-                    console.log('从本地articles对象找到文章:', localArticle);
-                    return localArticle;
-                }
-            }
-            
-            // 尝试从articles.json获取文章
-            try {
-                const jsonResponse = await fetch('articles.json');
-                if (jsonResponse.ok) {
-                    const jsonData = await jsonResponse.json();
-                    if (jsonData[category]) {
-                        const jsonArticle = jsonData[category].find(article => article.id === articleId);
-                        if (jsonArticle) {
-                            console.log('从articles.json找到文章:', jsonArticle);
-                            return jsonArticle;
-                        }
-                    }
-                }
-            } catch (jsonError) {
-                console.error('从articles.json获取文章失败:', jsonError);
-            }
-            
-            // 最后尝试从API获取文章
-            let url = `/api/v1/articles/${articleId}?category=${category}`;
-            console.log('直接调用API获取文章:', url);
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP错误! 状态: ${response.status}`);
-            }
-            const result = await response.json();
-            return result.code === 200 ? result.data : null;
-        } catch (error) {
-            console.error('直接调用fetch获取文章失败:', error);
-            return null;
-        }
-    }
+    // 使用articles.js中定义的fetchArticle函数
+    // 不再需要本地定义的函数
 
     // 加载文章详情
     async function loadArticleDetail() {
