@@ -322,34 +322,42 @@ async function updateLocalArticlesData(articlesData) {
 async function syncLocalStorage() {
     try {
         console.log('开始同步本地存储...');
-        // 获取最新文章数据
-        const articlesResponse = await fetchArticles(null, false); // 强制从服务器获取最新数据，不使用缓存
         
-        // 处理不同的API响应格式
-        let serverArticles = {};
-        if (articlesResponse) {
-            if (articlesResponse.articles) {
-                // 响应包含articles字段
-                serverArticles = articlesResponse.articles;
-            } else if (typeof articlesResponse === 'object' && !Array.isArray(articlesResponse)) {
-                // 响应本身就是文章对象
-                serverArticles = articlesResponse;
+        // 优先从articles.json加载数据，确保获取到最新的本地文件数据
+        let latestArticles = {};
+        try {
+            const jsonResponse = await fetch('articles.json');
+            if (jsonResponse.ok) {
+                latestArticles = await jsonResponse.json();
+                console.log('从articles.json获取到最新数据');
+            }
+        } catch (jsonError) {
+            console.error('加载articles.json失败:', jsonError);
+        }
+        
+        // 如果articles.json加载失败或为空，尝试从API获取
+        if (Object.keys(latestArticles).length === 0) {
+            // 获取最新文章数据
+            const articlesResponse = await fetchArticles(null, false); // 强制从服务器获取最新数据，不使用缓存
+            
+            // 处理不同的API响应格式
+            if (articlesResponse) {
+                if (articlesResponse.articles) {
+                    // 响应包含articles字段
+                    latestArticles = articlesResponse.articles;
+                } else if (typeof articlesResponse === 'object' && !Array.isArray(articlesResponse)) {
+                    // 响应本身就是文章对象
+                    latestArticles = articlesResponse;
+                }
             }
         }
         
-        if (Object.keys(serverArticles).length > 0) {
-            // 获取本地存储的当前数据
-            const localData = localStorage.getItem('articlesData');
-            let currentData = localData ? JSON.parse(localData) : {};
-            
-            // 合并数据，使用服务器数据作为权威源，保留本地修改的精华状态
-            const mergedData = mergeArticlesData(currentData, serverArticles);
-            
-            // 更新本地存储
-            await updateLocalArticlesData(mergedData);
+        if (Object.keys(latestArticles).length > 0) {
+            // 直接使用最新数据，不合并本地存储，确保清除旧的缓存数据
+            await updateLocalArticlesData(latestArticles);
             // 触发自定义事件，通知其他组件数据已更新
-            window.dispatchEvent(new CustomEvent('articlesDataUpdated', { detail: mergedData }));
-            console.log('本地存储同步完成');
+            window.dispatchEvent(new CustomEvent('articlesDataUpdated', { detail: latestArticles }));
+            console.log('本地存储同步完成，已清除旧缓存数据');
         } else {
             console.log('未获取到有效文章数据，跳过同步');
         }
