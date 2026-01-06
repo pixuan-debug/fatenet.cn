@@ -1292,9 +1292,9 @@
         <!-- 页面标题 -->
         <header class="page-header">
             <div class="header-content">
+
                 <img src="taiji-logo.png" alt="命理工具Logo" class="header-logo" loading="lazy">
-                <h1 data-translate="title">正缘方位网</h1>
-                <p data-translate="pageIntro">正缘方位网专注提供八字合婚方位测算、正缘方位查询、情侣配对指数测试及婚姻吉运年份预测服务，依托传统八字命理体系，精准解析情感磁场方位、恋人契合度与正缘流年运势，助您洞悉缘分走向、把握情感契机，更有个性化命理指南与情感提升方案相伴，让每段缘分皆有方向可依。</p>
+                <h1 data-translate="title">命理工具</h1>
         </header>
         
         <!-- 页面简介 -->
@@ -2178,7 +2178,7 @@
     
     <script>
         // 文章数据从articles.json文件加载
-        const articles = {
+        let articles = {
             'basic-theory': [
                 {
                     id: 1,
@@ -2269,17 +2269,83 @@
             ]
         };
 
+        // 加载文章数据
+        async function loadArticles() {
+            try {
+                const response = await fetch('articles.json');
+                if (response.ok) {
+                    articles = await response.json();
+                    // 文章数据加载完成后，更新页面显示
+                    renderArticles();
+                } else {
+                    console.error('Failed to load articles:', response.status);
+                }
+            } catch (error) {
+                console.error('Error loading articles:', error);
+            }
+        }
+
+        // 渲染文章到页面
+        function renderArticles() {
+            // 遍历所有文章分类
+            Object.keys(articles).forEach(category => {
+                const gridElement = document.getElementById(`${category}-grid`);
+                if (gridElement) {
+                    // 清空现有内容
+                    gridElement.innerHTML = '';
+                    
+                    // 渲染每篇文章
+                    articles[category].forEach(article => {
+                        const articleCard = createArticleCard(article, category);
+                        gridElement.appendChild(articleCard);
+                    });
+                }
+            });
+        }
+
+        // 创建文章卡片元素
+        function createArticleCard(article, category) {
+            const card = document.createElement('div');
+            card.className = 'article-card';
+            card.innerHTML = `
+                <h3 class="article-title">${article.title}</h3>
+                <p class="article-excerpt">${article.excerpt.length > 100 ? article.excerpt.substring(0, 100) + '...' : article.excerpt}</p>
+                <div class="article-meta">
+                    <div class="article-date">
+                        <i class="fa fa-calendar"></i>
+                        <span>${article.date}</span>
+                    </div>
+                    <div class="article-actions">
+                        <button class="action-btn like-btn ${article.liked ? 'liked' : ''}" data-article-id="${article.id}" data-category="${category}">
+                            <i class="fa fa-heart"></i>
+                            <span>${article.likes}</span>
+                        </button>
+                        <button class="action-btn view-btn" data-article-id="${article.id}" data-category="${category}">
+                            <i class="fa fa-eye"></i>
+                            <span>${article.views}</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+
+        // 页面加载时加载文章数据
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadArticles();
+        });
+
         // 多语言翻译数据结构
         const translations = {
             'zh-CN': {
                 // 页面标题和标签页
-                'title': '正缘方位网',
+                'title': '命理工具',
                 'tabPosition': '感情方位查询',
                 'tabLocationMatch': '情侣方位匹配',
                 'tabTiming': '感情年份预测',
                 
                 // 页面介绍
-                'pageIntro': '正缘方位网专注提供八字合婚方位测算、正缘方位查询、情侣配对指数测试及婚姻吉运年份预测服务，依托传统八字命理体系，精准解析情感磁场方位、恋人契合度与正缘流年运势，助您洞悉缘分走向、把握情感契机，更有个性化命理指南与情感提升方案相伴，让每段缘分皆有方向可依。',
+                'pageIntro': '专注提供八字命理相关测算服务，依托传统八字命理体系，为您提供专业的命理分析和指导。',
                 
                 // 通用状态文本
                 'loading': '正在加载...',
@@ -8859,7 +8925,7 @@
             
             card.innerHTML = `
                 <h3 class="article-title">${article.title}</h3>
-                <p class="article-excerpt">${article.excerpt}</p>
+                <p class="article-excerpt">${article.excerpt.length > 100 ? article.excerpt.substring(0, 100) + '...' : article.excerpt}</p>
                 <div class="article-meta">
                     <div class="article-date">
                         <i class="fa fa-calendar"></i>
@@ -9459,7 +9525,7 @@
                         card.className = 'article-card';
                         card.innerHTML = `
                             <h3 class="article-title">${article.title}</h3>
-                            <p class="article-excerpt">${article.excerpt || (article.content ? article.content.replace(/<[^>]*>/g, '').replace(/\n/g, ' ').trim().substring(0, 150) + '...' : '暂无摘要')}</p>
+                            <p class="article-excerpt">${article.excerpt ? (article.excerpt.length > 100 ? article.excerpt.substring(0, 100) + '...' : article.excerpt) : (article.content ? article.content.replace(/<[^>]*>/g, '').replace(/\n/g, ' ').trim().substring(0, 100) + '...' : '暂无摘要')}</p>
                             <div class="article-meta">
                                 <span class="article-date"><i class="fa fa-calendar"></i> ${article.date}</span>
                                 <div class="article-actions">
@@ -9642,7 +9708,7 @@
                         card.className = 'article-card';
                         card.innerHTML = `
                             <h3 class="article-title">${article.title}</h3>
-                            <p class="article-excerpt">${article.excerpt || (article.content ? article.content.replace(/<[^>]*>/g, '').replace(/\n/g, ' ').trim().substring(0, 150) + '...' : '暂无摘要')}</p>
+                            <p class="article-excerpt">${article.excerpt ? (article.excerpt.length > 100 ? article.excerpt.substring(0, 100) + '...' : article.excerpt) : (article.content ? article.content.replace(/<[^>]*>/g, '').replace(/\n/g, ' ').trim().substring(0, 100) + '...' : '暂无摘要')}</p>
                             <div class="article-meta">
                                 <span class="article-date"><i class="fa fa-calendar"></i> ${article.date}</span>
                                 <div class="article-actions">

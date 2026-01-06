@@ -789,8 +789,9 @@
                 });
             }
             
-            // 添加文章内容
-            contentHTML += `<div class="article-text">${article.content.replace(/\n/g, '<br>')}</div>`;
+            // 添加文章内容，先处理转义字符\n为\n，再将\n替换为<br>
+            let processedContent = article.content.replace(/\\n/g, '\n');
+            contentHTML += `<div class="article-text">${processedContent.replace(/\n/g, '<br>')}</div>`;
             
             // 添加文章视频
             if (article.videos && article.videos.length > 0) {

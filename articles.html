@@ -648,7 +648,7 @@
                             <span>${getCategoryName(article.category)}</span>
                         </div>
                     </div>
-                    <p class="article-excerpt">${article.excerpt}</p>
+                    <p class="article-excerpt">${article.excerpt.length > 100 ? article.excerpt.substring(0, 100) + '...' : article.excerpt}</p>
                     <div class="article-actions">
                         <div class="article-views">
                             <i class="fa fa-eye"></i>
