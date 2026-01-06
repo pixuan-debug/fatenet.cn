@@ -9298,7 +9298,9 @@
             }
             
             // 将留言提交到后端API
-            fetch('/api/v1/messages', {
+            const apiUrl = window.location.origin + '/api/v1/messages';
+            console.log('发送留言请求到:', apiUrl);
+            fetch(apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -9459,12 +9461,12 @@
                         card.className = 'article-card';
                         card.innerHTML = `
                             <h3 class="article-title">${article.title}</h3>
-                            <p class="article-excerpt">${article.excerpt}</p>
+                            <p class="article-excerpt">${article.excerpt || '暂无摘要'}</p>
                             <div class="article-meta">
                                 <span class="article-date"><i class="fa fa-calendar"></i> ${article.date}</span>
                                 <div class="article-actions">
                                     <button class="action-btn like-btn" data-article-id="${article.id}" data-category="${category}">
-                                        <i class="fa fa-heart"></i> <span>${article.likes}</span>
+                                        <i class="fa fa-heart"></i> <span>${article.likes || 0}</span>
                                     </button>
                                 </div>
                             </div>
@@ -9642,12 +9644,12 @@
                         card.className = 'article-card';
                         card.innerHTML = `
                             <h3 class="article-title">${article.title}</h3>
-                            <p class="article-excerpt">${article.excerpt}</p>
+                            <p class="article-excerpt">${article.excerpt || '暂无摘要'}</p>
                             <div class="article-meta">
                                 <span class="article-date"><i class="fa fa-calendar"></i> ${article.date}</span>
                                 <div class="article-actions">
                                     <button class="action-btn like-btn" data-id="${article.id}" data-category="${category}">
-                                        <i class="fa fa-heart"></i> <span>${article.likes}</span>
+                                        <i class="fa fa-heart"></i> <span>${article.likes || 0}</span>
                                     </button>
                                 </div>
                             </div>
