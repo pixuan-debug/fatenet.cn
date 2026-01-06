@@ -94,6 +94,22 @@ function initDatabase() {
         }
     });
 
+    // 创建留言表
+    db.run(`CREATE TABLE IF NOT EXISTS messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        subject TEXT NOT NULL,
+        message TEXT NOT NULL,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )`, (err) => {
+        if (err) {
+            console.error('创建留言表失败:', err.message);
+        } else {
+            console.log('留言表创建成功');
+        }
+    });
+
     // 导入初始文章数据
     importInitialArticles();
 }
@@ -1055,6 +1071,171 @@ app.get('/api/v1/health', (req, res) => {
     };
     console.log('健康检查请求，返回完整响应:', fullResponse);
     res.json(fullResponse);
+});
+
+// 公开路由：提交留言
+app.post('/api/v1/messages', (req, res) => {
+    const { name, email, subject, message } = req.body;
+    
+    // 验证必填参数
+    if (!name || !email || !subject || !message) {
+        return res.status(400).json({
+            code: 400,
+            message: '请求参数不完整',
+            errorDetails: {
+                reason: '缺少必填参数',
+                required: ['name', 'email', 'subject', 'message'],
+                provided: req.body
+            }
+        });
+    }
+    
+    // 保存留言到数据库
+    const sql = `INSERT INTO messages (name, email, subject, message) VALUES (?, ?, ?, ?)`;
+    
+    db.run(sql, [name, email, subject, message], function(err) {
+        if (err) {
+            return res.status(500).json({
+                code: 500,
+                message: '保存留言失败',
+                errorDetails: {
+                    reason: err.message
+                }
+            });
+        }
+        
+        res.json({
+            code: 200,
+            message: '留言提交成功',
+            data: {
+                id: this.lastID,
+                name,
+                email,
+                subject,
+                message,
+                created_at: new Date().toISOString()
+            }
+        });
+    });
+});
+
+// 管理员路由：获取留言列表（需要认证）
+app.get('/api/v1/admin/messages', (req, res) => {
+    const limit = parseInt(req.query.limit) || 100;
+    const offset = parseInt(req.query.offset) || 0;
+    
+    const sql = `SELECT * FROM messages ORDER BY created_at DESC LIMIT ? OFFSET ?`;
+    
+    db.all(sql, [limit, offset], (err, rows) => {
+        if (err) {
+            return res.status(500).json({
+                code: 500,
+                message: '获取留言列表失败',
+                errorDetails: {
+                    reason: err.message
+                }
+            });
+        }
+        
+        // 获取总数
+        db.get(`SELECT COUNT(*) as total FROM messages`, [], (err, countResult) => {
+            if (err) {
+                return res.status(500).json({
+                    code: 500,
+                    message: '获取留言总数失败',
+                    errorDetails: {
+                        reason: err.message
+                    }
+                });
+            }
+            
+            res.json({
+                code: 200,
+                message: '成功获取留言列表',
+                data: {
+                    messages: rows,
+                    total: countResult.total,
+                    limit,
+                    offset
+                }
+            });
+        });
+    });
+});
+
+// 管理员路由：删除单条留言（需要认证）
+app.delete('/api/v1/admin/messages/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    
+    if (isNaN(id)) {
+        return res.status(400).json({
+            code: 400,
+            message: '无效的留言ID',
+            errorDetails: {
+                reason: '留言ID必须是数字类型',
+                provided: req.params.id
+            }
+        });
+    }
+    
+    const sql = `DELETE FROM messages WHERE id = ?`;
+    
+    db.run(sql, [id], function(err) {
+        if (err) {
+            return res.status(500).json({
+                code: 500,
+                message: '删除留言失败',
+                errorDetails: {
+                    reason: err.message
+                }
+            });
+        }
+        
+        if (this.changes === 0) {
+            return res.status(404).json({
+                code: 404,
+                message: '留言不存在',
+                errorDetails: {
+                    reason: '未找到指定ID的留言'
+                }
+            });
+        }
+        
+        res.json({
+            code: 200,
+            message: '留言删除成功',
+            data: {
+                id,
+                deleted: true
+            }
+        });
+    });
+});
+
+// 管理员路由：清空所有留言（需要认证）
+app.delete('/api/v1/admin/messages', (req, res) => {
+    const sql = `DELETE FROM messages`;
+    
+    db.run(sql, [], function(err) {
+        if (err) {
+            return res.status(500).json({
+                code: 500,
+                message: '清空留言失败',
+                errorDetails: {
+                    reason: err.message
+                }
+            });
+        }
+        
+        res.json({
+            code: 200,
+            message: '所有留言已清空',
+            data: {
+                deletedCount: this.changes,
+                status: 'success'
+            }
+        });
+    });
 });
 
 // 添加手动触发同步的接口（暂时移除认证要求，方便手动同步）

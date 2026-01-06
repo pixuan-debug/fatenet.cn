@@ -9297,17 +9297,34 @@
                 return;
             }
             
-            // 将留言保存到本地存储
-            data.date = new Date().toLocaleString();
-            let messages = JSON.parse(localStorage.getItem('messagesData') || '[]');
-            messages.push(data);
-            localStorage.setItem('messagesData', JSON.stringify(messages, null, 2));
-            
-            // 显示成功提示
-            alert('留言已成功提交，感谢您的留言！');
-            
-            // 重置表单
-            form.reset();
+            // 将留言提交到后端API
+            fetch('/api/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络请求失败');
+                }
+                return response.json();
+            })
+            .then(result => {
+                if (result.code === 200) {
+                    // 显示成功提示
+                    alert('留言已成功提交，感谢您的留言！');
+                    // 重置表单
+                    form.reset();
+                } else {
+                    alert('留言提交失败：' + (result.message || '未知错误'));
+                }
+            })
+            .catch(error => {
+                console.error('留言提交失败:', error);
+                alert('留言提交失败，请稍后重试');
+            });
         }
         
         // 添加禁止复制功能

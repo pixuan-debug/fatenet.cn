@@ -1516,13 +1516,27 @@
         
         // 加载留言数据
         function loadMessages() {
-            const savedMessages = localStorage.getItem('messagesData');
-            if (savedMessages) {
-                messagesData = JSON.parse(savedMessages);
-            } else {
-                messagesData = [];
-            }
-            renderMessages();
+            // 从后端API获取留言数据
+            fetch('/api/v1/admin/messages')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('获取留言失败');
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    if (result.code === 200) {
+                        messagesData = result.data.messages;
+                    } else {
+                        messagesData = [];
+                    }
+                    renderMessages();
+                })
+                .catch(error => {
+                    console.error('获取留言失败:', error);
+                    messagesData = [];
+                    renderMessages();
+                });
         }
         
         // 渲染留言列表
@@ -1534,47 +1548,81 @@
                 return;
             }
             
-            messagesList.innerHTML = messagesData.map((message, index) => `
+            messagesList.innerHTML = messagesData.map(message => `
                 <div class="message-item">
                     <div class="message-header">
                         <div class="message-info">
                             <div>
                                 <span class="message-name">${message.name}</span>
                                 <span class="message-email">${message.email}</span>
-                                <span class="message-date">${message.date}</span>
+                                <span class="message-date">${new Date(message.created_at).toLocaleString()}</span>
                             </div>
                             <div class="message-subject">${message.subject}</div>
                         </div>
                     </div>
                     <div class="message-content">${message.message}</div>
                     <div class="message-actions">
-                        <button class="btn-danger" onclick="deleteMessage(${index})">删除</button>
+                        <button class="btn-danger" onclick="deleteMessage(${message.id})">删除</button>
                     </div>
                 </div>
             `).join('');
         }
         
         // 删除留言
-        function deleteMessage(index) {
+        function deleteMessage(id) {
             if (confirm('确定要删除这条留言吗？')) {
-                messagesData.splice(index, 1);
-                saveMessages();
+                // 通过API删除留言
+                fetch(`/api/v1/admin/messages/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('删除留言失败');
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    if (result.code === 200) {
+                        // 重新加载留言列表
+                        loadMessages();
+                    } else {
+                        alert('删除留言失败：' + (result.message || '未知错误'));
+                    }
+                })
+                .catch(error => {
+                    console.error('删除留言失败:', error);
+                    alert('删除留言失败，请稍后重试');
+                });
             }
         }
         
         // 清空所有留言
         document.getElementById('clear-all-messages').addEventListener('click', function() {
             if (confirm('确定要清空所有留言吗？此操作不可恢复！')) {
-                messagesData = [];
-                saveMessages();
+                // 通过API清空所有留言
+                fetch('/api/v1/admin/messages', {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('清空留言失败');
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    if (result.code === 200) {
+                        // 重新加载留言列表
+                        loadMessages();
+                    } else {
+                        alert('清空留言失败：' + (result.message || '未知错误'));
+                    }
+                })
+                .catch(error => {
+                    console.error('清空留言失败:', error);
+                    alert('清空留言失败，请稍后重试');
+                });
             }
         });
-        
-        // 保存留言数据
-        function saveMessages() {
-            localStorage.setItem('messagesData', JSON.stringify(messagesData, null, 2));
-            renderMessages();
-        }
         
         // 同步待处理数据
         async function syncPendingData() {
