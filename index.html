@@ -34,14 +34,14 @@
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"命理网站","alternateName":"fatenet.cn命理网站","url":"https://www.fatenet.cn","logo":{"@type":"ImageObject","url":"taiji-logo.png","width":120,"height":120},"description":"命理网站，提供八字命理、命运分析、命理文章等内容","publisher":{"@type":"Organization","name":"命理网站","logo":{"@type":"ImageObject","url":"taiji-logo.png","width":120,"height":120}},"potentialAction":{"@type":"SearchAction","target":"https://www.fatenet.cn/search?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
 
     
-    <title>命理网站_八字命理_命运分析</title>
+    <title>正缘方位网_八字命理_命运分析</title>
     <!-- Favicon 配置 -->
-    <link rel="icon" type="image/png" href="taiji-logo.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="taiji-logo.png" sizes="16x16">
-    <link rel="shortcut icon" href="taiji-logo.png" type="image/png">
-    <link rel="apple-touch-icon" href="taiji-logo.png" sizes="180x180">
-    <link rel="apple-touch-icon-precomposed" href="taiji-logo.png" sizes="180x180">
-    <meta name="msapplication-TileImage" content="taiji-logo.png">
+    <link rel="icon" type="image/png" href="/taiji-logo.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/taiji-logo.png" sizes="16x16">
+    <link rel="shortcut icon" href="/taiji-logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="/taiji-logo.png" sizes="180x180">
+    <link rel="apple-touch-icon-precomposed" href="/taiji-logo.png" sizes="180x180">
+    <meta name="msapplication-TileImage" content="/taiji-logo.png">
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="theme-color" content="#ffffff">
     <script src="https://cdn.tailwindcss.com" defer></script>
@@ -1293,8 +1293,8 @@
         <header class="page-header">
             <div class="header-content">
 
-                <img src="taiji-logo.png" alt="命理工具Logo" class="header-logo" loading="lazy">
-                <h1 data-translate="title">命理工具</h1>
+                <img src="/taiji-logo.png" alt="正缘方位网Logo" class="header-logo" loading="lazy">
+                <h1 data-translate="title">正缘方位网</h1>
         </header>
         
         <!-- 页面简介 -->
@@ -1657,14 +1657,14 @@
                             <label class="gender-option">
                                 <input type="radio" name="my-gender" value="male" checked>
                                 <div class="avatar-container">
-                                    <img src="male_avatar.png" alt="男性" loading="lazy">
+                                    <img src="/male_avatar.png" alt="男性" loading="lazy">
                                 </div>
                                 <span data-translate="male">男</span>
                             </label>
                             <label class="gender-option">
                                 <input type="radio" name="my-gender" value="female">
                                 <div class="avatar-container">
-                                    <img src="female_avatar.png" alt="女性" loading="lazy">
+                                    <img src="/female_avatar.png" alt="女性" loading="lazy">
                                 </div>
                                 <span data-translate="female">女</span>
                             </label>
@@ -1714,14 +1714,14 @@
                             <label class="gender-option">
                                 <input type="radio" name="partner-gender" value="male">
                                 <div class="avatar-container">
-                                    <img src="male_avatar.png" alt="男性" loading="lazy">
+                                    <img src="/male_avatar.png" alt="男性" loading="lazy">
                                 </div>
                                 <span data-translate="male">男</span>
                             </label>
                             <label class="gender-option">
                                 <input type="radio" name="partner-gender" value="female" checked>
                                 <div class="avatar-container">
-                                    <img src="female_avatar.png" alt="女性" loading="lazy">
+                                    <img src="/female_avatar.png" alt="女性" loading="lazy">
                                 </div>
                                 <span data-translate="female">女</span>
                             </label>
@@ -1796,17 +1796,17 @@
                         <label class="form-label" data-translate="genderSelect">性别选择</label>
                         <div class="gender-selector">
                         <label class="gender-option">
-                            <input type="radio" name="timing-gender" value="male" checked>
-                            <div class="avatar-container">
-                                <img src="male_avatar.png" alt="男性" loading="lazy">
-                            </div>
+                                <input type="radio" name="timing-gender" value="male" checked>
+                                <div class="avatar-container">
+                                    <img src="/male_avatar.png" alt="男性" loading="lazy">
+                                </div>
                             <span data-translate="male">男</span>
                         </label>
                         <label class="gender-option">
-                            <input type="radio" name="timing-gender" value="female">
-                            <div class="avatar-container">
-                                <img src="female_avatar.png" alt="女性" loading="lazy">
-                            </div>
+                                <input type="radio" name="timing-gender" value="female">
+                                <div class="avatar-container">
+                                    <img src="/female_avatar.png" alt="女性" loading="lazy">
+                                </div>
                             <span data-translate="female">女</span>
                         </label>
                     </div>
@@ -2272,7 +2272,7 @@
         // 加载文章数据
         async function loadArticles() {
             try {
-                const response = await fetch('articles.json');
+                const response = await fetch('/articles.json');
                 if (response.ok) {
                     articles = await response.json();
                     // 文章数据加载完成后，更新页面显示
@@ -2327,6 +2327,11 @@
                     </div>
                 </div>
             `;
+            // 点击卡片跳转到文章详情页
+            card.addEventListener('click', () => {
+                window.open(`article-detail.html?id=${article.id}&category=${category}`, '_blank');
+            });
+            
             return card;
         }
 
@@ -2339,7 +2344,7 @@
         const translations = {
             'zh-CN': {
                 // 页面标题和标签页
-                'title': '命理工具',
+                'title': '正缘方位网',
                 'tabPosition': '感情方位查询',
                 'tabLocationMatch': '情侣方位匹配',
                 'tabTiming': '感情年份预测',
@@ -8795,7 +8800,7 @@
                 });
             } else {
                 // 从articles.json加载数据
-                fetch('articles.json')
+                fetch('/articles.json')
                     .then(response => response.json())
                     .then(data => {
                         articlesData = data;
@@ -9092,7 +9097,7 @@
                 if (!articlesData) {
                     console.log('localStorage中没有文章数据，尝试从articles.json加载');
                     try {
-                        const response = await fetch('articles.json');
+                        const response = await fetch('/articles.json');
                         if (response.ok) {
                             articlesData = await response.json();
                             console.log('成功从articles.json加载完整文章数据');
@@ -9476,7 +9481,7 @@
                 renderArticlesFixed(articlesData);
             } else {
                 // 从articles.json加载数据
-                fetch('articles.json')
+                fetch('/articles.json')
                     .then(response => response.json())
                     .then(data => {
                         // 确保所有分类都存在

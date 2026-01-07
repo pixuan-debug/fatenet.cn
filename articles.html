@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文章列表 - 命理网站</title>
-    <meta name="description" content="命理网站的文章列表，包含命学基础、名人八字、花果论心法和命理随笔等内容。">
+    <title>文章列表 - 正缘方位网</title>
+    <meta name="description" content="正缘方位网的文章列表，包含命学基础、名人八字、花果论心法和命理随笔等内容。">
     <meta name="keywords" content="文章列表,命学基础,名人八字,花果论心法,命理随笔">
     
     <!-- 引入Font Awesome -->
@@ -138,17 +138,17 @@
         /* 文章列表 */
         .articles-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2.5rem;
             margin-bottom: 3rem;
         }
         
         /* 文章卡片 */
         .article-card {
             background-color: var(--card-bg);
-            border-radius: 8px;
+            border-radius: 12px;
             box-shadow: var(--shadow-light);
-            padding: 1.5rem;
+            padding: 2rem;
             transition: all 0.3s ease;
             cursor: pointer;
             border: 1px solid var(--border-color);
@@ -356,8 +356,8 @@
     <header>
         <nav>
             <a href="index.html" class="logo">
-                <img src="taiji-logo.png" alt="命理网站">
-                <span>命理网站</span>
+                <img src="/taiji-logo.png" alt="正缘方位网">
+                <span>正缘方位网</span>
             </a>
             <ul class="nav-links">
                 <li><a href="index.html">首页</a></li>
@@ -369,7 +369,7 @@
     
     <!-- 主内容区 -->
     <main>
-        <h1 class="page-title">命理文章</h1>
+        <h1 class="page-title">正缘方位网文章</h1>
         
         <!-- 分类筛选 -->
         <div class="category-filter">
@@ -487,7 +487,7 @@
             // 尝试从articles.json加载数据
             console.log('尝试从articles.json加载数据');
             try {
-                const response = await fetch('articles.json');
+                const response = await fetch('/articles.json');
                 if (response.ok) {
                     const jsonData = await response.json();
                     console.log('成功从articles.json加载数据');

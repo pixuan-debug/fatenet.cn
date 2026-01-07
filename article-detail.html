@@ -69,6 +69,8 @@
             font-weight: bold;
             text-decoration: none;
             color: var(--primary-color);
+            display: flex;
+            align-items: center;
         }
         
         .back-btn {
@@ -368,7 +370,10 @@
     <!-- 头部 -->
     <header>
         <div class="header-container">
-            <a href="index.html" class="logo">正缘方位网</a>
+            <a href="index.html" class="logo">
+                <img src="/taiji-logo.png" alt="正缘方位网" style="width: 40px; height: 40px; margin-right: 1rem;">
+                <span>正缘方位网</span>
+            </a>
         </div>
     </header>
     
@@ -512,7 +517,7 @@
         // 尝试从articles.json加载数据
         console.log('尝试从articles.json加载数据');
         try {
-            const response = await fetch('articles.json');
+            const response = await fetch('/articles.json');
             if (response.ok) {
                 const jsonData = await response.json();
                 console.log('成功从articles.json加载数据');
