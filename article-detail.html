@@ -790,7 +790,8 @@
             }
             
             // 添加文章内容
-            contentHTML += `<div class="article-text">${article.content.replace(/\n/g, '<br>')}</div>`;
+            // 正确处理原始字符串中的换行符
+            contentHTML += `<div class="article-text">${article.content.replace(/\\n/g, '<br>').replace(/\\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')}</div>`;
             
             // 添加文章视频
             if (article.videos && article.videos.length > 0) {

@@ -635,7 +635,11 @@
             }
             
             // 生成文章卡片
-            grid.innerHTML = filteredArticles.map(article => `
+            grid.innerHTML = filteredArticles.map(article => {
+                // 限制摘要长度，最多显示150个字符
+                const limitedExcerpt = article.excerpt ? article.excerpt.substring(0, 150) + (article.excerpt.length > 150 ? '...' : '') : '';
+                
+                return `
                 <div class="article-card" data-id="${article.id}" data-category="${article.category}">
                     <h3 class="article-title">${article.title}</h3>
                     <div class="article-meta">
@@ -648,7 +652,7 @@
                             <span>${getCategoryName(article.category)}</span>
                         </div>
                     </div>
-                    <p class="article-excerpt">${article.excerpt}</p>
+                    <p class="article-excerpt">${limitedExcerpt}</p>
                     <div class="article-actions">
                         <div class="article-views">
                             <i class="fa fa-eye"></i>
@@ -660,7 +664,8 @@
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
             
             // 为所有文章卡片添加点击事件
             const articleCards = document.querySelectorAll('.article-card');

@@ -1251,6 +1251,48 @@
         }
         
         /* 标题下方线段通过.page-header::after伪元素实现 */
+        
+        /* 隐藏任何可能被视为广告的元素 */
+        
+        /* 隐藏所有带有广告相关类名的元素 */
+        .ad,
+        .advertisement,
+        .banner,
+        .sponsor,
+        .adsbygoogle,
+        
+        /* 隐藏所有可能的广告iframe */
+        iframe,
+        
+        /* 隐藏所有可能的广告脚本生成的元素 */
+        [id*="ad"]:not(.page-header),
+        [class*="ad"]:not(.page-header):not(.header-content):not(.header-logo),
+        [data-ad],
+        [data-ad-type],
+        
+        /* 隐藏所有可能的弹出式元素 */
+        [id*="popup"],
+        [class*="popup"],
+        [id*="modal"],
+        [class*="modal"]:not(#contact-modal):not(#article-detail-modal):not(.language-dropdown-menu),
+        
+        /* 隐藏所有可能的悬浮元素 */
+        [id*="float"],
+        [class*="float"]:not(.floating-contact),
+        
+        /* 隐藏所有可能的推广元素 */
+        [id*="promo"],
+        [class*="promo"],
+        [id*="推广"],
+        [class*="推广"]
+        {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            position: absolute !important;
+            top: -9999px !important;
+            left: -9999px !important;
+        }
     </style>
 </head>
 <body>
@@ -1294,7 +1336,7 @@
             <div class="header-content">
                 <img src="taiji-logo.png" alt="命理工具Logo" class="header-logo" loading="lazy">
                 <h1 data-translate="title">正缘方位网</h1>
-                <p data-translate="pageIntro">正缘方位网专注提供八字合婚方位测算、正缘方位查询、情侣配对指数测试及婚姻吉运年份预测服务，依托传统八字命理体系，精准解析情感磁场方位、恋人契合度与正缘流年运势，助您洞悉缘分走向、把握情感契机，更有个性化命理指南与情感提升方案相伴，让每段缘分皆有方向可依。</p>
+
         </header>
         
         <!-- 页面简介 -->
@@ -2277,9 +2319,6 @@
                 'tabPosition': '感情方位查询',
                 'tabLocationMatch': '情侣方位匹配',
                 'tabTiming': '感情年份预测',
-                
-                // 页面介绍
-                'pageIntro': '正缘方位网专注提供八字合婚方位测算、正缘方位查询、情侣配对指数测试及婚姻吉运年份预测服务，依托传统八字命理体系，精准解析情感磁场方位、恋人契合度与正缘流年运势，助您洞悉缘分走向、把握情感契机，更有个性化命理指南与情感提升方案相伴，让每段缘分皆有方向可依。',
                 
                 // 通用状态文本
                 'loading': '正在加载...',
@@ -7117,6 +7156,12 @@
         function filterMonthStemsByYinyang() {
             const monthStem = document.getElementById('month-stem').value;
             const monthBranchSelect = document.getElementById('month-branch');
+            
+            // 添加空值检查，避免在元素不存在时出错
+            if (!monthBranchSelect || !monthBranchSelect.options) {
+                return;
+            }
+            
             const monthBranchOptions = monthBranchSelect.options;
             
             if (monthStem) {
@@ -7146,11 +7191,15 @@
         function filterHourBranches() {
             const hourStem = document.getElementById('hour-stem').value;
             const hourBranchSelect = document.getElementById('hour-branch');
-            const hourBranchOptions = hourBranchSelect.options;
             
-            // 显示所有时支选项，允许用户自主选择
-            for (let i = 0; i < hourBranchOptions.length; i++) {
-                hourBranchOptions[i].style.display = '';
+            // 添加空值检查，避免在元素不存在时出错
+            if (hourBranchSelect && hourBranchSelect.options) {
+                const hourBranchOptions = hourBranchSelect.options;
+                
+                // 显示所有时支选项，允许用户自主选择
+                for (let i = 0; i < hourBranchOptions.length; i++) {
+                    hourBranchOptions[i].style.display = '';
+                }
             }
         }
         
@@ -7158,6 +7207,12 @@
         function filterYearBranches() {
             const yearStem = document.getElementById('year-stem').value;
             const yearBranchSelect = document.getElementById('year-branch');
+            
+            // 添加空值检查，避免在元素不存在时出错
+            if (!yearBranchSelect || !yearBranchSelect.options) {
+                return;
+            }
+            
             const yearBranchOptions = yearBranchSelect.options;
             
             if (yearStem) {
@@ -7213,6 +7268,12 @@
         // 根据日支过滤日干，确保符合六十甲子规则和阴阳属性匹配
         function filterDayStems() {
             const dayStemSelect = document.getElementById('day-stem');
+            
+            // 添加空值检查，避免在元素不存在时出错
+            if (!dayStemSelect || !dayStemSelect.options) {
+                return;
+            }
+            
             const dayStemOptions = dayStemSelect.options;
             
             // 始终显示所有日干选项，完全移除过滤逻辑
@@ -7222,9 +7283,15 @@
             }
         }
         
-        // 根据日干过滤日支，确保符合六十甲子规则和阴阳属性匹配
+        // 根据日干过滤日支，确保符合阴阳属性匹配
         function filterDayBranches() {
             const dayBranchSelect = document.getElementById('day-branch');
+            
+            // 添加空值检查，避免在元素不存在时出错
+            if (!dayBranchSelect || !dayBranchSelect.options) {
+                return;
+            }
+            
             const dayBranchOptions = dayBranchSelect.options;
             
             // 始终显示所有日支选项，完全移除过滤逻辑
@@ -7238,6 +7305,12 @@
         function filterHourStems() {
             const hourBranch = document.getElementById('hour-branch').value;
             const hourStemSelect = document.getElementById('hour-stem');
+            
+            // 添加空值检查，避免在元素不存在时出错
+            if (!hourStemSelect || !hourStemSelect.options) {
+                return;
+            }
+            
             const hourStemOptions = hourStemSelect.options;
             
             // 不再调用autoCalculateHourStem，避免强制设置时干
@@ -7289,11 +7362,15 @@
         // 根据日干过滤时支（不强制计算时干，允许用户自主选择）
         function filterHourBranchesByDayStem() {
             const hourBranchSelect = document.getElementById('hour-branch');
-            const hourOptions = hourBranchSelect.options;
             
-            // 显示所有时支选项
-            for (let i = 0; i < hourOptions.length; i++) {
-                hourOptions[i].style.display = '';
+            // 添加空值检查，避免在元素不存在时出错
+            if (hourBranchSelect && hourBranchSelect.options) {
+                const hourOptions = hourBranchSelect.options;
+                
+                // 显示所有时支选项
+                for (let i = 0; i < hourOptions.length; i++) {
+                    hourOptions[i].style.display = '';
+                }
             }
             
             // 不再自动计算时干，允许用户自主选择
@@ -8857,9 +8934,12 @@
             const card = document.createElement('div');
             card.className = 'article-card';
             
+            // 限制摘要长度，最多显示150个字符
+            const limitedExcerpt = article.excerpt ? article.excerpt.substring(0, 150) + (article.excerpt.length > 150 ? '...' : '') : '';
+            
             card.innerHTML = `
                 <h3 class="article-title">${article.title}</h3>
-                <p class="article-excerpt">${article.excerpt}</p>
+                <p class="article-excerpt">${limitedExcerpt}</p>
                 <div class="article-meta">
                     <div class="article-date">
                         <i class="fa fa-calendar"></i>
@@ -8931,7 +9011,7 @@
                             </div>
                         </div>
                         <div class="article-content no-copy">
-                            ${article.content.replace(/\n/g, '<br>')}
+                            ${article.content.replace(/\\n/g, '<br>').replace(/\\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')}
                         </div>
                         <button class="close-btn">
                             关闭
@@ -9459,7 +9539,7 @@
                         card.className = 'article-card';
                         card.innerHTML = `
                             <h3 class="article-title">${article.title}</h3>
-                            <p class="article-excerpt">${article.excerpt || (article.content ? article.content.replace(/<[^>]*>/g, '').replace(/\n/g, ' ').trim().substring(0, 150) + '...' : '暂无摘要')}</p>
+                            <p class="article-excerpt">${(article.excerpt || (article.content ? article.content.replace(/<[^>]*>/g, '').replace(/\n/g, ' ').trim() : '暂无摘要')).substring(0, 150) + ((article.excerpt || (article.content ? article.content.replace(/<[^>]*>/g, '').replace(/\n/g, ' ').trim() : '暂无摘要')).length > 150 ? '...' : '')}</p>
                             <div class="article-meta">
                                 <span class="article-date"><i class="fa fa-calendar"></i> ${article.date}</span>
                                 <div class="article-actions">
@@ -9642,7 +9722,7 @@
                         card.className = 'article-card';
                         card.innerHTML = `
                             <h3 class="article-title">${article.title}</h3>
-                            <p class="article-excerpt">${article.excerpt || (article.content ? article.content.replace(/<[^>]*>/g, '').replace(/\n/g, ' ').trim().substring(0, 150) + '...' : '暂无摘要')}</p>
+                            <p class="article-excerpt">${(article.excerpt || (article.content ? article.content.replace(/<[^>]*>/g, '').replace(/\n/g, ' ').trim() : '暂无摘要')).substring(0, 150) + ((article.excerpt || (article.content ? article.content.replace(/<[^>]*>/g, '').replace(/\n/g, ' ').trim() : '暂无摘要')).length > 150 ? '...' : '')}</p>
                             <div class="article-meta">
                                 <span class="article-date"><i class="fa fa-calendar"></i> ${article.date}</span>
                                 <div class="article-actions">

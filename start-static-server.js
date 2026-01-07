@@ -51,9 +51,11 @@ const server = http.createServer((req, res) => {
   }
   
   // Get file path for static files
-    let filePath = path.join(ROOT_DIR, req.url === '/' ? '/index.html' : req.url.split('?')[0]);
+    const urlWithoutParams = req.url.split('?')[0];
+    let filePath = path.join(ROOT_DIR, urlWithoutParams === '/' ? '/index.html' : urlWithoutParams);
     
     console.log(`Request URL: ${req.url}`);
+    console.log(`URL without params: ${urlWithoutParams}`);
     console.log(`Mapped to: ${filePath}`);
     
     // Check if file exists
