@@ -45,8 +45,6 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="theme-color" content="#ffffff">
     <script src="https://cdn.tailwindcss.com" defer></script>
-    <!-- 网站加载优化脚本 -->
-    <script src="optimize_loading.js" defer></script>
     <!-- 文章数据管理脚本 -->
     <script src="articles.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -9705,18 +9703,23 @@
                 }
             }
             
+            // 定义页面中实际存在的分类网格
+            const existingCategories = ['basic-theory', 'celebrity-views', 'flower-fruit-method', 'essays'];
+            
             // 遍历所有分类
             Object.keys(currentArticles).forEach(category => {
-                const gridId = `${category}-grid`;
-                const grid = document.getElementById(gridId);
-                
-                if (grid) {
-                    console.log(`渲染分类: ${category}`);
-                    grid.innerHTML = ''; // 清空现有内容
+                // 只渲染页面中存在的分类
+                if (existingCategories.includes(category)) {
+                    const gridId = `${category}-grid`;
+                    const grid = document.getElementById(gridId);
                     
-                    const articles = currentArticles[category];
-                    
-                    articles.forEach(article => {
+                    if (grid) {
+                        console.log(`渲染分类: ${category}`);
+                        grid.innerHTML = ''; // 清空现有内容
+                        
+                        const articles = currentArticles[category];
+                        
+                        articles.forEach(article => {
                         // 创建文章卡片
                         const card = document.createElement('div');
                         card.className = 'article-card';
@@ -9779,10 +9782,9 @@
                         
                         grid.appendChild(card);
                     });
-                } else {
-                    console.error(`找不到网格元素: ${gridId}`);
                 }
-            });
+            }
+        });
         }
         
         // 监听数据更新事件，重新渲染文章
