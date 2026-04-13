@@ -639,8 +639,17 @@
     async function loadArticleDetail() {
             // 获取URL参数
             const params = new URLSearchParams(window.location.search);
-            const id = parseInt(params.get('id'));
+            // 同时处理id和Id参数
+            const id = parseInt(params.get('id') || params.get('Id'));
             const category = params.get('category');
+            
+            // 检查并修复URL重复问题
+            const currentUrl = window.location.href;
+            if (currentUrl.includes('https://fatenet.cn/https://fatenet.cn/')) {
+                const correctedUrl = currentUrl.replace('https://fatenet.cn/https://fatenet.cn/', 'https://fatenet.cn/');
+                window.location.replace(correctedUrl);
+                return;
+            }
             
             console.log('获取到的URL参数:', { id, category });
             
