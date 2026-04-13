@@ -2102,30 +2102,13 @@
         <!-- 留言板块 -->
         <section class="contact-section">
             <h2 class="section-title" data-translate="contactUs">联系我们</h2>
-            <div class="card">
-                <form id="contact-form" class="contact-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label" data-translate="name">姓名</label>
-                            <input type="text" class="form-input" id="name" name="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" data-translate="email">邮箱</label>
-                            <input type="email" class="form-input" id="email" name="email" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" data-translate="subject">主题</label>
-                        <input type="text" class="form-input" id="subject" name="subject" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" data-translate="message">留言内容</label>
-                        <textarea class="form-input" id="message" name="message" rows="5" required></textarea>
-                    </div>
-                    <div class="mt-4">
-                        <button type="submit" class="btn-primary" data-translate="sendMessage">发送留言</button>
-                    </div>
-                </form>
+            <div class="card" style="text-align: center; padding: 2rem;">
+                <div style="display: inline-block; text-align: center;">
+                    <a href="weixin://addfriend/pixuan1989" style="display: inline-block; padding: 1rem 2rem; background-color: var(--primary-color); color: white; text-decoration: none; border-radius: 8px; font-size: 1.1rem; font-weight: 500; transition: background-color 0.3s ease;">
+                        <i class="fa fa-weixin" style="margin-right: 0.5rem;"></i>联系我们
+                    </a>
+                    <p style="margin-top: 1rem; color: var(--light-text);">点击按钮直接打开微信添加好友</p>
+                </div>
             </div>
         </section>
     </main>
@@ -2133,7 +2116,7 @@
         <!-- 悬浮联系按钮 -->
         <div class="floating-contact">
             <button id="contact-btn" class="contact-button">
-                <i class="fa fa-envelope"></i>
+                <i class="fa fa-weixin"></i>
                 <span data-translate="contactUs">联系我们</span>
             </button>
         </div>
@@ -2145,30 +2128,13 @@
                     <h3 data-translate="contactUs">联系我们</h3>
                     <button class="modal-close-btn" id="close-modal">&times;</button>
                 </div>
-                <div class="modal-body">
-                    <form id="contact-form" class="contact-form">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label" data-translate="name">姓名</label>
-                                <input type="text" class="form-input" id="name" name="name" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-translate="email">邮箱</label>
-                                <input type="email" class="form-input" id="email" name="email" required>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" data-translate="subject">主题</label>
-                            <input type="text" class="form-input" id="subject" name="subject" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" data-translate="message">留言内容</label>
-                            <textarea class="form-input" id="message" name="message" rows="5" required></textarea>
-                        </div>
-                        <div class="mt-4">
-                            <button type="submit" class="btn-primary" data-translate="sendMessage">发送留言</button>
-                        </div>
-                    </form>
+                <div class="modal-body" style="text-align: center; padding: 2rem;">
+                    <div style="display: inline-block; text-align: center;">
+                        <a href="weixin://addfriend/pixuan1989" style="display: inline-block; padding: 1.5rem 3rem; background-color: var(--primary-color); color: white; text-decoration: none; border-radius: 8px; font-size: 1.3rem; font-weight: 500; transition: background-color 0.3s ease;">
+                            <i class="fa fa-weixin" style="margin-right: 0.5rem;"></i>联系我们
+                        </a>
+                        <p style="margin-top: 1.5rem; color: var(--light-text);">点击按钮直接打开微信添加好友</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -7115,67 +7081,20 @@
         
         // 根据月干过滤月支，确保符合阴阳属性匹配
         function filterMonthStemsByYinyang() {
-            const monthStem = document.getElementById('month-stem').value;
-            const monthBranchSelect = document.getElementById('month-branch');
-            const monthBranchOptions = monthBranchSelect.options;
-            
-            if (monthStem) {
-                // 获取月干的阴阳属性
-                const stemYinYangValue = stemYinyang[monthStem];
-                
-                // 过滤月支选项，只显示与月干阴阳属性匹配的组合
-                // 允许用户自主选择，不再自动纠正
-                for (let i = 0; i < monthBranchOptions.length; i++) {
-                    const branch = monthBranchOptions[i].value;
-                    const branchYinYangValue = branchYinyang[branch];
-                    // 仅显示与月干阴阳属性匹配的月支
-                    monthBranchOptions[i].style.display = (stemYinYangValue === branchYinYangValue) ? '' : 'none';
-                }
-                
-                // 不再自动纠正选择，允许用户自主选择
-                // 只进行显示过滤，不修改用户的选择
-            } else {
-                // 如果没有选择月干，显示所有月支选项
-                for (let i = 0; i < monthBranchOptions.length; i++) {
-                    monthBranchOptions[i].style.display = '';
-                }
-            }
+            // 月支现在是hidden input，不需要过滤选项
+            // 此函数保留以保持兼容性
         }
         
         // 根据时干过滤时支，不再限制阴阳属性匹配
         function filterHourBranches() {
-            const hourStem = document.getElementById('hour-stem').value;
-            const hourBranchSelect = document.getElementById('hour-branch');
-            const hourBranchOptions = hourBranchSelect.options;
-            
-            // 显示所有时支选项，允许用户自主选择
-            for (let i = 0; i < hourBranchOptions.length; i++) {
-                hourBranchOptions[i].style.display = '';
-            }
+            // 时支现在是hidden input，不需要过滤选项
+            // 此函数保留以保持兼容性
         }
         
         // 根据年干过滤年支，确保符合六十甲子规则
         function filterYearBranches() {
-            const yearStem = document.getElementById('year-stem').value;
-            const yearBranchSelect = document.getElementById('year-branch');
-            const yearBranchOptions = yearBranchSelect.options;
-            
-            if (yearStem) {
-                // 过滤年支选项，只显示与年干匹配的六十甲子组合
-                for (let i = 0; i < yearBranchOptions.length; i++) {
-                    const branch = yearBranchOptions[i].value;
-                    const jiaZiKey = `${yearStem}-${branch}`;
-                    yearBranchOptions[i].style.display = sixtyJiaZi[jiaZiKey] ? '' : 'none';
-                }
-                
-                // 不再自动纠正选择，允许用户自主选择
-                // 只进行显示过滤，不修改用户的选择
-            } else {
-                // 如果没有选择年干，显示所有年支选项
-                for (let i = 0; i < yearBranchOptions.length; i++) {
-                    yearBranchOptions[i].style.display = '';
-                }
-            }
+            // 年支现在是hidden input，不需要过滤选项
+            // 此函数保留以保持兼容性
         }
         
         // 根据月干过滤月支，确保符合五虎遁规则和阴阳属性匹配
@@ -7212,26 +7131,14 @@
         
         // 根据日支过滤日干，确保符合六十甲子规则和阴阳属性匹配
         function filterDayStems() {
-            const dayStemSelect = document.getElementById('day-stem');
-            const dayStemOptions = dayStemSelect.options;
-            
-            // 始终显示所有日干选项，完全移除过滤逻辑
-            // 允许用户自由选择任何天干（包括阴干）
-            for (let i = 0; i < dayStemOptions.length; i++) {
-                dayStemOptions[i].style.display = '';
-            }
+            // 日干现在是hidden input，不需要过滤选项
+            // 此函数保留以保持兼容性
         }
         
         // 根据日干过滤日支，确保符合六十甲子规则和阴阳属性匹配
         function filterDayBranches() {
-            const dayBranchSelect = document.getElementById('day-branch');
-            const dayBranchOptions = dayBranchSelect.options;
-            
-            // 始终显示所有日支选项，完全移除过滤逻辑
-            // 允许用户自由选择任何日支
-            for (let i = 0; i < dayBranchOptions.length; i++) {
-                dayBranchOptions[i].style.display = '';
-            }
+            // 日支现在是hidden input，不需要过滤选项
+            // 此函数保留以保持兼容性
         }
         
         // 根据时支过滤时干，确保符合阴阳属性匹配
@@ -7288,15 +7195,8 @@
         
         // 根据日干过滤时支（不强制计算时干，允许用户自主选择）
         function filterHourBranchesByDayStem() {
-            const hourBranchSelect = document.getElementById('hour-branch');
-            const hourOptions = hourBranchSelect.options;
-            
-            // 显示所有时支选项
-            for (let i = 0; i < hourOptions.length; i++) {
-                hourOptions[i].style.display = '';
-            }
-            
-            // 不再自动计算时干，允许用户自主选择
+            // 时支现在是hidden input，不需要过滤选项
+            // 此函数保留以保持兼容性
         }
         
         // 根据年支自动调整年干，确保符合六十甲子规则
@@ -9090,46 +8990,9 @@
             });
         }
         
-        // 初始化留言表单
+        // 初始化联系功能（现在显示微信二维码）
         function initContactForm() {
-            // 获取所有联系表单（页面上有两个）
-            const forms = document.querySelectorAll('#contact-form');
-            forms.forEach(form => {
-                form.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    handleContactSubmit(form);
-                });
-            });
-        }
-        
-        // 处理留言表单提交
-        function handleContactSubmit(form) {
-            // 获取表单数据
-            const formData = new FormData(form);
-            const data = {
-                name: formData.get('name'),
-                email: formData.get('email'),
-                subject: formData.get('subject'),
-                message: formData.get('message')
-            };
-            
-            // 简单的表单验证
-            if (!data.name || !data.email || !data.subject || !data.message) {
-                alert('请填写所有必填项');
-                return;
-            }
-            
-            // 将留言保存到本地存储
-            data.date = new Date().toLocaleString();
-            let messages = JSON.parse(localStorage.getItem('messagesData') || '[]');
-            messages.push(data);
-            localStorage.setItem('messagesData', JSON.stringify(messages, null, 2));
-            
-            // 显示成功提示
-            alert('留言已成功提交，感谢您的留言！');
-            
-            // 重置表单
-            form.reset();
+            // 联系表单已替换为微信二维码，不需要表单提交功能
         }
         
         // 添加禁止复制功能
@@ -9155,25 +9018,11 @@
         // 悬浮联系按钮功能
         function initFloatingContact() {
             const contactBtn = document.getElementById('contact-btn');
-            const contactModal = document.getElementById('contact-modal');
-            const closeModal = document.getElementById('close-modal');
             
-            if (contactBtn && contactModal && closeModal) {
-                // 点击按钮显示弹窗
+            if (contactBtn) {
+                // 点击按钮直接打开微信添加好友
                 contactBtn.addEventListener('click', () => {
-                    contactModal.classList.add('active');
-                });
-                
-                // 点击关闭按钮关闭弹窗
-                closeModal.addEventListener('click', () => {
-                    contactModal.classList.remove('active');
-                });
-                
-                // 点击遮罩层关闭弹窗
-                contactModal.addEventListener('click', (e) => {
-                    if (e.target === contactModal) {
-                        contactModal.classList.remove('active');
-                    }
+                    window.location.href = 'weixin://addfriend/pixuan1989';
                 });
             }
         }
@@ -9186,11 +9035,11 @@
     </div>
     <!-- 下部区域 - 推广信息 -->
     <div style="text-align: center; margin: 0 0 0 0; padding: 1rem; background-color: #ffffff; border-radius: 0; width: 100%; box-sizing: border-box; position: fixed; bottom: 40px; left: 0; z-index: 100; border: 1px solid var(--border-color);">
-        <p style="color: var(--light-text); font-size: 0.9rem; margin: 0;"><span data-translate="promotionalText">还可以试试我们的</span> <a href="zodiac_match.html" style="color: var(--accent-color); text-decoration: none; font-size: 0.9rem;"><span data-translate="zodiacTool">八字感情查询工具</span></a>，<span data-translate="getMoreAnalysis">获取更多命理分析。</span> <a href="weixin://addfriend/officialaccount/pixuan1989" style="color: var(--accent-color); text-decoration: underline; font-size: 0.9rem;"><span data-translate="contactUs">联系我们</span> <span style="color: var(--light-text);">pixuan1989</span></a></p>
+        <p style="color: var(--light-text); font-size: 0.9rem; margin: 0;"><span data-translate="promotionalText">还可以试试我们的</span> <a href="zodiac_match.html" style="color: var(--accent-color); text-decoration: none; font-size: 0.9rem;"><span data-translate="zodiacTool">八字感情查询工具</span></a>，<span data-translate="getMoreAnalysis">获取更多命理分析。</span> <a href="weixin://addfriend/pixuan1989" style="color: var(--accent-color); text-decoration: underline; font-size: 0.9rem;"><span data-translate="contactUs">联系我们</span> <span style="color: var(--light-text);">pixuan1989</span></a></p>
     </div>
     <footer style="position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; padding: 10px; background-color: #ffffff; border-top: 1px solid var(--border-color); margin-top: 0; z-index: 100;">
         <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap;">
-            <p style="margin: 0; color: var(--light-text); font-size: 0.9rem; display: inline;">苏ICP备2025226852号-1丨苏公网安备32020602003711号</p>
+            <p style="margin: 0; color: var(--light-text); font-size: 0.9rem; display: inline;">苏ICP备2025226852号-1丨苏公网安备32020602003711号丨<a href="https://www.daoessentia.com" target="_blank" style="color: var(--light-text); text-decoration: underline;">www.daoessentia.com</a></p>
         </div>
     </footer>
     </body>
