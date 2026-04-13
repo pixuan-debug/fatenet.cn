@@ -645,8 +645,14 @@
             
             // 检查并修复URL重复问题
             const currentUrl = window.location.href;
-            if (currentUrl.includes('https://fatenet.cn/https://fatenet.cn/')) {
-                const correctedUrl = currentUrl.replace('https://fatenet.cn/https://fatenet.cn/', 'https://fatenet.cn/');
+            // 处理多种可能的重复情况
+            const correctedUrl = currentUrl
+                .replace('https://fatenet.cn/https://fatenet.cn/', 'https://fatenet.cn/')
+                .replace('http://fatenet.cn/http://fatenet.cn/', 'http://fatenet.cn/')
+                .replace('https://www.fatenet.cn/https://www.fatenet.cn/', 'https://www.fatenet.cn/')
+                .replace('http://www.fatenet.cn/http://www.fatenet.cn/', 'http://www.fatenet.cn/');
+            
+            if (currentUrl !== correctedUrl) {
                 window.location.replace(correctedUrl);
                 return;
             }
